@@ -1,0 +1,279 @@
+{
+  "graph": {
+    "id": "checkAndCalibrate",
+    "label": "checkAndCalibrate",
+    "input_nodes": [],
+    "output_nodes": [],
+    "uiProps": {}
+  },
+  "nodes": [
+    {
+      "id": "Node_0",
+      "label": "ewokscore.scripttask.ScriptExecutorTask",
+      "task_type": "class",
+      "task_identifier": "ewokscore.scripttask.ScriptExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "ewokscore.scripttask.ScriptExecutorTask",
+        "type": "internal",
+        "icon": "orange2",
+        "comment": "",
+        "position": {
+          "x": 270,
+          "y": 300
+        }
+      }
+    },
+    {
+      "id": "Node_2",
+      "label": "checkAgain",
+      "task_type": "ppfmethod",
+      "task_identifier": "ewokscore.ppftasks.PpfPortTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "checkAgain",
+        "type": "internal",
+        "icon": "Correlations",
+        "comment": "",
+        "position": {
+          "x": 675,
+          "y": 435
+        }
+      }
+    },
+    {
+      "id": "CommonExp",
+      "task_type": "graph",
+      "task_identifier": "CommonExp",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "CommonExp",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 415,
+          "y": 440
+        }
+      }
+    },
+    {
+      "id": "Node_1",
+      "label": "endCalibration",
+      "task_type": "class",
+      "task_identifier": "ewokscore.ppftasks.PpfMethodExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "endCalibration",
+        "type": "internal",
+        "icon": "orange3",
+        "comment": "",
+        "position": {
+          "x": 885,
+          "y": 315
+        }
+      }
+    },
+    {
+      "id": "CommonPrepareExperiment",
+      "task_type": "graph",
+      "task_identifier": "CommonPrepareExperiment",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "CommonPrepareExperiment",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 580,
+          "y": 65
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "Node_0",
+      "target": "Node_2",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_1",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_2",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_2",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_0",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [
+        {
+          "source_output": "bfdg",
+          "value": 2
+        }
+      ],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "only if 2",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_0",
+      "target": "CommonPrepareExperiment",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "In",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_3",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "In"
+      }
+    },
+    {
+      "source": "CommonPrepareExperiment",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "Out",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_4",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "Out",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_0",
+      "target": "CommonExp",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "In_0",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_2",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sb",
+        "targetHandle": "In_0"
+      }
+    },
+    {
+      "source": "CommonExp",
+      "target": "Node_2",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "Out_0",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_3",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "Out_0",
+        "targetHandle": "tl"
+      }
+    }
+  ]
+}

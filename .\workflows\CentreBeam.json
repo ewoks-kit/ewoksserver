@@ -1,0 +1,271 @@
+{
+  "graph": {
+    "id": "CentreBeam.json",
+    "label": "CentreBeam1",
+    "input_nodes": [
+      {
+        "id": "Start",
+        "node": "Beamline setup",
+        "sub_node": "",
+        "uiProps": {
+          "position": {
+            "x": 50,
+            "y": 50
+          }
+        }
+      }
+    ],
+    "output_nodes": [
+      {
+        "id": "Stop",
+        "node": "Set Request Status",
+        "sub_node": "",
+        "uiProps": {
+          "position": {
+            "x": 1250,
+            "y": 450
+          }
+        }
+      }
+    ],
+    "uiProps": {}
+  },
+  "nodes": [
+    {
+      "id": "Set up Centre Beam",
+      "label": "Set up Centre Beam",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.common_prepare_centreBeam.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Set up Centre Beam",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 295,
+          "y": 194
+        }
+      }
+    },
+    {
+      "id": "Set ISPyB to success",
+      "label": "Set ISPyB to success",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.ispyb_set_status_success.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Set ISPyB to success",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 723,
+          "y": 299
+        }
+      }
+    },
+    {
+      "id": "Set Request Status",
+      "label": "Set Request Status",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.requestStatusFINISHED.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Set Request Status",
+        "type": "output",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 983,
+          "y": 350
+        }
+      }
+    },
+    {
+      "id": "Centre Beam",
+      "label": "Centre Beam",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.centreBeam.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Centre Beam",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 544,
+          "y": 247
+        }
+      }
+    },
+    {
+      "id": "Init workflow",
+      "label": "Init workflow",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.init_workflow.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Init workflow",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 407,
+          "y": 227
+        }
+      }
+    },
+    {
+      "id": "Beamline setup",
+      "label": "Beamline setup",
+      "task_type": "ppfmethod",
+      "task_identifier": "mx.src.extractBeamlineFromDirectory.run",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "Beamline setup",
+        "type": "input",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 141,
+          "y": 326
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "Set up Centre Beam",
+      "target": "Init workflow",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": true,
+      "uiProps": {
+        "label": "",
+        "comment": "",
+        "type": "",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "",
+        "targetHandle": ""
+      }
+    },
+    {
+      "source": "Beamline setup",
+      "target": "Set up Centre Beam",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": true,
+      "uiProps": {
+        "label": "",
+        "comment": "",
+        "type": "",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "",
+        "targetHandle": ""
+      }
+    },
+    {
+      "source": "Set ISPyB to success",
+      "target": "Set Request Status",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": true,
+      "uiProps": {
+        "label": "",
+        "comment": "",
+        "type": "",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "",
+        "targetHandle": ""
+      }
+    },
+    {
+      "source": "Centre Beam",
+      "target": "Set ISPyB to success",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": true,
+      "uiProps": {
+        "label": "",
+        "comment": "",
+        "type": "",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "",
+        "targetHandle": ""
+      }
+    },
+    {
+      "source": "Init workflow",
+      "target": "Centre Beam",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": true,
+      "uiProps": {
+        "label": "",
+        "comment": "",
+        "type": "",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "",
+        "targetHandle": ""
+      }
+    }
+  ]
+}

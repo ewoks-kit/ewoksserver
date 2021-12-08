@@ -1,0 +1,3 @@
+[console_scripts]
+ewoks-server = backend.app.server:main
+
