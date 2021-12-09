@@ -1,0 +1,14 @@
+include:
+  - remote: https://gitlab.esrf.fr/workflow/ewoks/ewoks/raw/main/.gitlab-ci-template.yml
+
+test-3.6:
+  extends: .test-3.6
+
+build_sdist:
+  extends: .build_sdist
+
+test_sdist-3.6:
+  extends: .test_sdist-3.6
+
+assets:
+  extends: .assets
