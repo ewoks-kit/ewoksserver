@@ -3,10 +3,30 @@ import json
 from flask import request
 from flask_restful import reqparse, Resource
 
+# for d in my_dicts:
+#     d.update((k, "value3") for k, v in d.iteritems() if v == "value2")
+
+
+class Execute(Resource):
+    def post(self):
+        nodes = request.json["nodes"]
+        graphNodes = list(filter(lambda nod: nod["task_type"] in ["graph"], nodes))
+        taskNodes = list(filter(lambda nod: nod["task_type"] not in ["graph"], nodes))
+        print(graphNodes)
+        for gnod in graphNodes:
+            gnod.update(
+                {"task_identifier": os.getcwd() + "/" + gnod["task_identifier"]}
+            )
+
+        print(graphNodes + taskNodes)
+
+        return request.json, 200
+
 
 class Workflows(Resource):
     def get(self):
         allWorkflows = []
+        print("Current Working Directory ", os.getcwd())
         with os.scandir(path="./workflows") as it:
             for entry in it:
                 if not entry.name.startswith(".") and entry.is_file():
