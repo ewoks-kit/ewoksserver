@@ -1,0 +1,289 @@
+{
+  "graph": {
+    "id": "myG3",
+    "label": "myG3",
+    "input_nodes": [
+      {
+        "id": "In_0",
+        "node": "Node_0",
+        "sub_node": "",
+        "uiProps": {
+          "position": {
+            "x": 195,
+            "y": 225
+          }
+        }
+      },
+      {
+        "id": "In_0",
+        "node": "superGraph",
+        "sub_node": "In_0",
+        "uiProps": {
+          "position": {
+            "x": 195,
+            "y": 225
+          }
+        }
+      }
+    ],
+    "output_nodes": [
+      {
+        "id": "Out_0",
+        "node": "Node_2",
+        "sub_node": "",
+        "uiProps": {
+          "position": {
+            "x": 1035,
+            "y": 435
+          }
+        }
+      },
+      {
+        "id": "Out_0",
+        "node": "Node_1",
+        "sub_node": "",
+        "uiProps": {
+          "position": {
+            "x": 1035,
+            "y": 435
+          }
+        }
+      }
+    ],
+    "uiProps": {}
+  },
+  "nodes": [
+    {
+      "id": "Node_1",
+      "label": "ewokscore.methodtask.MethodExecutorTask",
+      "task_type": "class",
+      "task_identifier": "ewokscore.methodtask.MethodExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "ewokscore.methodtask.MethodExecutorTask",
+        "type": "output",
+        "icon": "orange1",
+        "comment": "",
+        "position": {
+          "x": 840,
+          "y": 270
+        }
+      }
+    },
+    {
+      "id": "Node_2",
+      "label": "ewokscore.ppftasks.PpfPortTask",
+      "task_type": "method",
+      "task_identifier": "ewokscore.ppftasks.PpfPortTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "ewokscore.ppftasks.PpfPortTask",
+        "type": "output",
+        "icon": "AggregateColumns",
+        "comment": "",
+        "position": {
+          "x": 630,
+          "y": 540
+        }
+      }
+    },
+    {
+      "id": "superGraph",
+      "task_type": "graph",
+      "task_identifier": "superGraph",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "superGraph",
+        "type": "input",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 610,
+          "y": 185
+        }
+      }
+    },
+    {
+      "id": "Node_0",
+      "label": "ewokscore.scripttask.ScriptExecutorTask",
+      "task_type": "class",
+      "task_identifier": "ewokscore.scripttask.ScriptExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [
+        {
+          "name": "yt",
+          "value": [
+            6
+          ]
+        }
+      ],
+      "uiProps": {
+        "label": "ewokscore.scripttask.ScriptExecutorTask",
+        "type": "input",
+        "icon": "orange2",
+        "comment": "",
+        "position": {
+          "x": 345,
+          "y": 330
+        }
+      }
+    },
+    {
+      "id": "Node_3",
+      "label": "ewokscore.scripttask.ScriptExecutorTask",
+      "task_type": "class",
+      "task_identifier": "ewokscore.scripttask.ScriptExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "ewokscore.scripttask.ScriptExecutorTask",
+        "type": "internal",
+        "icon": "orange2",
+        "position": {
+          "x": 435,
+          "y": 75
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "Node_0",
+      "target": "superGraph",
+      "data_mapping": [
+        {
+          "source_output": "tyjh",
+          "target_input": "ytj"
+        }
+      ],
+      "conditions": [
+        {
+          "source_output": "tyj",
+          "value": 1
+        }
+      ],
+      "on_error": false,
+      "sub_target": "In_0",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "In_0"
+      }
+    },
+    {
+      "source": "Node_1",
+      "target": "Node_2",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_2",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sb",
+        "targetHandle": "tt"
+      }
+    },
+    {
+      "source": "superGraph",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "Out_0",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_1",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "Out_0",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_0",
+      "target": "Node_3",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": false,
+        "sourceHandle": "st",
+        "targetHandle": "tb"
+      }
+    },
+    {
+      "source": "Node_3",
+      "target": "superGraph",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "In_0",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": false,
+        "sourceHandle": "sr",
+        "targetHandle": "In_0"
+      }
+    }
+  ]
+}

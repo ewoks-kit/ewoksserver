@@ -1,0 +1,72 @@
+{
+  "graph": {
+    "id": "myG2",
+    "label": "myG2",
+    "input_nodes": [],
+    "output_nodes": [],
+    "uiProps": {}
+  },
+  "nodes": [
+    {
+      "id": "Node_0",
+      "label": "ewokscore.scripttask.ScriptExecutorTask",
+      "task_type": "class",
+      "task_identifier": "ewokscore.scripttask.ScriptExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "ewokscore.scripttask.ScriptExecutorTask",
+        "type": "internal",
+        "icon": "orange2",
+        "position": {
+          "x": 210,
+          "y": 285
+        }
+      }
+    },
+    {
+      "id": "superGraph",
+      "task_type": "graph",
+      "task_identifier": "superGraph",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "superGraph",
+        "type": "internal",
+        "comment": "",
+        "position": {
+          "x": 595,
+          "y": 230
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "Node_0",
+      "target": "superGraph",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "In_0",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": false,
+        "sourceHandle": "sr",
+        "targetHandle": "In_0"
+      }
+    }
+  ]
+}
