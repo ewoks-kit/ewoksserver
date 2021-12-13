@@ -1,25 +1,16 @@
 import os
 import json
+import flask
 from flask import request
 from flask_restful import reqparse, Resource
-
-# for d in my_dicts:
-#     d.update((k, "value3") for k, v in d.iteritems() if v == "value2")
+from ewokscore import execute_graph
 
 
 class Execute(Resource):
     def post(self):
-        nodes = request.json["nodes"]
-        graphNodes = list(filter(lambda nod: nod["task_type"] in ["graph"], nodes))
-        taskNodes = list(filter(lambda nod: nod["task_type"] not in ["graph"], nodes))
-        print(graphNodes)
-        for gnod in graphNodes:
-            gnod.update(
-                {"task_identifier": os.getcwd() + "/" + gnod["task_identifier"]}
-            )
-
-        print(graphNodes + taskNodes)
-
+        print("Submit workflow execution:", request.json)
+        load_options = {"root_dir": os.getcwd()}
+        flask.g.workers.submit(execute_graph, request.json, load_options)
         return request.json, 200
 
 
