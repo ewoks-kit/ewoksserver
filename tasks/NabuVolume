@@ -1,0 +1,14 @@
+{
+  "task_type": "class",
+  "task_identifier": "NabuVolume",
+  "required_input_names": [
+    "henris"
+  ],
+  "optional_input_names": [],
+  "output_names": [
+    "data",
+    "out-val1",
+    "out-val2"
+  ],
+  "category": "ewokscore"
+}

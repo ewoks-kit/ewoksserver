@@ -5,6 +5,7 @@ from flask_restful import Api
 from flask_cors import CORS
 
 from ..resources import workflows
+from ..resources import tasks
 from ..ewoks import execution
 
 
@@ -12,7 +13,11 @@ def _add_resources(app: flask.Flask):
     api = Api(app)
     api.add_resource(workflows.Workflows, "/workflows")
     api.add_resource(workflows.Workflow, "/workflow/<workflow_id>")
+    
     api.add_resource(workflows.Execute, "/workflow/execute")
+    
+    api.add_resource(tasks.Tasks, "/tasks")
+    api.add_resource(tasks.Task, "/task/<task_id>")
 
 
 def create_app() -> flask.Flask:
