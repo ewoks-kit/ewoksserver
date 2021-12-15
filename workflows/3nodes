@@ -1,0 +1,184 @@
+{
+  "graph": {
+    "id": "3nodes",
+    "label": "3nodes",
+    "input_nodes": [],
+    "output_nodes": [],
+    "uiProps": {}
+  },
+  "nodes": [
+    {
+      "id": "Node_0",
+      "label": "PpfMethodExecutorTask",
+      "task_type": "class",
+      "task_identifier": "PpfMethodExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "PpfMethodExecutorTask",
+        "type": "internal",
+        "icon": "orange3",
+        "comment": "",
+        "position": {
+          "x": 255,
+          "y": 210
+        }
+      }
+    },
+    {
+      "id": "Node_2",
+      "label": "taskSkeleton",
+      "task_type": "ppfmethod",
+      "task_identifier": "taskSkeleton",
+      "inputs_complete": false,
+      "task_generator": "orange2",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "taskSkeleton",
+        "type": "internal",
+        "icon": "orange1",
+        "comment": "",
+        "position": {
+          "x": 540,
+          "y": 105
+        }
+      }
+    },
+    {
+      "id": "Node_1",
+      "label": "MethodExecutorTask",
+      "task_type": "class",
+      "task_identifier": "MethodExecutorTask",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "MethodExecutorTask",
+        "type": "internal",
+        "icon": "orange1",
+        "comment": "",
+        "position": {
+          "x": 510,
+          "y": 420
+        }
+      }
+    },
+    {
+      "id": "superGraph",
+      "task_type": "graph",
+      "task_identifier": "superGraph",
+      "inputs_complete": false,
+      "task_generator": "",
+      "default_inputs": [],
+      "uiProps": {
+        "label": "superGraph",
+        "type": "internal",
+        "icon": "",
+        "comment": "",
+        "position": {
+          "x": 730,
+          "y": 155
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "Node_0",
+      "target": "Node_2",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_0",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "tl"
+      }
+    },
+    {
+      "source": "Node_2",
+      "target": "superGraph",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "In_0",
+      "sub_source": "",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "sr",
+        "targetHandle": "In_0"
+      }
+    },
+    {
+      "source": "superGraph",
+      "target": "Node_1",
+      "data_mapping": [],
+      "conditions": [],
+      "on_error": false,
+      "sub_target": "",
+      "sub_source": "Out_0left",
+      "map_all_data": false,
+      "uiProps": {
+        "label": "link_0",
+        "comment": "",
+        "type": "default",
+        "arrowHeadType": "arrowclosed",
+        "labelStyle": {
+          "fill": "blue",
+          "fontWeight": 500,
+          "fontSize": 14
+        },
+        "animated": "",
+        "sourceHandle": "Out_0left",
+        "targetHandle": "tt"
+      }
+    }
+  ]
+}

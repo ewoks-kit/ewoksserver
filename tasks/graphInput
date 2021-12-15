@@ -1,0 +1,15 @@
+{
+  "task_identifier": "graphInput",
+  "task_type": "graphInput",
+  "icon": "graphInput",
+  "category": "ewokscore",
+  "optional_input_names": [
+    "b8"
+  ],
+  "output_names": [
+    "result8"
+  ],
+  "required_input_names": [
+    "a8"
+  ]
+}

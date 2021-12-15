@@ -1,0 +1,15 @@
+{
+  "task_identifier": "PpfMethodExecutorTask",
+  "task_type": "class",
+  "icon": "orange3",
+  "category": "ewokscore",
+  "optional_input_names": [
+    "b4"
+  ],
+  "output_names": [
+    "result4"
+  ],
+  "required_input_names": [
+    "a4"
+  ]
+}

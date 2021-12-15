@@ -1,0 +1,15 @@
+{
+  "task_identifier": "taskSkeleton",
+  "task_type": "ppfmethod",
+  "icon": "orange1",
+  "category": "ewokscore",
+  "optional_input_names": [
+    "b1"
+  ],
+  "output_names": [
+    "result1"
+  ],
+  "required_input_names": [
+    "a1"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "task_identifier": "ScriptExecutorTask",
+  "task_type": "class",
+  "icon": "orange2",
+  "category": "ewokscore",
+  "optional_input_names": [
+    "b3"
+  ],
+  "output_names": [
+    "result3"
+  ],
+  "required_input_names": [
+    "a3"
+  ]
+}

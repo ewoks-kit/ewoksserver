@@ -10,9 +10,23 @@ class Tasks(Resource):
         print("Current task Directory ", os.getcwd())
         with os.scandir(path="./tasks") as it:
             for entry in it:
-                if not entry.name.startswith(".") and entry.is_file():
+                if (
+                    not entry.name.startswith(".")
+                    and entry.is_file()
+                ):
                     print(entry.name)
-                    allTasks.append(entry.name)
+                    try:
+                        fp = open(entry)
+                    except PermissionError:
+                        return "some default data"
+                    else:
+                        with fp:
+                            allTasks.append(json.loads(fp.read()))
+
+        #         If only the names of tasks are needed           
+        #         if not entry.name.startswith(".") and entry.is_file():
+        #             print(entry.name)
+        #             allTasks.append(entry.name)
         return allTasks
 
     def post(self):
