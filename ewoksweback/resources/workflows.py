@@ -21,7 +21,7 @@ class Workflows(Resource):
         with os.scandir(path="./workflows") as it:
             for entry in it:
                 if not entry.name.startswith(".") and entry.is_file():
-                    print(entry.name)
+                    # print(entry.name)
                     allWorkflows.append(entry.name)
         return allWorkflows
 
@@ -53,7 +53,7 @@ class Workflow(Resource):
                 if (
                     not entry.name.startswith(".")
                     and entry.is_file()
-                    and entry.name == workflow_id
+                    and (entry.name == workflow_id + '.json' or entry.name == workflow_id)
                 ):
                     print(entry.name)
                     try:
@@ -65,14 +65,14 @@ class Workflow(Resource):
                             return json.loads(fp.read())
 
     def put(self, workflow_id):
-        print(workflow_id, self.reqparse.parse_args(), request.json)
+        print(workflow_id)
         # search for file name=id and update with the incoming json
         # if no file exists then save like a post with id=label and warn
         # that a new file was created.
         with os.scandir(path="./workflows") as it:
             for entry in it:
-                print(entry.name)
-                if entry.name == workflow_id:
+                # print(entry.name)
+                if entry.name == workflow_id + '.json' or entry.name == workflow_id:
                     f = open(f"./workflows/{entry.name}", "w")
                     print("found it", entry.name)
                     f.write(json.dumps(request.json, indent=2))

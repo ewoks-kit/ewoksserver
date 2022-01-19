@@ -38,3 +38,7 @@ htmlcov/
 # VisualStudio IDE
 /.vscode/
 /.history/
+
+# workflows and tasks
+/workflows
+/tasks
