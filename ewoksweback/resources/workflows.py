@@ -32,10 +32,10 @@ class Workflows(Resource):
         with os.scandir(path="./workflows") as it:
             for entry in it:
                 print(entry.name)
-                if entry.name == request.json["graph"]["id"]:
+                if entry.name == request.json["graph"]["id"] or entry.name == request.json["graph"]["id"] + '.json':
                     return "Workflow exists! Please change name and retry.", 400
         # fdopen(fd, *args, **kwargs)
-        f = open(f"./workflows/{request.json['graph']['id']}", "w")
+        f = open(f"./workflows/{request.json['graph']['id'] + '.json'}", "w")
         f.write(json.dumps(request.json, indent=2))
         f.close()
         return request.json, 200
