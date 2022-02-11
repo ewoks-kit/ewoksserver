@@ -3,13 +3,7 @@
   "task_type": "ppfmethod",
   "icon": "orange1",
   "category": "ewokscore",
-  "optional_input_names": [
-    "b1"
-  ],
-  "output_names": [
-    "result1"
-  ],
-  "required_input_names": [
-    "a1"
-  ]
+  "optional_input_names": [],
+  "output_names": [],
+  "required_input_names": []
 }
