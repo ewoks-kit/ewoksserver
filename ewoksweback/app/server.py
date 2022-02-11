@@ -3,11 +3,11 @@ import flask
 from contextlib import contextmanager
 from flask_restful import Api
 from flask_cors import CORS
+from flask_socketio import SocketIO, send, emit
 
 from ..resources import workflows
 from ..resources import tasks
 from ..ewoks import execution
-
 
 def _add_resources(app: flask.Flask):
     api = Api(app)
@@ -38,7 +38,9 @@ def _run_context(app: flask.Flask):
 
 def run_app(app: flask.Flask):
     with _run_context(app):
-        app.run()
+        # app.run()
+
+        socketio.run(app, port=5000)
 
 
 @contextmanager
@@ -47,9 +49,26 @@ def test_app(app: flask.Flask):
         with app.test_client() as client:
             yield client
 
+app = create_app()
+socketio = SocketIO(app, cors_allowed_origins='*')
+
+# SocketIO Events
+@socketio.on('connect')
+def connected():
+    print('Connected')
+
+@socketio.on('disconnect')
+def disconnected():
+    print('Disconnected')
+
+@socketio.on('Execute Graph')
+def Execute(graph):
+    print(graph)
+    emit('Executing', {'data': graph}, broadcast=True)
+
 
 def main():
-    app = create_app()
+    # app = create_app()
     run_app(app)
 
 
