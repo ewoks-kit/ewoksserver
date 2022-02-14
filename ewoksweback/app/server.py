@@ -4,6 +4,8 @@ from contextlib import contextmanager
 from flask_restful import Api
 from flask_cors import CORS
 from flask_socketio import SocketIO, send, emit
+import time
+import random
 
 from ..resources import workflows
 from ..resources import tasks
@@ -63,9 +65,176 @@ def disconnected():
 
 @socketio.on('Execute Graph')
 def Execute(graph):
+    print('Execute Graph')
     print(graph)
-    emit('Executing', {'data': graph}, broadcast=True)
 
+    executingEvents = [
+        {
+            "id":"1",
+            "nodeId":"Prepare test set grid data",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2
+            },
+            "executing":[
+                "Prepare test set grid data"
+            ]
+        },
+        {
+            "id":"2",
+            "nodeId":"Prepare test set grid data",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3
+            },
+            "executing":[
+                ""
+            ]
+        },
+        {
+            "id":"3",
+            "nodeId":"EstTask_1",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                "EstTask_1"
+            ]
+        },
+        {
+            "id":"4",
+            "nodeId":"CommonPrepareExperiment",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2
+            },
+            "executing":[
+                "CommonPrepareExperiment",
+                "EstTask_1"
+            ]
+        },
+        {
+            "id":"5",
+            "nodeId":"EstTask_1",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                "CommonPrepareExperiment"
+            ]
+        },
+        {
+            "id":"6",
+            "nodeId":"EstTask_0",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                "EstTask_0",
+                "CommonPrepareExperiment"
+            ]
+        },
+        {
+            "id":"7",
+            "nodeId":"CommonPrepareExperiment",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2
+            },
+            "executing":[
+                "EstTask_0"
+            ]
+        },
+        {
+            "id":"8",
+            "nodeId":"Read and set grid data",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                "EstTask_0",
+                "Read and set grid data"
+            ]
+        },
+        {
+            "id":"9",
+            "nodeId":"EstTask_0",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                "Read and set grid data"
+            ]
+        },
+        {
+            "id":"10",
+            "nodeId":"Read and set grid data",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3,
+                "d":4
+            },
+            "executing":[
+                ""
+            ]
+        },
+        {
+            "id":"11",
+            "nodeId":"Prepare test set grid data",
+            "event_type":"start",
+            "values":{
+                "a":1,
+                "b":2
+            },
+            "executing":[
+                "Prepare test set grid data"
+            ]
+        },
+        {
+            "id":"12",
+            "nodeId":"Prepare test set grid data",
+            "event_type":"stop",
+            "values":{
+                "a":1,
+                "b":2,
+                "c":3
+            },
+            "executing":[
+                ""
+            ]
+        }
+        ]
+    for ev in executingEvents:
+        print(ev)
+        emit('Executing', ev, broadcast=True)
+        time.sleep(4 * random.seed(ev.id))
 
 def main():
     # app = create_app()
