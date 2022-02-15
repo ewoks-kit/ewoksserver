@@ -230,11 +230,12 @@ def Execute(graph):
                 ""
             ]
         }
-        ]
+    ]
+    
     for ev in executingEvents:
         print(ev)
         emit('Executing', ev, broadcast=True)
-        time.sleep(4 * random.seed(ev.id))
+        time.sleep(4) # * random.seed(float(ev.id))
 
 def main():
     # app = create_app()
