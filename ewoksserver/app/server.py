@@ -1,177 +1,121 @@
+import os
 import sys
+from typing import Optional
 import flask
+import argparse
+import logging
 from contextlib import contextmanager
-from flask_restful import Api
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from flask_socketio import emit
 
-# from flask_socketio import send
-import time
-
-from ..resources import workflows
-from ..resources import tasks
+from ..resources import add_resources
+from ..events import add_events
 from ..ewoks import execution
 
 
-def _add_resources(app: flask.Flask):
-    api = Api(app)
-    api.add_resource(workflows.Workflows, "/workflows")
-    api.add_resource(workflows.Workflow, "/workflow/<workflow_id>")
-
-    api.add_resource(workflows.Execute, "/workflow/execute")
-
-    api.add_resource(tasks.Tasks, "/tasks")
-    api.add_resource(tasks.Task, "/task/<task_id>")
-
-
-def create_app() -> flask.Flask:
+def create_app(**config) -> flask.Flask:
     app = flask.Flask(__name__)
     cors = CORS(app)  # noqa F841
-    app.config["CORS_HEADERS"] = "Content-Type"
-    _add_resources(app)
+    configure_app(app, **config)
+    add_resources(app)
     return app
 
 
+def configure_app(
+    app: flask.Flask,
+    configuration: Optional[str] = None,
+    resource_directory: Optional[str] = None,
+):
+    app.config["CORS_HEADERS"] = "Content-Type"
+    filename = os.environ.get("EWOKSSERVER_SETTINGS")
+    if configuration:
+        filename = configuration
+    if filename:
+        filename = os.path.relpath(filename, app.config.root_path)
+        app.config.from_pyfile(filename, silent=False)
+    if resource_directory:
+        app.config.update(RESOURCE_DIRECTORY=resource_directory)
+
+
+def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
+    if app is None:
+        logging.getLogger().setLevel(log_level)
+    else:
+        app.logger.setLevel(log_level)
+
+
+def add_socket(app: flask.Flask) -> SocketIO:
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    add_events(socketio)
+    return socketio
+
+
+def run_app(
+    app: flask.Flask, socketio: Optional[SocketIO] = None, port: int = 5000
+) -> None:
+    with run_context(app):
+        if socketio is None:
+            app.run(port=port)
+        else:
+            socketio.run(app, port=port)
+
+
 @contextmanager
-def _run_context(app: flask.Flask):
+def run_context(app: flask.Flask):
     with app.app_context():
         with execution.worker_pool() as workers:
             flask.g.workers = workers
             yield
 
 
-def run_app(app: flask.Flask):
-    with _run_context(app):
-        # app.run()
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
 
-        socketio.run(app, port=5000)
+    parser = argparse.ArgumentParser(description="REST API for Ewoks")
+    parser.add_argument(
+        "-l",
+        "--log",
+        dest="log_level",
+        type=str.upper,
+        default="WARNING",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        dest="port",
+        type=int,
+        default=5000,
+        help="Port number",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="configuration",
+        type=str,
+        default=None,
+        help="Path to a python script (equivalent to the environment variable 'EWOKSSERVER_SETTINGS')",
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="resource_directory",
+        type=str,
+        default=None,
+        help="Root directory for resources (e.g. workflows, task descriptions)",
+    )
 
+    args = parser.parse_args(argv[1:])
+    log_level = getattr(logging, args.log_level)
 
-@contextmanager
-def test_app(app: flask.Flask):
-    with _run_context(app):
-        with app.test_client() as client:
-            yield client
-
-
-app = create_app()
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-# SocketIO Events
-
-
-@socketio.on("connect")
-def connected():
-    print("Connected")
-
-
-@socketio.on("disconnect")
-def disconnected():
-    print("Disconnected")
-
-
-@socketio.on("Execute Graph")
-def Execute(graph):
-    print("Execute Graph")
-    print(graph)
-
-    executingEvents = [
-        {
-            "id": "1",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["Prepare test set grid data"],
-        },
-        {
-            "id": "2",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3},
-            "executing": [""],
-        },
-        {
-            "id": "3",
-            "nodeId": "EstTask_1",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_1"],
-        },
-        {
-            "id": "4",
-            "nodeId": "CommonPrepareExperiment",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["CommonPrepareExperiment", "EstTask_1"],
-        },
-        {
-            "id": "5",
-            "nodeId": "EstTask_1",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["CommonPrepareExperiment"],
-        },
-        {
-            "id": "6",
-            "nodeId": "EstTask_0",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_0", "CommonPrepareExperiment"],
-        },
-        {
-            "id": "7",
-            "nodeId": "CommonPrepareExperiment",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2},
-            "executing": ["EstTask_0"],
-        },
-        {
-            "id": "8",
-            "nodeId": "Read and set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_0", "Read and set grid data"],
-        },
-        {
-            "id": "9",
-            "nodeId": "EstTask_0",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["Read and set grid data"],
-        },
-        {
-            "id": "10",
-            "nodeId": "Read and set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": [""],
-        },
-        {
-            "id": "11",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["Prepare test set grid data"],
-        },
-        {
-            "id": "12",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3},
-            "executing": [""],
-        },
-    ]
-
-    for ev in executingEvents:
-        print(ev)
-        emit("Executing", ev, broadcast=True)
-        time.sleep(4)  # * random.seed(float(ev.id))
-
-
-def main():
-    # app = create_app()
-    run_app(app)
+    app = create_app(
+        configuration=args.configuration, resource_directory=args.resource_directory
+    )
+    socketio = add_socket(app)
+    set_log_level(log_level=log_level)
+    run_app(app, socketio=socketio, port=args.port)
 
 
 if __name__ == "__main__":
