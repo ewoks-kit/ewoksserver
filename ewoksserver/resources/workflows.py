@@ -32,7 +32,10 @@ class Workflows(Resource):
         with os.scandir(path="./workflows") as it:
             for entry in it:
                 print(entry.name)
-                if entry.name == request.json["graph"]["id"] or entry.name == request.json["graph"]["id"] + '.json':
+                if (
+                    entry.name == request.json["graph"]["id"]
+                    or entry.name == request.json["graph"]["id"] + ".json"
+                ):
                     return "Workflow exists! Please change name and retry.", 400
         # fdopen(fd, *args, **kwargs)
         f = open(f"./workflows/{request.json['graph']['id'] + '.json'}", "w")
@@ -53,7 +56,9 @@ class Workflow(Resource):
                 if (
                     not entry.name.startswith(".")
                     and entry.is_file()
-                    and (entry.name == workflow_id + '.json' or entry.name == workflow_id)
+                    and (
+                        entry.name == workflow_id + ".json" or entry.name == workflow_id
+                    )
                 ):
                     print(entry.name)
                     try:
@@ -72,7 +77,7 @@ class Workflow(Resource):
         with os.scandir(path="./workflows") as it:
             for entry in it:
                 # print(entry.name)
-                if entry.name == workflow_id + '.json' or entry.name == workflow_id:
+                if entry.name == workflow_id + ".json" or entry.name == workflow_id:
                     f = open(f"./workflows/{entry.name}", "w")
                     print("found it", entry.name)
                     f.write(json.dumps(request.json, indent=2))

@@ -1,6 +1,6 @@
 import pytest
-from ewoksweback.app.server import create_app
-from ewoksweback.app.server import test_app
+from ewoksserver.app.server import create_app
+from ewoksserver.app.server import test_app
 
 
 @pytest.fixture

@@ -1,8 +1,8 @@
 import os
 import json
-import flask
 from flask import request
 from flask_restful import reqparse, Resource
+
 
 class Tasks(Resource):
     def get(self):
@@ -10,10 +10,7 @@ class Tasks(Resource):
         print("Current task Directory ", os.getcwd())
         with os.scandir(path="./tasks") as it:
             for entry in it:
-                if (
-                    not entry.name.startswith(".")
-                    and entry.is_file()
-                ):
+                if not entry.name.startswith(".") and entry.is_file():
                     print(entry.name)
                     try:
                         fp = open(entry)
@@ -23,7 +20,7 @@ class Tasks(Resource):
                         with fp:
                             allTasks.append(json.loads(fp.read()))
 
-        #         If only the names of tasks are needed           
+        #         If only the names of tasks are needed
         #         if not entry.name.startswith(".") and entry.is_file():
         #             print(entry.name)
         #             allTasks.append(entry.name)
