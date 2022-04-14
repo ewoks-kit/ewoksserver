@@ -1,6 +1,6 @@
 import pytest
-from ewoksserver.app.server import create_app
-from ewoksserver.app.server import run_context
+from ewoksserver.server import create_app
+from ewoksserver.server import run_context
 
 
 @pytest.fixture

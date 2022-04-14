@@ -8,13 +8,13 @@ from contextlib import contextmanager
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from ..resources import add_resources
-from ..events import add_events
-from ..ewoks import execution
+from .resources import add_resources
+from .events import add_events
+from .ewoks import execution
 
 
 def create_app(**config) -> flask.Flask:
-    app = flask.Flask(__name__)
+    app = flask.Flask(__name__, static_url_path="")
     cors = CORS(app)  # noqa F841
     configure_app(app, **config)
     add_resources(app)
