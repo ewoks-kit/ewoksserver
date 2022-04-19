@@ -1,0 +1,122 @@
+import os
+import sys
+from typing import Optional
+import flask
+import argparse
+import logging
+from contextlib import contextmanager
+from flask_cors import CORS
+from flask_socketio import SocketIO
+
+from .resources import add_resources
+from .events import add_events
+from .ewoks import execution
+
+
+def create_app(**config) -> flask.Flask:
+    app = flask.Flask(__name__, static_url_path="")
+    cors = CORS(app)  # noqa F841
+    configure_app(app, **config)
+    add_resources(app)
+    return app
+
+
+def configure_app(
+    app: flask.Flask,
+    configuration: Optional[str] = None,
+    resource_directory: Optional[str] = None,
+):
+    app.config["CORS_HEADERS"] = "Content-Type"
+    filename = os.environ.get("EWOKSSERVER_SETTINGS")
+    if configuration:
+        filename = configuration
+    if filename:
+        filename = os.path.relpath(filename, app.config.root_path)
+        app.config.from_pyfile(filename, silent=False)
+    if resource_directory:
+        app.config.update(RESOURCE_DIRECTORY=resource_directory)
+
+
+def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
+    if app is None:
+        logging.getLogger().setLevel(log_level)
+    else:
+        app.logger.setLevel(log_level)
+
+
+def add_socket(app: flask.Flask) -> SocketIO:
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    add_events(socketio)
+    return socketio
+
+
+def run_app(
+    app: flask.Flask, socketio: Optional[SocketIO] = None, port: int = 5000
+) -> None:
+    with run_context(app):
+        if socketio is None:
+            app.run(port=port)
+        else:
+            socketio.run(app, port=port)
+
+
+@contextmanager
+def run_context(app: flask.Flask):
+    with app.app_context():
+        with execution.worker_pool() as workers:
+            flask.g.workers = workers
+            yield
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    parser = argparse.ArgumentParser(description="REST API for Ewoks")
+    parser.add_argument(
+        "-l",
+        "--log",
+        dest="log_level",
+        type=str.upper,
+        default="WARNING",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        dest="port",
+        type=int,
+        default=5000,
+        help="Port number",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="configuration",
+        type=str,
+        default=None,
+        help="Path to a python script (equivalent to the environment variable 'EWOKSSERVER_SETTINGS')",
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="resource_directory",
+        type=str,
+        default=None,
+        help="Root directory for resources (e.g. workflows, task descriptions)",
+    )
+
+    args = parser.parse_args(argv[1:])
+    log_level = getattr(logging, args.log_level)
+
+    app = create_app(
+        configuration=args.configuration, resource_directory=args.resource_directory
+    )
+    socketio = add_socket(app)
+    set_log_level(log_level=log_level)
+    run_app(app, socketio=socketio, port=args.port)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

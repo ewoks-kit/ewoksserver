@@ -7,5 +7,6 @@ from ewokscore.tests.examples.graphs import get_graph
 def test_execute(graph_name, client):
     # TODO: verify result
     graph, _ = get_graph(graph_name)
-    response = client.post("/workflow/execute", json=graph)
-    assert response.status_code == 200
+    data = {"graph": graph}
+    response = client.post("/workflows/execute", json=data)
+    assert response.status_code == 200, response.get_json()
