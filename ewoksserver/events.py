@@ -1,113 +1,114 @@
-import time
-from flask_socketio import SocketIO, emit
+from contextlib import contextmanager
+from typing import Optional
+import threading
+from flask import current_app
+from flask import copy_current_request_context
+from flask.globals import _app_ctx_stack
+from flask_socketio import SocketIO
+from flask_socketio import emit
+
+from ewoksjob.events.readers import EwoksEventReader
+from ewoksjob.events.readers import instantiate_reader
 
 
-def connected():
-    print("Connected")
+def copy_current_app_context(fn):
+    app_context = _app_ctx_stack.top
 
+    def wrapper(*args, **kwargs):
+        with app_context:
+            return fn(*args, **kwargs)
 
-def disconnected():
-    print("Disconnected")
-
-
-def execute(graph):
-    print("Execute Graph")
-    print(graph)
-
-    executingEvents = [
-        {
-            "id": "1",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["Prepare test set grid data"],
-        },
-        {
-            "id": "2",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3},
-            "executing": [""],
-        },
-        {
-            "id": "3",
-            "nodeId": "EstTask_1",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_1"],
-        },
-        {
-            "id": "4",
-            "nodeId": "CommonPrepareExperiment",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["CommonPrepareExperiment", "EstTask_1"],
-        },
-        {
-            "id": "5",
-            "nodeId": "EstTask_1",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["CommonPrepareExperiment"],
-        },
-        {
-            "id": "6",
-            "nodeId": "EstTask_0",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_0", "CommonPrepareExperiment"],
-        },
-        {
-            "id": "7",
-            "nodeId": "CommonPrepareExperiment",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2},
-            "executing": ["EstTask_0"],
-        },
-        {
-            "id": "8",
-            "nodeId": "Read and set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["EstTask_0", "Read and set grid data"],
-        },
-        {
-            "id": "9",
-            "nodeId": "EstTask_0",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": ["Read and set grid data"],
-        },
-        {
-            "id": "10",
-            "nodeId": "Read and set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3, "d": 4},
-            "executing": [""],
-        },
-        {
-            "id": "11",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "start",
-            "values": {"a": 1, "b": 2},
-            "executing": ["Prepare test set grid data"],
-        },
-        {
-            "id": "12",
-            "nodeId": "Prepare test set grid data",
-            "event_type": "stop",
-            "values": {"a": 1, "b": 2, "c": 3},
-            "executing": [""],
-        },
-    ]
-
-    for ev in executingEvents:
-        print(ev)
-        emit("Executing", ev, broadcast=True)
-        time.sleep(4)  # * random.seed(float(ev.id))
+    return wrapper
 
 
 def add_events(socketio: SocketIO):
-    socketio.on("connect")(connected)
-    socketio.on("disconnect")(disconnected)
-    socketio.on("Execute Graph")(execute)
+    socketio.on("connect")(connect)
+    socketio.on("disconnect")(disconnect)
+
+
+def connect():
+    _EMITTER.connect()
+
+
+def disconnect():
+    _EMITTER.disconnect()
+
+
+def is_running():
+    return _EMITTER.is_running()
+
+
+class EwoksEventEmitter:
+    def __init__(self) -> None:
+        self._stop_event = threading.Event()
+        self._thread = None
+        self._counter = 0
+
+    def connect(self):
+        self._counter += 1
+        self.start()
+
+    def disconnect(self):
+        self._counter = max(self._counter - 1, 0)
+        if self._counter == 0:
+            self.stop(timeout=3)
+
+    def is_running(self):
+        return self._thread is not None
+
+    def start(self):
+        if self._thread is not None:
+            return
+
+        # Flask context's have thread affinity
+        @copy_current_request_context
+        @copy_current_app_context
+        def main():
+            self._main()
+
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=main, daemon=True)
+        self._thread.start()
+
+    def stop(self, timeout: float = None):
+        if self._thread is None:
+            return
+        self._stop_event.set()
+        self._thread.join(timeout=timeout)
+
+    def _main(self):
+        try:
+            with self._reader_context() as reader:
+                if reader is None:
+                    raise RuntimeError("Configure ewoks event handlers")
+                for event in reader.wait_events(stop_event=self._stop_event):
+                    if self._stop_event.is_set():
+                        break
+                    emit("ewoks", event, broadcast=True)
+        finally:
+            self._thread = None
+
+    @staticmethod
+    @contextmanager
+    def _reader_context() -> Optional[EwoksEventReader]:
+        cfg = current_app.config.get("EWOKS", dict())
+        handlers = cfg.get("handlers", list())
+        argmap = {"uri": "url"}
+        for name in ("Redis", "Sqlite3", None):
+            for handler in handlers:
+                if name is None or name in handler["class"]:
+                    arguments = handler.get("arguments", list())
+                    arguments = {
+                        argmap.get(arg["name"], arg["name"]): arg["value"]
+                        for arg in arguments
+                    }
+                    reader = instantiate_reader(**arguments)
+                    try:
+                        yield reader
+                    finally:
+                        reader.close()
+                        return
+        yield None
+
+
+_EMITTER = EwoksEventEmitter()

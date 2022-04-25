@@ -7,10 +7,10 @@ import logging
 from contextlib import contextmanager
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from celery import current_app
 
 from .resources import add_resources
 from .events import add_events
-from .ewoks import execution
 
 
 def create_app(**config) -> flask.Flask:
@@ -21,11 +21,7 @@ def create_app(**config) -> flask.Flask:
     return app
 
 
-def configure_app(
-    app: flask.Flask,
-    configuration: Optional[str] = None,
-    resource_directory: Optional[str] = None,
-):
+def configure_app(app: flask.Flask, configuration: Optional[str] = None, **config):
     app.config["CORS_HEADERS"] = "Content-Type"
     filename = os.environ.get("EWOKSSERVER_SETTINGS")
     if configuration:
@@ -33,8 +29,11 @@ def configure_app(
     if filename:
         filename = os.path.relpath(filename, app.config.root_path)
         app.config.from_pyfile(filename, silent=False)
-    if resource_directory:
-        app.config.update(RESOURCE_DIRECTORY=resource_directory)
+    if config:
+        config = {k.upper(): v for k, v in config.items()}
+        app.config.update(config)
+    if app.config.get("CELERY"):
+        current_app.conf.update(app.config["CELERY"])
 
 
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
@@ -63,9 +62,7 @@ def run_app(
 @contextmanager
 def run_context(app: flask.Flask):
     with app.app_context():
-        with execution.worker_pool() as workers:
-            flask.g.workers = workers
-            yield
+        yield
 
 
 def main(argv=None):

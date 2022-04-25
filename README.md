@@ -29,6 +29,10 @@ The configuration keys are uppercase variables in a python script:
 ```python
 # /tmp/config.py
 RESOURCE_DIRECTORY = "/path/to/resource/directory/"
+
+EWOKS = {"handlers": ...}
+
+CELERY = {"broker_url", ...}
 ```
 
 Specify the configuration file through the CLI
