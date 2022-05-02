@@ -1,4 +1,0 @@
-flask
-flask-socketio
-flask-restful
-flask-cors

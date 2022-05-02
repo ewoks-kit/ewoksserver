@@ -10,7 +10,7 @@ def add_file_resources(app: flask.Flask):
     # Save/load/execute workflows
     api.add_resource(workflows.Workflows, "/workflows")
     api.add_resource(workflows.Workflow, "/workflow/<identifier>")
-    api.add_resource(workflows.Execute, "/workflows/execute")
+    api.add_resource(workflows.Execute, "/execute/<identifier>")
 
     # Save/load tasks
     api.add_resource(tasks.Tasks, "/tasks")

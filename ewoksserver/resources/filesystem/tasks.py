@@ -1,4 +1,5 @@
 from pprint import pformat
+from typing import Mapping
 from flask import request
 from flask import current_app
 from ewokscore.task_summary import generate_task_summary
@@ -47,7 +48,7 @@ class DiscoverTasks(resource.BaseFileResource):
     """
     POST: /<endpoint>
         List[ResourceIdentifierType], 200
-        str, 400
+        str, 403
         str, 500
     """
 
@@ -67,6 +68,8 @@ class DiscoverTasks(resource.BaseFileResource):
             root_url,
             pformat(request_data),
         )
+        if not isinstance(request_data, Mapping):
+            return
         module = request_data.get("module")
         if module:
             tasks = list(generate_task_summary(module))

@@ -1,5 +1,5 @@
 from pprint import pformat
-from typing import Union, Tuple
+from typing import List, Union, Tuple
 from flask import request
 from flask import current_app
 from flask_restful import reqparse, Resource
@@ -7,6 +7,8 @@ from . import utils
 
 
 class BaseFileResource(Resource):
+    """Base class without end points"""
+
     RESOURCE_TYPE = NotImplemented
 
     @property
@@ -20,10 +22,10 @@ class BaseFileResource(Resource):
     ) -> Tuple[Union[str, utils.ResourceType, utils.ResourceIdentifierType], int]:
         """Returns
 
-        ResourceIdentifierType, 200 (overwrite=True)
-        ResourceType, 200 (overwrite=False)
-        str, 400
-        str, 500
+        - ResourceIdentifierType, 200 (overwrite=True)
+        - ResourceType, 200 (overwrite=False)
+        - str, 403
+        - str, 500
         """
         try:
             identifier = self.get_identifier(resource)
@@ -36,7 +38,7 @@ class BaseFileResource(Resource):
         if not overwrite and utils.resource_exists(root_url, identifier):
             return (
                 f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' exists. Please change identifier and retry.",
-                400,
+                403,
             )
         try:
             utils.save_resource(root_url, identifier, resource)
@@ -46,6 +48,47 @@ class BaseFileResource(Resource):
             return identifier, 200
         else:
             return resource, 200
+
+    def load_resource(
+        self,
+        identifier: utils.ResourceIdentifierType,
+    ) -> Tuple[Union[utils.ResourceType, str], int]:
+        """Returns
+
+        - ResourceType, 200
+        - str, 403
+        - str, 404
+        - str, 500
+        """
+        try:
+            return utils.load_resource(self.root_url, identifier), 200
+        except FileNotFoundError:
+            return f"{self.RESOURCE_TYPE} '{identifier}' does not exist", 404
+        except PermissionError:
+            return (
+                f"no permission to access {self.RESOURCE_TYPE} '{identifier}'",
+                403,
+            )
+        except OSError as e:
+            return f"{self.RESOURCE_TYPE} '{identifier}' loading error: {e}", 500
+
+    def delete_resource(
+        self, identifier: utils.ResourceIdentifierType
+    ) -> Tuple[utils.ResourceIdentifierType, int]:
+        """Returns
+
+        - ResourceIdentifierType, 200
+        - str, 500
+        """
+        try:
+            utils.delete_resource(self.root_url, identifier)
+        except OSError as e:
+            return f"{self.RESOURCE_TYPE} '{identifier}' delete error: {e}", 500
+        return identifier, 200
+
+    def list_resources(self) -> Tuple[List[utils.ResourceIdentifierType], int]:
+        resources = list(utils.resource_identifiers(self.root_url))
+        return resources, 200
 
     def get_identifier(
         self, resource: utils.ResourceType
@@ -65,6 +108,7 @@ class FileResource(BaseFileResource):
     PUT /<endpoint>/<identifier>
         ResourceIdentifierType, 200
         str: 400
+        str: 403
         str, 500
 
     DELETE /<endpoint>/<identifier>
@@ -76,21 +120,15 @@ class FileResource(BaseFileResource):
         self.reqparse = reqparse.RequestParser()
         super().__init__()
 
-    def get(self, identifier: utils.ResourceIdentifierType):
+    def get(
+        self, identifier: utils.ResourceIdentifierType
+    ) -> Tuple[Union[utils.ResourceType, str], int]:
         current_app.logger.debug("GET /%s/%s", self.endpoint, identifier)
-        try:
-            return utils.load_resource(self.root_url, identifier), 200
-        except FileNotFoundError:
-            return f"{self.RESOURCE_TYPE} '{identifier}' does not exist", 404
-        except PermissionError:
-            return (
-                f"no permission to access {self.RESOURCE_TYPE} '{identifier}'",
-                403,
-            )
-        except OSError as e:
-            return f"{self.RESOURCE_TYPE} '{identifier}' loading error: {e}", 500
+        return self.load_resource(identifier)
 
-    def put(self, identifier: utils.ResourceIdentifierType):
+    def put(
+        self, identifier: utils.ResourceIdentifierType
+    ) -> Tuple[Union[str, utils.ResourceType, utils.ResourceIdentifierType], int]:
         root_url = self.root_url
         resource = request.json
         current_app.logger.debug(
@@ -115,13 +153,11 @@ class FileResource(BaseFileResource):
             )
         return self.save_resource(resource, overwrite=True)
 
-    def delete(self, identifier: utils.ResourceIdentifierType):
+    def delete(
+        self, identifier: utils.ResourceIdentifierType
+    ) -> Tuple[utils.ResourceIdentifierType, int]:
         current_app.logger.debug("DELETE /%s/%s", self.endpoint, identifier)
-        try:
-            utils.delete_resource(self.root_url, identifier)
-        except OSError as e:
-            return f"{self.RESOURCE_TYPE} '{identifier}' delete error: {e}", 500
-        return identifier, 200
+        return self.delete_resource(identifier)
 
 
 class FileResources(BaseFileResource):
@@ -132,16 +168,17 @@ class FileResources(BaseFileResource):
 
     POST /<endpoint>
         ResourceType, 200
-        str, 400
+        str, 403
         str, 500
     """
 
-    def get(self):
+    def get(self) -> List[utils.ResourceIdentifierType]:
         current_app.logger.debug("GET /%s", self.endpoint)
-        resources = list(utils.resource_identifiers(self.root_url))
-        return resources, 200
+        return self.list_resources()
 
-    def post(self):
+    def post(
+        self,
+    ) -> Tuple[Union[str, utils.ResourceType, utils.ResourceIdentifierType], int]:
         root_url = self.root_url
         resource = request.json
         current_app.logger.debug(
