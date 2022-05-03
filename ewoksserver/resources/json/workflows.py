@@ -1,0 +1,79 @@
+from flask import current_app
+from ewoksjob.client import submit, submit_local
+from . import resource
+from .. import api
+
+
+class Workflow(resource.JsonResource):
+    RESOURCE_TYPE = "workflow"
+
+    def get_identifier(
+        self, resource: resource.ResourceContentType
+    ) -> resource.ResourceIdentifierType:
+        return resource["graph"]["id"]
+
+    @api.get_resource("workflow")
+    def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResponseType:
+        return self.load_resource(identifier)
+
+    @api.put_resource("workflow")
+    def put(
+        self, identifier: resource.ResourceIdentifierType, **resource
+    ) -> resource.ResponseType:
+        return self.save_resource(
+            resource, error_on_missing=True, identifier=identifier
+        )
+
+    @api.delete_resource("workflow")
+    def delete(
+        self, identifier: resource.ResourceIdentifierType
+    ) -> resource.ResponseType:
+        return self.delete_resource(identifier)
+
+
+class Workflows(resource.JsonResource):
+    RESOURCE_TYPE = "workflow"
+
+    def get_identifier(
+        self, resource: resource.ResourceContentType
+    ) -> resource.ResourceIdentifierType:
+        return resource["graph"]["id"]
+
+    @api.list_resource_identifiers("workflow")
+    def get(self) -> resource.ResponseType:
+        return self.list_resource_identifiers()
+
+    @api.post_resource("workflow")
+    def post(self, **resource) -> resource.ResponseType:
+        return self.save_resource(resource, error_on_exists=True)
+
+
+class Execute(resource.JsonResource):
+    RESOURCE_TYPE = "workflow"
+
+    def get_identifier(
+        self, resource: resource.ResourceContentType
+    ) -> resource.ResourceIdentifierType:
+        return resource["graph"]["id"]
+
+    @api.execute_resource("workflow")
+    def post(self, identifier: resource.ResourceIdentifierType, **request_data):
+        graph, error_code = self.load_resource(identifier)
+        if error_code != 200:
+            return graph, error_code
+
+        ewoks_config = current_app.config.get("EWOKS")
+        if ewoks_config:
+            execinfo = request_data.setdefault("execinfo", dict())
+            handlers = execinfo.setdefault("handlers", list())
+            for handler in ewoks_config.get("handlers", list()):
+                if handler not in handlers:
+                    handlers.append(handler)
+
+        if current_app.config.get("CELERY") is None:
+            future = submit_local(graph, **request_data)
+            job_id = future.job_id
+        else:
+            future = submit(graph, **request_data)
+            job_id = future.task_id
+        return self.make_response(200, job_id=job_id)

@@ -1,12 +1,22 @@
-import flask
-from . import filesystem
+"""Flask resources that implement the REST API.
+"""
+
+from flask import current_app
+from flask_restful import Api
+from flask_apispec import FlaskApiSpec, doc, marshal_with
+
+from . import json
+from . import utils
 
 
-def add_resources(app: flask.Flask):
+class Home(utils.Resource):
+    @doc(summary="Ewoks workflow React client")
+    @marshal_with(None, code=200)
+    def get(self):
+        return current_app.send_static_file("index.html")
+
+
+def add_resources(api: Api, apidoc: FlaskApiSpec):
     """Currently only one resource backend is supported: file system"""
-
-    @app.route("/")
-    def home():
-        return app.send_static_file("index.html")
-
-    filesystem.add_file_resources(app)
+    utils.register_resource(Home, "/", api, apidoc)
+    json.add_file_resources(api, apidoc)

@@ -11,7 +11,7 @@ from ewoksjob.tests.conftest import sqlite3_ewoks_events  # noqa F401
 @pytest.fixture
 def serverside_client(tmpdir):
     """Client runs in the same process as the server."""
-    app = create_app(resource_directory=str(tmpdir))
+    app, *_ = create_app(resource_directory=str(tmpdir))
     with run_context(app):
         with workflow_worker_pool():
             with app.test_client() as client:
@@ -25,7 +25,7 @@ def serverside_client_with_events(tmpdir, sqlite3_ewoks_events):  # noqa F811
     """
     handlers, reader = sqlite3_ewoks_events
     ewoks_config = {"handlers": handlers}
-    app = create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
+    app, *_ = create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
     with run_context(app):
         with workflow_worker_pool():
             with app.test_client() as client:
@@ -35,7 +35,7 @@ def serverside_client_with_events(tmpdir, sqlite3_ewoks_events):  # noqa F811
 @pytest.fixture
 def remote_client(tmpdir, celery_session_worker):
     """Client does not run in the same process as the server."""
-    app = create_app(resource_directory=str(tmpdir), celery=dict())
+    app, *_ = create_app(resource_directory=str(tmpdir), celery=dict())
     with run_context(app):
         with app.test_client() as client:
             yield client
@@ -50,7 +50,9 @@ def remote_client_with_events(
     """
     handlers, reader = sqlite3_ewoks_events
     ewoks_config = {"handlers": handlers}
-    app = create_app(resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config)
+    app, *_ = create_app(
+        resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
+    )
     with run_context(app):
         with app.test_client() as client:
             yield client, reader
@@ -65,7 +67,9 @@ def remote_client_with_socket(
     """
     handlers, _ = sqlite3_ewoks_events
     ewoks_config = {"handlers": handlers}
-    app = create_app(resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config)
+    app, *_ = create_app(
+        resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
+    )
     socketio = add_socket(app)
     with run_context(app):
         with app.test_client() as client:
