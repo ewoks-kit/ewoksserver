@@ -1,24 +1,37 @@
 import os
 import sys
-from typing import Optional
-import flask
+import json
+from typing import Optional, Tuple
+
 import argparse
 import logging
 from contextlib import contextmanager
+
+import flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_restful import Api
+from flask_apispec import FlaskApiSpec
+
 from celery import current_app
 
 from .resources import add_resources
 from .events import add_events
 
 
-def create_app(**config) -> flask.Flask:
+def create_app(**config) -> Tuple[flask.Flask, Api, FlaskApiSpec]:
     app = flask.Flask(__name__, static_url_path="")
-    cors = CORS(app)  # noqa F841
+    CORS(app)
     configure_app(app, **config)
-    add_resources(app)
-    return app
+    apidoc = add_apidoc(app)
+    api = add_api(app, apidoc)
+    return app, api, apidoc
+
+
+def add_api(app: flask.Flask, apidoc: FlaskApiSpec) -> Api:
+    api = Api(app)
+    add_resources(api, apidoc)
+    return api
 
 
 def configure_app(app: flask.Flask, configuration: Optional[str] = None, **config):
@@ -47,6 +60,26 @@ def add_socket(app: flask.Flask) -> SocketIO:
     socketio = SocketIO(app, cors_allowed_origins="*")
     add_events(socketio)
     return socketio
+
+
+def add_apidoc(app: flask.Flask) -> FlaskApiSpec:
+    app.config.update(
+        {
+            "APISPEC_TITLE": "ewoks",
+            # "APISPEC_OAS_VERSION": "3.0.3",
+            "APISPEC_SWAGGER_URL": "/swagger/",
+            "APISPEC_SWAGGER_UI_URL": "/swagger-ui/",
+        }
+    )
+    return FlaskApiSpec(app)
+
+
+def save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
+    save_spec_dir = os.path.dirname(filename)
+    if save_spec_dir:
+        os.makedirs(save_spec_dir, exist_ok=True)
+    with open(filename, "w") as f:
+        json.dump(apidoc.spec.to_dict(), f)
 
 
 def run_app(
@@ -103,13 +136,23 @@ def main(argv=None):
         default=None,
         help="Root directory for resources (e.g. workflows, task descriptions)",
     )
+    parser.add_argument(
+        "-s",
+        "--spec-filename",
+        dest="spec_filename",
+        type=str,
+        help="Save the Swagger docs as JSON",
+    )
 
     args = parser.parse_args(argv[1:])
     log_level = getattr(logging, args.log_level)
 
-    app = create_app(
+    app, _, apidoc = create_app(
         configuration=args.configuration, resource_directory=args.resource_directory
     )
+    if args.spec_filename:
+        save_apidoc(apidoc, args.spec_filename)
+        return
     socketio = add_socket(app)
     set_log_level(log_level=log_level)
     run_app(app, socketio=socketio, port=args.port)

@@ -80,7 +80,8 @@ class EwoksEventEmitter:
         try:
             with self._reader_context() as reader:
                 if reader is None:
-                    raise RuntimeError("Configure ewoks event handlers")
+                    current_app.logger.warning("Configure ewoks event handlers")
+                    return
                 for event in reader.wait_events(stop_event=self._stop_event):
                     if self._stop_event.is_set():
                         break

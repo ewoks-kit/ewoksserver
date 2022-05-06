@@ -10,6 +10,7 @@
 __pycache__/
 *.so
 /doc/_generated
+/doc/spec.json
 
 # Distribution / packaging
 /build/

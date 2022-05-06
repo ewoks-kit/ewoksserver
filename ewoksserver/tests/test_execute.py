@@ -102,7 +102,7 @@ def _get_events(remote_sclient, nevents, timeout=3):
 def _upload_graph(client):
     graph_name = "acyclic1"
     graph, expected = get_graph(graph_name)
-    response = client.put(f"/workflow/{graph_name}", json=graph)
+    response = client.post("/workflows", json=graph)
     assert response.status_code == 200, response.get_json()
     return graph_name, expected
 
@@ -117,7 +117,7 @@ def _assert_events(response, events, expected):
     n = 2 * (len(expected) + 2)
     assert len(events) == n
 
-    job_id = response.get_json()
+    job_id = response.get_json()["job_id"]
     for event in events:
         assert event["job_id"] == job_id
         if event["node_id"]:

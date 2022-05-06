@@ -13,5 +13,15 @@ test_sdist-3.7:
 test_sdist-3.8-win:
   extends: .test_sdist-3.8-win
 
+build_doc:
+  extends: .build_doc
+  script:
+    - python -m pip install .[doc]
+    - ewoks-server -s doc/spec.json
+    - python setup.py build_sphinx
+
+pages:
+  extends: .pages
+
 assets:
   extends: .assets
