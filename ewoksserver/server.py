@@ -139,7 +139,7 @@ def main(argv=None):
         dest="resource_directory",
         type=str,
         default=None,
-        help="Root directory for resources (e.g. workflows, task descriptions)",
+        help="Root directory for resources (e.g. workflows, tasks, icons descriptions)",
     )
     parser.add_argument(
         "-s",

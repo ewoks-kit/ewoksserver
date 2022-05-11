@@ -5,6 +5,7 @@ from flask_restful import Api
 from flask_apispec import FlaskApiSpec
 from . import tasks
 from . import workflows
+from . import icons
 from ..utils import register_resource
 
 
@@ -19,3 +20,7 @@ def add_file_resources(api: Api, apidoc: FlaskApiSpec):
     register_resource(tasks.Task, "/task/<string:identifier>", api, apidoc)
     register_resource(tasks.Descriptions, "/tasks/descriptions", api, apidoc)
     register_resource(tasks.DiscoverTasks, "/tasks/discover", api, apidoc)
+
+    # Save/load icons
+    register_resource(icons.Icons, "/icons", api, apidoc)
+    register_resource(icons.Icon, "/icons/<string:identifier>", api, apidoc)

@@ -34,6 +34,9 @@ class EwoksGraphSchema(Schema):
     nodes = fields.List(fields.Mapping)
     links = fields.List(fields.Mapping)
 
+class EwoksIconSchema(Schema):
+    name = fields.Str(required=True)
+    category = fields.Str()
 
 class EwoksTaskSchema(Schema):
     task_type = fields.Str(required=True)
@@ -52,6 +55,8 @@ class EwoksGraphListSchema(Schema):
 class EwoksTaskListSchema(Schema):
     items = fields.List(fields.Nested(EwoksTaskSchema()))
 
+class EwoksIconListSchema(Schema):
+    items = fields.List(fields.Nested(EwoksIconSchema()))
 
 class DiscoverSchema(Schema):
     modules = fields.List(fields.Str)
@@ -62,6 +67,8 @@ def get_resource_content_schema(resource_type: str):
         return EwoksGraphSchema
     elif resource_type == "task":
         return EwoksTaskSchema
+    elif resource_type == "icon":
+        return EwoksIconSchema
     else:
         raise TypeError(resource_type)
 
@@ -71,6 +78,8 @@ def get_resource_content_list_schema(resource_type: str):
         return EwoksGraphListSchema
     elif resource_type == "task":
         return EwoksTaskListSchema
+    elif resource_type == "icon":
+        return EwoksIconListSchema
     else:
         raise TypeError(resource_type)
 
