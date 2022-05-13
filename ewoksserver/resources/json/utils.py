@@ -2,6 +2,8 @@ import json
 import logging
 from pathlib import Path
 from typing import Iterable, Union
+from flask import send_file
+import os
 
 
 ResourceIdentifierType = str
@@ -52,7 +54,12 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    return _load_url(url)
+    print(url, root, identifier)
+    if str(root) == 'icons':
+        return _load_icon_url(url, identifier)
+    else:
+        return _load_url(url)
+    
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
@@ -61,8 +68,15 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
 
 
 def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    return root / (identifier + ".json")
-
+    # path = root / identifier  else root / (identifier + ".json")
+    path = ''
+    if str(root) == 'icons':
+        path = root / identifier
+    else:
+        path = root / (identifier + ".json")
+    print(root, path, type(root), type(path))
+    
+    return path
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
     return url.stem
@@ -76,9 +90,24 @@ def _save_url(url: ResourceUrlType, resource: ResourceContentType):
 
 
 def _load_url(url: ResourceUrlType) -> ResourceContentType:
+    print(url)
     try:
         with open(url, "r") as f:
             return json.load(f)
+    except FileNotFoundError:
+        _logger.error(f"'{url}' not found")
+        raise
+
+def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType) -> ResourceContentType:
+    print(url)
+    # if os.path.isfile(url):
+    #     return send_file(url)
+    # else:
+    #     print('error in finding file')
+
+    try:
+        with open(url, "rb") as f:
+            return send_file(f, add_etags=False, cache_timeout=0, attachment_filename=resource)
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise

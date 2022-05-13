@@ -4,6 +4,7 @@
 from typing import Callable
 from flask_apispec import marshal_with, doc, use_kwargs
 from marshmallow import Schema, fields
+import marshmallow
 
 
 class ErrorSchema(Schema):
@@ -35,8 +36,9 @@ class EwoksGraphSchema(Schema):
     links = fields.List(fields.Mapping)
 
 class EwoksIconSchema(Schema):
-    name = fields.Str(required=True)
-    category = fields.Str()
+    file = marshmallow.fields.Raw(type='file')
+    # name = fields.Str(required=True)
+    # category = fields.Str()
 
 class EwoksTaskSchema(Schema):
     task_type = fields.Str(required=True)

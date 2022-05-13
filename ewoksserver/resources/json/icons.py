@@ -1,7 +1,6 @@
 from . import resource
 from .. import api
 
-
 class Icon(resource.JsonResource):
     RESOURCE_TYPE = "icon"
 
@@ -35,6 +34,7 @@ class Icons(resource.JsonResource):
     def get_identifier(
         self, resource: resource.ResourceContentType
     ) -> resource.ResourceIdentifierType:
+        # print(resource)
         return resource["name"]
 
     @api.list_resource_identifiers("icon")
@@ -43,7 +43,8 @@ class Icons(resource.JsonResource):
 
     @api.post_resource("icon")
     def post(self, **resource) -> resource.ResponseType:
-        return self.save_resource(resource, error_on_exists=True)
+        print(resource)
+        return self.upload_resource(resource, error_on_exists=True)
 
 
 class Descriptions(resource.JsonResource):
