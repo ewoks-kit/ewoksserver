@@ -8,6 +8,7 @@ from .utils import ResourceContentType
 from .utils import ResourceIdentifierType
 
 ResponseType = Tuple[dict, int]
+FileResponseType = Tuple[dict, int]
 
 
 class JsonResource(Resource):

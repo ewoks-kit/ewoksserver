@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Iterable, Union
-from flask import send_file
+from flask import send_file, send_from_directory
 import os
 
 
@@ -99,15 +99,20 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
         raise
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType) -> ResourceContentType:
-    print(url)
     # if os.path.isfile(url):
     #     return send_file(url)
     # else:
     #     print('error in finding file')
-
+    # from pathlib import Path
+    # root = Path('.')
+    # folder_path = root / 'icons'
+    # print(root, folder_path, resource)
+    # return send_from_directory('~/code/ewoksserver/icons', resource)
     try:
         with open(url, "rb") as f:
-            return send_file(f, add_etags=False, cache_timeout=0, attachment_filename=resource)
+            print("_load_icon_url", url, f, resource)
+            # return send_from_directory('icons', 'up.svg')
+            return send_file(f, mimetype='image')
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise

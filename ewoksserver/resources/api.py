@@ -37,8 +37,6 @@ class EwoksGraphSchema(Schema):
 
 class EwoksIconSchema(Schema):
     file = marshmallow.fields.Raw(type='file')
-    # name = fields.Str(required=True)
-    # category = fields.Str()
 
 class EwoksTaskSchema(Schema):
     task_type = fields.Str(required=True)

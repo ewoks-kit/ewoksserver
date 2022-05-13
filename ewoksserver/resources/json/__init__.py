@@ -23,4 +23,4 @@ def add_file_resources(api: Api, apidoc: FlaskApiSpec):
 
     # Save/load icons
     register_resource(icons.Icons, "/icons", api, apidoc)
-    register_resource(icons.Icon, "/icons/<string:identifier>", api, apidoc)
+    register_resource(icons.Icon, "/icon/<string:identifier>", api, apidoc)
