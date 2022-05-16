@@ -35,7 +35,11 @@ class EwoksGraphSchema(Schema):
     nodes = fields.List(fields.Mapping)
     links = fields.List(fields.Mapping)
 
-class EwoksIconSchema(Schema):
+class EwoksIconJsonSchema(Schema):
+    name = fields.Str()
+    image = fields.Str()
+
+class EwoksIconBinarySchema(Schema):
     file = marshmallow.fields.Raw(type='file')
 
 class EwoksTaskSchema(Schema):
@@ -56,7 +60,7 @@ class EwoksTaskListSchema(Schema):
     items = fields.List(fields.Nested(EwoksTaskSchema()))
 
 class EwoksIconListSchema(Schema):
-    items = fields.List(fields.Nested(EwoksIconSchema()))
+    items = fields.List(fields.Nested(EwoksIconJsonSchema()))
 
 class DiscoverSchema(Schema):
     modules = fields.List(fields.Str)
@@ -68,7 +72,8 @@ def get_resource_content_schema(resource_type: str):
     elif resource_type == "task":
         return EwoksTaskSchema
     elif resource_type == "icon":
-        return EwoksIconSchema
+        # return EwoksIconBinarySchema
+        return EwoksIconJsonSchema
     else:
         raise TypeError(resource_type)
 

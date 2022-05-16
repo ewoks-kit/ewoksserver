@@ -1,7 +1,7 @@
 from . import resource
 from .. import api
 
-class IconJson(resource.JsonResource):
+class Icon(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
     def get_identifier(
@@ -28,7 +28,7 @@ class IconJson(resource.JsonResource):
         return self.delete_resource(identifier)
 
 
-class IconsJson(resource.JsonResource):
+class Icons(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
     def get_identifier(
@@ -47,7 +47,7 @@ class IconsJson(resource.JsonResource):
         return self.upload_resource(resource, error_on_exists=True)
 
 
-class Descriptions(resource.JsonResource):
+class Descriptions(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
     def get_identifier(

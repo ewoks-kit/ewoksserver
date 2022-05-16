@@ -60,11 +60,7 @@ def load_resource(
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
     print(url, root, identifier)
-    if str(root) == 'icons':
-        return _load_icon_url(url, identifier)
-    else:
-        return _load_url(url)
-    
+    return _load_icon_url(url, identifier)
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
@@ -73,14 +69,7 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
 
 
 def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    # path = root / identifier  else root / (identifier + ".json")
-    path = ''
-    if str(root) == 'icons':
-        path = root / identifier
-    else:
-        path = root / (identifier + ".json")
-    print(root, path, type(root), type(path))
-    
+    path = root / identifier
     return path
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
@@ -141,13 +130,20 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     #     as_attachment=True,
     #     attachment_filename='%s.png' % 'ok')
 
-    img_path = './icons/up.svg'
-    img = get_encoded_icon(img_path)
+    # img_path = './icons/up.svg'
+    # img = get_encoded_icon(img_path)
 
-    response_data = {"name": 'value1', "image": img}
-    print(response_data)
-    return response_data
+    # response_data = {"name": 'value13', "image": img}
 
+    # print(response_data)
+    # return response_data
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    uploads_path = os.path.join(basedir, 'icons')
+    print(uploads_path)
+    # return send_from_directory('/home/koumouts/code/ewoksserver/icons/', 'up.svg')
+    return send_file('/home/koumouts/code/ewoksserver/icons/up.svg', mimetype='image/svg')
+    # breakpoint()
+    # return rv
 
     # try:
     #     with open(url, "rb") as f:
@@ -156,18 +152,14 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     #         # return send_from_directory(path='icons/up.svg', directory='icons', filename='up.svg', mimetype='image/svg')
     #         # return send_file(f, mimetype='image/svg', as_attachment=True, download_name='up.svg')
     #         # return send_file(f, mimetype='image/svg')
-    #         return send_file(f, attachment_filename="up.png", as_attachment=True)
+    #         # return send_file(f, attachment_filename="up.png", as_attachment=True)
+    #         return send_file(f, mimetype='image/svg')
     #     # with open(url, "rb") as f:
     #     #     print("_load_icon_url", url, f, resource)
     #     #     return send_from_directory('icons', 'up.svg')
-    #     #     return send_file(f, mimetype='image')
     # except FileNotFoundError:
     #     _logger.error(f"'{url}' not found")
     #     raise
-
-        # rv = send_file(f, attachment_filename="up.png", as_attachment=True)
-        # breakpoint()
-        # return rv
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():

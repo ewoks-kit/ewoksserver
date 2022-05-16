@@ -8,9 +8,10 @@ from .utils import ResourceContentType
 from .utils import ResourceIdentifierType
 
 ResponseType = Tuple[dict, int]
+FileResponseType = Tuple[dict, int]
 
 
-class JsonResource(Resource):
+class BinaryResource(Resource):
     """Base class without end points"""
 
     RESOURCE_TYPE = NotImplemented
@@ -183,13 +184,6 @@ class JsonResource(Resource):
         200: OK
         """
         body = {"identifiers": list(utils.resource_identifiers(self.root_url))}
-        return body, 200
-
-    def list_resource_content(self) -> ResponseType:
-        """
-        200: OK
-        """
-        body = {"items": list(utils.resources(self.root_url))}
         return body, 200
 
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
