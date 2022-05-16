@@ -93,6 +93,7 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
     print(url)
     try:
         with open(url, "r") as f:
+            print(url, f)
             return json.load(f)
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
@@ -107,12 +108,20 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType) -> Resou
     # root = Path('.')
     # folder_path = root / 'icons'
     # print(root, folder_path, resource)
-    # return send_from_directory('~/code/ewoksserver/icons', resource)
+    # # return send_from_directory('~/code/ewoksserver/tasks', resource)
+    # if os.path.exists(folder_path):
+    #     print("exists", folder_path)
+    #     return send_from_directory(folder_path, 'up.svg')
     try:
         with open(url, "rb") as f:
-            print("_load_icon_url", url, f, resource)
-            # return send_from_directory('icons', 'up.svg')
-            return send_file(f, mimetype='image')
+            print(url, resource, f)
+            # send_from_directory('icons', 'up.svg')
+            send_file(f, mimetype='image/svg')
+            return send_file(f, mimetype='image/svg')
+        # with open(url, "rb") as f:
+        #     print("_load_icon_url", url, f, resource)
+        #     return send_from_directory('icons', 'up.svg')
+            # return send_file(f, mimetype='image')
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise
