@@ -8,7 +8,7 @@ import os
 import io
 import base64
 # import flask
-from PIL import Image
+# from Pillow import Image
 
 
 ResourceIdentifierType = str
@@ -104,15 +104,15 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
         _logger.error(f"'{url}' not found")
         raise
 
-def get_encoded_icon(image_path):
-    url = os.path.isfile('icons/up.svg')
-    print(url)
-    img = Image.open('icons/doodle.png', mode='r')
-    print(img)
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
-    my_encoded_img = base64.encodebytes(img_byte_arr.getvalue()).decode('ascii')
-    return my_encoded_img
+# def get_encoded_icon(image_path):
+#     url = os.path.isfile('icons/up.svg')
+#     print(url)
+#     img = Image.open('icons/doodle.png', mode='r')
+#     print(img)
+#     img_byte_arr = io.BytesIO()
+#     img.save(img_byte_arr, format='PNG')
+#     my_encoded_img = base64.encodebytes(img_byte_arr.getvalue()).decode('ascii')
+#     return my_encoded_img
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     # if os.path.isfile(url):
@@ -141,8 +141,8 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     #     as_attachment=True,
     #     attachment_filename='%s.png' % 'ok')
 
-    img_path = './icons/up.svg'
-    img = get_encoded_icon(img_path)
+    # img_path = './icons/up.svg'
+    # img = get_encoded_icon(img_path)
 
     response_data = {"name": 'value1', "image": img}
     print(response_data)

@@ -6,14 +6,12 @@ from typing import Iterable, Union
 from flask import send_file, send_from_directory
 import os
 import io
-import base64
-# import flask
 from PIL import Image
-
+from io import StringIO
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
-ResourceContentType = dict
+ResourceContentType = bin
 
 _logger = logging.getLogger(__name__)
 
@@ -59,7 +57,7 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    print(url, root, identifier)
+    print('utils-load resource', _load_icon_url(url, identifier), url, root, identifier)
     return _load_icon_url(url, identifier)
 
 
@@ -92,16 +90,6 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise
-
-def get_encoded_icon(image_path):
-    url = os.path.isfile('icons/up.svg')
-    print(url)
-    img = Image.open('icons/doodle.png', mode='r')
-    print(img)
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
-    my_encoded_img = base64.encodebytes(img_byte_arr.getvalue()).decode('ascii')
-    return my_encoded_img
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     # if os.path.isfile(url):
@@ -139,9 +127,27 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     # return response_data
     basedir = os.path.abspath(os.path.dirname(__file__))
     uploads_path = os.path.join(basedir, 'icons')
-    print(uploads_path)
+    
+    UPLOAD_FOLDER =r"./icons"
+    path=os.path.join(UPLOAD_FOLDER, 'up.svg')
+    print(path, uploads_path, Path(path).exists())
+    # image_binary = Markup(open(path).read)
+    # Image.open(path)
+    # svg_io = StringIO()
+    # svg_io.write()
+    # svg_io.seek(0)
+    with open(path, "rb") as f:
+        # b = io.BytesIO(f)
+        print(f, type(f))
+        return f.read()
+        # return send_file(f.read(), mimetype='image/svg+xml')
+
     # return send_from_directory('/home/koumouts/code/ewoksserver/icons/', 'up.svg')
-    return send_file('/home/koumouts/code/ewoksserver/icons/up.svg', mimetype='image/svg')
+    # return send_file(
+    #     # io.BytesIO(image_binary),
+    #     image_binary,
+    #     mimetype='image/svg'
+    # )
     # breakpoint()
     # return rv
 

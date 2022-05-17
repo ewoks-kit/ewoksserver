@@ -7,8 +7,7 @@ from .utils import ResourceUrlType
 from .utils import ResourceContentType
 from .utils import ResourceIdentifierType
 
-ResponseType = Tuple[dict, int]
-FileResponseType = Tuple[dict, int]
+FileResponseType = Tuple[bin, int]
 
 
 class BinaryResource(Resource):
@@ -27,7 +26,7 @@ class BinaryResource(Resource):
         error_on_exists: bool = False,
         error_on_missing: bool = False,
         identifier: Optional[ResourceIdentifierType] = None,
-    ) -> ResponseType:
+    ) -> FileResponseType:
         """
         200: OK
         400: bad request (fails due to a client error)
@@ -87,7 +86,7 @@ class BinaryResource(Resource):
         error_on_exists: bool = False,
         error_on_missing: bool = False,
         identifier: Optional[ResourceIdentifierType] = None,
-    ) -> ResponseType:
+    ) -> FileResponseType:
         """
         200: OK
         400: bad request (fails due to a client error)
@@ -143,13 +142,14 @@ class BinaryResource(Resource):
     def load_resource(
         self,
         identifier: ResourceIdentifierType,
-    ) -> ResponseType:
+    ) -> FileResponseType:
         """
         200: OK
         403: forbidden
         404: not found
         """
         try:
+            print('load_resource', utils.load_resource(self.root_url, identifier))
             return utils.load_resource(self.root_url, identifier), 200
         except PermissionError:
             return self.make_response(
@@ -164,7 +164,7 @@ class BinaryResource(Resource):
                 identifier=identifier,
             )
 
-    def delete_resource(self, identifier: ResourceIdentifierType) -> ResponseType:
+    def delete_resource(self, identifier: ResourceIdentifierType) -> FileResponseType:
         """
         200: OK
         403: forbidden
@@ -179,7 +179,7 @@ class BinaryResource(Resource):
             )
         return self.make_response(200, identifier=identifier)
 
-    def list_resource_identifiers(self) -> ResponseType:
+    def list_resource_identifiers(self) -> FileResponseType:
         """
         200: OK
         """
@@ -190,6 +190,6 @@ class BinaryResource(Resource):
         raise NotImplementedError
 
     @classmethod
-    def make_response(cls, code: int, **body) -> ResponseType:
+    def make_response(cls, code: int, **body) -> FileResponseType:
         body["type"] = cls.RESOURCE_TYPE
         return body, code
