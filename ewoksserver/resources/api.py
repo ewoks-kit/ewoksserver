@@ -17,9 +17,8 @@ class JobInfoSchema(Schema):
 
 
 class JobInputSchema(Schema):
-    execinfo = fields.Mapping()
-    inputs = fields.List(fields.Mapping)
-    outputs = fields.List(fields.Mapping)
+    execute_arguments = fields.Mapping()
+    worker_options = fields.Mapping()
 
 
 class ResourceIdentifierSchema(Schema):

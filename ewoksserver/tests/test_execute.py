@@ -9,7 +9,7 @@ def test_execute_serverside_client_handler(serverside_client, sqlite3_ewoks_even
     handlers, reader = sqlite3_ewoks_events
     execinfo = {"handlers": handlers}
     response = serverside_client.post(
-        f"/execute/{graph_name}", json={"execinfo": execinfo}
+        f"/execute/{graph_name}", json={"execute_arguments": {"execinfo": execinfo}}
     )
     _assert_response(response, reader, expected)
 
@@ -27,7 +27,9 @@ def test_execute_client_handler(remote_client, sqlite3_ewoks_events):
     graph_name, expected = _upload_graph(remote_client)
     handlers, reader = sqlite3_ewoks_events
     execinfo = {"handlers": handlers}
-    response = remote_client.post(f"/execute/{graph_name}", json={"execinfo": execinfo})
+    response = remote_client.post(
+        f"/execute/{graph_name}", json={"execute_arguments": {"execinfo": execinfo}}
+    )
     _assert_response(response, reader, expected)
 
 
@@ -35,15 +37,12 @@ def test_execute_server_handler(remote_client_with_events):
     """Execute with celery and server-side event handler configuration."""
     remote_client, reader = remote_client_with_events
     graph_name, expected = _upload_graph(remote_client)
-    response = remote_client.post(
-        f"/execute/{graph_name}", json={"outputs": [{"all": False}]}
-    )
+    response = remote_client.post(f"/execute/{graph_name}")
     _assert_response(response, reader, expected)
 
 
 def test_execute_server_socket_connection(remote_client_with_socket):
     _, remote_sclient = remote_client_with_socket
-
     assert remote_sclient.is_connected()
     _assert_eventloop_is_running(True)
     remote_sclient.disconnect()
@@ -61,9 +60,7 @@ def test_execute_server_socket(remote_client_with_socket):
     _assert_eventloop_is_running(True)
 
     graph_name, expected = _upload_graph(remote_client)
-    response = remote_client.post(
-        f"/execute/{graph_name}", json={"outputs": [{"all": False}]}
-    )
+    response = remote_client.post(f"/execute/{graph_name}")
     assert response.status_code == 200, response.get_json()
 
     n = 2 * (len(expected) + 2)
