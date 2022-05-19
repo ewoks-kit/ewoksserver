@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Iterable, Union
-from flask import send_file, send_from_directory
+from flask import Response, send_file, send_from_directory
 import os
 import io
 from PIL import Image
@@ -33,6 +33,7 @@ def resource_identifiers(root: ResourceUrlType) -> Iterable[ResourceIdentifierTy
 
 
 def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
+    print('try to get all svgs at once in an Array?')
     if not root.exists():
         return
     for child in root.iterdir():
@@ -92,18 +93,7 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
         raise
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
-    # if os.path.isfile(url):
-    #     return send_file(url)
-    # else:
-    #     print('error in finding file')
-    # from pathlib import Path
-    # root = Path('.')
-    # folder_path = root / 'icons'
-    # print(root, folder_path, resource)
-    # # return send_from_directory('~/code/ewoksserver/tasks', resource)
-    # if os.path.exists(folder_path):
-    #     print("exists", folder_path)
-    #     return send_from_directory(folder_path, 'up.svg')
+    print('utils: _load_icon_url', url, resource)
 
     # import base64
     # img_stream = ''
@@ -129,43 +119,28 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     uploads_path = os.path.join(basedir, 'icons')
     
     UPLOAD_FOLDER =r"./icons"
-    path=os.path.join(UPLOAD_FOLDER, 'up.svg')
+    path=os.path.join(UPLOAD_FOLDER, resource)
     print(path, uploads_path, Path(path).exists())
-    # image_binary = Markup(open(path).read)
-    # Image.open(path)
-    # svg_io = StringIO()
-    # svg_io.write()
-    # svg_io.seek(0)
-    with open(path, "rb") as f:
-        # b = io.BytesIO(f)
-        print(f, type(f))
-        return f.read()
-        # return send_file(f.read(), mimetype='image/svg+xml')
+    try:
+        with open(path, "rb") as svg:
+            # b = io.BytesIO(f)
+            print(svg, type(svg))
+            data = io.BytesIO(svg.read())
+            # resp = Response(
+            #     response=data, mimetype=f"image/svg+xml", status=200
+            # )
+            # resp.headers.add("Content-Length", data.getbuffer().nbytes)
 
-    # return send_from_directory('/home/koumouts/code/ewoksserver/icons/', 'up.svg')
-    # return send_file(
-    #     # io.BytesIO(image_binary),
-    #     image_binary,
-    #     mimetype='image/svg'
-    # )
+            # return resp
+
+            return data
+            # return send_file(f.read(), mimetype='image/svg+xml')
+    except FileNotFoundError:
+        _logger.error(f"'{url}' not found")
+        raise
+
     # breakpoint()
-    # return rv
-
-    # try:
-    #     with open(url, "rb") as f:
-    #         print(url, resource, f)
-    #         # send_from_directory('icons', 'up.svg')
-    #         # return send_from_directory(path='icons/up.svg', directory='icons', filename='up.svg', mimetype='image/svg')
-    #         # return send_file(f, mimetype='image/svg', as_attachment=True, download_name='up.svg')
-    #         # return send_file(f, mimetype='image/svg')
-    #         # return send_file(f, attachment_filename="up.png", as_attachment=True)
-    #         return send_file(f, mimetype='image/svg')
-    #     # with open(url, "rb") as f:
-    #     #     print("_load_icon_url", url, f, resource)
-    #     #     return send_from_directory('icons', 'up.svg')
-    # except FileNotFoundError:
-    #     _logger.error(f"'{url}' not found")
-    #     raise
+    # return rv    
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():

@@ -13,7 +13,7 @@ class Icon(resource.BinaryResource):
     @api.get_resource("icon")
     def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResourceIdentifierType:
         ret = self.load_resource(identifier)
-        print('from icons to be send', ret)
+        print('from icons to be send', ret[0])
         return Response(ret[0], mimetype='image/svg+xml')
         # return ret
 
@@ -43,6 +43,7 @@ class Icons(resource.BinaryResource):
 
     @api.list_resource_identifiers("icon")
     def get(self) -> resource.FileResponseType:
+        print('send the descriptions from binary')
         return self.list_resource_identifiers()
 
     @api.post_resource("icon")
