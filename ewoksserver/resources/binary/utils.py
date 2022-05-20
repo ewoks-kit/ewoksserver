@@ -72,7 +72,9 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
     return path
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    return url.stem
+    print('----------BBBBinary utils _url_to_identifier', url)
+    return url.name
+    # .stem
 
 
 def _save_url(url: ResourceUrlType, resource: ResourceContentType):
@@ -124,8 +126,9 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     try:
         with open(path, "rb") as svg:
             # b = io.BytesIO(f)
-            print(svg, type(svg))
+            print('--129', svg, type(svg))
             data = io.BytesIO(svg.read())
+            print('--131', data, type(data))
             # resp = Response(
             #     response=data, mimetype=f"image/svg+xml", status=200
             # )

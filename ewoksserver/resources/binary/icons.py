@@ -43,7 +43,8 @@ class Icons(resource.BinaryResource):
 
     @api.list_resource_identifiers("icon")
     def get(self) -> resource.FileResponseType:
-        print('send the descriptions from binary')
+        print('-------send the descriptions from binary', self.list_resource_identifiers())
+
         return self.list_resource_identifiers()
 
     @api.post_resource("icon")
