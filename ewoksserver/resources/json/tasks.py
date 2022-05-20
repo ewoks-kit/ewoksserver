@@ -1,4 +1,4 @@
-from ewokscore.task_summary import generate_task_summary
+from ewokscore import task_discovery
 from . import resource
 from .. import api
 
@@ -69,11 +69,10 @@ class DiscoverTasks(resource.JsonResource):
         return resource["task_identifier"]
 
     @api.discover_resources("task")
-    def post(self, module=None):
-        if module:
-            tasks = list(generate_task_summary(module))
-        else:
-            tasks = list()
+    def post(self, modules=None, task_type="class"):
+        tasks = list(
+            task_discovery.discover_tasks_from_modules(*modules, task_type=task_type)
+        )
         for _resource in tasks:
             response, code = self.save_resource(_resource, error_on_exists=True)
             if code != 200:

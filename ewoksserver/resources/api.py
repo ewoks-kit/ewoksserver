@@ -54,7 +54,7 @@ class EwoksTaskListSchema(Schema):
 
 
 class DiscoverSchema(Schema):
-    module = fields.Str()
+    modules = fields.List(fields.Str)
 
 
 def get_resource_content_schema(resource_type: str):

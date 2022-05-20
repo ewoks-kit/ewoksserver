@@ -122,7 +122,7 @@ def test_discover_tasks(serverside_client):
 
     module = "ewoksserver.tests.dummy_tasks"
 
-    response = serverside_client.post("/tasks/discover", json={"module": module})
+    response = serverside_client.post("/tasks/discover", json={"modules": [module]})
     data = response.get_json()
     assert response.status_code == 200, data
     expected = {
@@ -140,7 +140,7 @@ def test_discover_tasks(serverside_client):
     }
     assert set(data["identifiers"]) == expected
 
-    response = serverside_client.post("/tasks/discover", json={"module": module})
+    response = serverside_client.post("/tasks/discover", json={"modules": [module]})
     data = response.get_json()
     assert response.status_code == 409, data
     assert "already exists" in data["message"]
@@ -154,7 +154,7 @@ def test_task_descriptions(serverside_client):
 
     module = "ewoksserver.tests.dummy_tasks"
 
-    response = serverside_client.post("/tasks/discover", json={"module": module})
+    response = serverside_client.post("/tasks/discover", json={"modules": [module]})
     data1 = response.get_json()
     assert response.status_code == 200, data1
 
