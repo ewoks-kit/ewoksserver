@@ -38,7 +38,7 @@ CELERY = {"broker_url", ...}
 Specify the configuration file through the CLI
 
 ```bash
-ewoks-server --configuration /tmp/config.py
+ewoks-server --config /tmp/config.py
 ```
 
 or using the environment variable EWOKSSERVER_SETTINGS
