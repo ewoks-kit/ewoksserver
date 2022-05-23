@@ -8,6 +8,7 @@ import os
 import io
 from PIL import Image
 from io import StringIO
+import base64
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
@@ -72,7 +73,7 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
     return path
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    print('----------BBBBinary utils _url_to_identifier', url)
+    print('----------BBBBinary utils _url_to_identifier', url, url.name, url.stem)
     return url.name
     # .stem
 
@@ -97,47 +98,25 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     print('utils: _load_icon_url', url, resource)
 
-    # import base64
-    # img_stream = ''
-    # with open('icons/up.svg', 'rb') as img_f:
-    #     img_stream = img_f.read()
-    #     img_stream = base64.b64encode(img_stream).decode()
-    #     print(img_stream)
-    # # return img_stream
-    # return send_file(
-    #     img_stream,
-    #     mimetype='image/png',
-    #     as_attachment=True,
-    #     attachment_filename='%s.png' % 'ok')
-
-    # img_path = './icons/up.svg'
-    # img = get_encoded_icon(img_path)
-
-    # response_data = {"name": 'value13', "image": img}
-
-    # print(response_data)
-    # return response_data
     basedir = os.path.abspath(os.path.dirname(__file__))
     uploads_path = os.path.join(basedir, 'icons')
     
     UPLOAD_FOLDER =r"./icons"
     path=os.path.join(UPLOAD_FOLDER, resource)
     print(path, uploads_path, Path(path).exists())
+
+    # with open(path, "rb") as img:
+
+    #     str = base64.b64encode(img.read())
+    #     print('---------base64', str) 
+
     try:
         with open(path, "rb") as svg:
             # b = io.BytesIO(f)
             print('--129', svg, type(svg))
             data = io.BytesIO(svg.read())
             print('--131', data, type(data))
-            # resp = Response(
-            #     response=data, mimetype=f"image/svg+xml", status=200
-            # )
-            # resp.headers.add("Content-Length", data.getbuffer().nbytes)
-
-            # return resp
-
             return data
-            # return send_file(f.read(), mimetype='image/svg+xml')
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise

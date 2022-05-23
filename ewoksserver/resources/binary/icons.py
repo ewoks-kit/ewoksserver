@@ -1,3 +1,4 @@
+import os
 from . import resource
 from .. import api
 from flask import Response
@@ -13,9 +14,16 @@ class Icon(resource.BinaryResource):
     @api.get_resource("icon")
     def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResourceIdentifierType:
         ret = self.load_resource(identifier)
-        print('from icons to be send', ret[0])
-        return Response(ret[0], mimetype='image/svg+xml')
-        # return ret
+        print('-----from icons to be send', ret[0], identifier, os.path.splitext(identifier))
+        name, extension = os.path.splitext(identifier)
+
+        mimeType = ''
+        if extension == '.png':
+            mimeType = 'image/png'
+        elif extension == '.svg':
+            mimeType = 'image/svg+xml'
+        print ('---------extension', extension, mimeType)
+        return Response(ret[0], mimetype=mimeType)
 
     @api.put_resource("icon")
     def put(
