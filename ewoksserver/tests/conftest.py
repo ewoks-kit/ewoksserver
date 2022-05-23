@@ -2,7 +2,7 @@ import pytest
 from ewoksserver.server import create_app
 from ewoksserver.server import run_context
 from ewoksserver.server import add_socket
-from ewoksjob.server import workflow_worker_pool
+from ewoksjob.client.process import pool_context
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from ewoksjob.tests.conftest import sqlite3_ewoks_events  # noqa F401
@@ -13,7 +13,7 @@ def serverside_client(tmpdir):
     """Client runs in the same process as the server."""
     app, *_ = create_app(resource_directory=str(tmpdir))
     with run_context(app):
-        with workflow_worker_pool():
+        with pool_context():
             with app.test_client() as client:
                 yield client
 
@@ -27,7 +27,7 @@ def serverside_client_with_events(tmpdir, sqlite3_ewoks_events):  # noqa F811
     ewoks_config = {"handlers": handlers}
     app, *_ = create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
     with run_context(app):
-        with workflow_worker_pool():
+        with pool_context():
             with app.test_client() as client:
                 yield client, reader
 
