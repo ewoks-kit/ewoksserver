@@ -53,6 +53,7 @@ def load_resource(
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
     url = _identifier_to_url(root, identifier)
+    print('---delete', root, identifier)
     _delete_url(url)
 
 

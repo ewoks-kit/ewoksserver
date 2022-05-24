@@ -1,4 +1,4 @@
-from ewokscore import task_discovery
+# from ewokscore import task_discovery
 from . import resource
 from .. import api
 
@@ -68,14 +68,14 @@ class DiscoverTasks(resource.JsonResource):
     ) -> resource.ResourceIdentifierType:
         return resource["task_identifier"]
 
-    @api.discover_resources("task")
-    def post(self, modules=None, task_type="class"):
-        tasks = list(
-            task_discovery.discover_tasks_from_modules(*modules, task_type=task_type)
-        )
-        for _resource in tasks:
-            response, code = self.save_resource(_resource, error_on_exists=True)
-            if code != 200:
-                return response, code
-        tasks = [desc["task_identifier"] for desc in tasks]
-        return self.make_response(200, identifiers=tasks)
+    # @api.discover_resources("task")
+    # def post(self, modules=None, task_type="class"):
+    #     tasks = list(
+    #         task_discovery.discover_tasks_from_modules(*modules, task_type=task_type)
+    #     )
+    #     for _resource in tasks:
+    #         response, code = self.save_resource(_resource, error_on_exists=True)
+    #         if code != 200:
+    #             return response, code
+    #     tasks = [desc["task_identifier"] for desc in tasks]
+    #     return self.make_response(200, identifiers=tasks)
