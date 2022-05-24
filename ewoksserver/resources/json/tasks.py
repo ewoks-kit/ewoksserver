@@ -59,6 +59,7 @@ class Descriptions(resource.JsonResource):
     def get(self):
         return self.list_resource_content()
 
+
 class DiscoverTasks(resource.JsonResource):
     RESOURCE_TYPE = "task"
 

@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
-import os
-from flask import current_app, request
+
+from flask import current_app
 from ..utils import Resource
 from . import utils
 from .utils import ResourceUrlType

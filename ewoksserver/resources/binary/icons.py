@@ -44,6 +44,6 @@ class Icons(resource.BinaryResource):
     def get(self) -> resource.FileResponseType:
         return self.list_resource_identifiers()
 
-    @api.post_resource("icon")
+    @api.upload_resource("icon")
     def post(self, **resource) -> resource.FileResponseType:
         return self.upload_resource(resource, error_on_exists=True)

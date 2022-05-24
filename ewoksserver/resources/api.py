@@ -55,8 +55,10 @@ class EwoksGraphListSchema(Schema):
 class EwoksTaskListSchema(Schema):
     items = fields.List(fields.Nested(EwoksTaskSchema()))
 
+
 class DiscoverSchema(Schema):
     modules = fields.List(fields.Str)
+
 
 def get_resource_content_schema(resource_type: str):
     if resource_type == "workflow":
@@ -169,6 +171,35 @@ def post_resource(resource_type: str):
             ErrorSchema,
             code=400,
             description=f"bad {resource_type} create request",
+        )(func)
+        func = marshal_with(
+            ErrorSchema,
+            code=403,
+            description=f"no permission to write the {resource_type}",
+        )(func)
+        func = marshal_with(
+            ErrorSchema,
+            code=409,
+            description=f"requested {resource_type} already exists",
+        )(func)
+        return func
+
+    return wrapper
+
+def upload_resource(resource_type: str):
+    def wrapper(func: Callable):
+        bodyschema = get_resource_content_schema(resource_type)
+        func = doc(summary=f"Upload an {resource_type} in Binary format")(func)
+        func = use_kwargs(bodyschema)(func)
+        func = marshal_with(
+            bodyschema,
+            code=200,
+            description=f"{resource_type} in Binary format",
+        )(func)
+        func = marshal_with(
+            ErrorSchema,
+            code=400,
+            description=f"bad {resource_type} upload request",
         )(func)
         func = marshal_with(
             ErrorSchema,

@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Iterable, Union
 
+
 ResourceIdentifierType = str
 ResourceUrlType = Path
 ResourceContentType = dict
