@@ -11,7 +11,7 @@ class Icon(resource.BinaryResource):
     ) -> resource.ResourceIdentifierType:
         return resource["name"]
 
-    @api.get_resource("icon")
+    @api.get_resource_binary("icon")
     def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResourceIdentifierType:
         ret = self.load_resource(identifier)
         print('-----from icons to be send', ret[0], identifier, os.path.splitext(identifier))
@@ -69,6 +69,6 @@ class Descriptions(resource.BinaryResource):
     ) -> resource.ResourceIdentifierType:
         return resource["name"]
 
-    @api.list_resource_content("icon")
-    def get(self):
-        return self.list_resource_content()
+    # @api.list_resource_content("icon")
+    # def get(self):
+    #     return self.list_resource_content()

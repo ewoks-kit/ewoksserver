@@ -21,65 +21,6 @@ class JsonResource(Resource):
             current_app.config.get("RESOURCE_DIRECTORY"), self.RESOURCE_TYPE + "s"
         )
 
-    def upload_resource(self,
-        resource: ResourceContentType,
-        error_on_exists: bool = False,
-        error_on_missing: bool = False,
-        identifier: Optional[ResourceIdentifierType] = None,
-    ) -> ResponseType:
-        """
-        200: OK
-        400: bad request (fails due to a client error)
-        403: forbidden
-        404: not found (`error_on_missing=True`)
-        409: already exists  (`error_on_exists=True`)
-        """
-
-        print("upload attempt", identifier, resource, request.files['file'])
-
-        target='icons'
-        root_url = self.root_url
-        file = request.files['file']
-        identifier = file.filename
-
-        try:
-            ridentifier = file.filename
-        except Exception as e:
-            return self.make_response(
-                400,
-                message=f"Failed to extract filename: {e}.",
-                identifier=identifier,
-            )
-
-        exists = utils.resource_exists(root_url, identifier)
-        if error_on_exists and exists:
-            return self.make_response(
-                409,
-                message=f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' already exists.",
-                identifier=identifier,
-            )
-
-        try:
-            # utils.save_resource(root_url, identifier, resource)
-            # upload move to utils
-            if not os.path.isdir(target):
-                print('no folder found')
-                # os.mkdir(target)
-            
-
-            destination="/".join([target, file.filename])
-
-            print(target, root_url, destination, file.filename)
-            file.save(destination)
-        except PermissionError:
-            return self.make_response(
-                403,
-                message=f"No permission to write {self.RESOURCE_TYPE} '{identifier}.'",
-                identifier=identifier,
-            )
-
-        return {file: file.filename}, 200
-
     def save_resource(
         self,
         resource: ResourceContentType,

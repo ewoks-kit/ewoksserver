@@ -60,16 +60,10 @@ class BinaryResource(Resource):
             )
 
         try:
-            # utils.save_resource(root_url, identifier, resource)
-            # upload move to utils
             if not os.path.isdir(target):
                 print('no folder found')
-                # os.mkdir(target)
-            
 
             destination="/".join([target, file.filename])
-
-            print(target, root_url, destination, file.filename)
             file.save(destination)
         except PermissionError:
             return self.make_response(
@@ -79,65 +73,6 @@ class BinaryResource(Resource):
             )
 
         return {file: file.filename}, 200
-
-    def save_resource(
-        self,
-        resource: ResourceContentType,
-        error_on_exists: bool = False,
-        error_on_missing: bool = False,
-        identifier: Optional[ResourceIdentifierType] = None,
-    ) -> FileResponseType:
-        """
-        200: OK
-        400: bad request (fails due to a client error)
-        403: forbidden
-        404: not found (`error_on_missing=True`)
-        409: already exists  (`error_on_exists=True`)
-        """
-        try:
-            ridentifier = self.get_identifier(resource)
-        except Exception as e:
-            return self.make_response(
-                400,
-                message=f"Failed to extract {self.RESOURCE_TYPE} identifier from '{resource}': {e}.",
-                identifier=identifier,
-            )
-        if identifier is None:
-            identifier = ridentifier
-
-        if identifier != ridentifier:
-            return self.make_response(
-                400,
-                message=f"Resource identifier '{identifier}' is not equal to '{ridentifier}'.",
-                identifier=identifier,
-            )
-
-        root_url = self.root_url
-        exists = utils.resource_exists(root_url, identifier)
-        if error_on_exists and exists:
-            return self.make_response(
-                409,
-                message=f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' already exists.",
-                identifier=identifier,
-            )
-
-        if error_on_missing and not exists:
-            return self.make_response(
-                404,
-                message=f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' is not found.",
-                identifier=identifier,
-            )
-
-        try:
-            utils.save_resource(root_url, identifier, resource)
-        except PermissionError:
-            return self.make_response(
-                403,
-                message=f"No permission to write {self.RESOURCE_TYPE} '{identifier}.'",
-                identifier=identifier,
-            )
-
-        return resource, 200
 
     def load_resource(
         self,

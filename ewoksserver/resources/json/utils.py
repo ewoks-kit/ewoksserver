@@ -59,11 +59,7 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    print(url, root, identifier)
-    if str(root) == 'icons':
-        return _load_icon_url(url, identifier)
-    else:
-        return _load_url(url)
+    return _load_url(url)
     
 
 
@@ -72,16 +68,8 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     _delete_url(url)
 
 
-def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    # path = root / identifier  else root / (identifier + ".json")
-    path = ''
-    if str(root) == 'icons':
-        path = root / identifier
-    else:
-        path = root / (identifier + ".json")
-    print(root, path, type(root), type(path))
-    
-    return path
+def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):   
+    return root / (identifier + ".json")
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
     return url.stem
@@ -95,79 +83,12 @@ def _save_url(url: ResourceUrlType, resource: ResourceContentType):
 
 
 def _load_url(url: ResourceUrlType) -> ResourceContentType:
-    print(url)
     try:
         with open(url, "r") as f:
-            print(url, f)
             return json.load(f)
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise
-
-# def get_encoded_icon(image_path):
-#     url = os.path.isfile('icons/up.svg')
-#     print(url)
-#     img = Image.open('icons/doodle.png', mode='r')
-#     print(img)
-#     img_byte_arr = io.BytesIO()
-#     img.save(img_byte_arr, format='PNG')
-#     my_encoded_img = base64.encodebytes(img_byte_arr.getvalue()).decode('ascii')
-#     return my_encoded_img
-
-def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
-    # if os.path.isfile(url):
-    #     return send_file(url)
-    # else:
-    #     print('error in finding file')
-    # from pathlib import Path
-    # root = Path('.')
-    # folder_path = root / 'icons'
-    # print(root, folder_path, resource)
-    # # return send_from_directory('~/code/ewoksserver/tasks', resource)
-    # if os.path.exists(folder_path):
-    #     print("exists", folder_path)
-    #     return send_from_directory(folder_path, 'up.svg')
-
-    # import base64
-    # img_stream = ''
-    # with open('icons/up.svg', 'rb') as img_f:
-    #     img_stream = img_f.read()
-    #     img_stream = base64.b64encode(img_stream).decode()
-    #     print(img_stream)
-    # # return img_stream
-    # return send_file(
-    #     img_stream,
-    #     mimetype='image/png',
-    #     as_attachment=True,
-    #     attachment_filename='%s.png' % 'ok')
-
-    # img_path = './icons/up.svg'
-    # img = get_encoded_icon(img_path)
-
-    response_data = {"name": 'value1', "image": img}
-    print(response_data)
-    return response_data
-
-
-    # try:
-    #     with open(url, "rb") as f:
-    #         print(url, resource, f)
-    #         # send_from_directory('icons', 'up.svg')
-    #         # return send_from_directory(path='icons/up.svg', directory='icons', filename='up.svg', mimetype='image/svg')
-    #         # return send_file(f, mimetype='image/svg', as_attachment=True, download_name='up.svg')
-    #         # return send_file(f, mimetype='image/svg')
-    #         return send_file(f, attachment_filename="up.png", as_attachment=True)
-    #     # with open(url, "rb") as f:
-    #     #     print("_load_icon_url", url, f, resource)
-    #     #     return send_from_directory('icons', 'up.svg')
-    #     #     return send_file(f, mimetype='image')
-    # except FileNotFoundError:
-    #     _logger.error(f"'{url}' not found")
-    #     raise
-
-        # rv = send_file(f, attachment_filename="up.png", as_attachment=True)
-        # breakpoint()
-        # return rv
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():
