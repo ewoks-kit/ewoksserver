@@ -1,15 +1,7 @@
-import io
 import json
 import logging
 from pathlib import Path
 from typing import Iterable, Union
-from flask import send_file, send_from_directory
-import os
-import io
-import base64
-# import flask
-# from Pillow import Image
-
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
@@ -60,7 +52,6 @@ def load_resource(
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
     return _load_url(url)
-    
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
@@ -68,8 +59,9 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     _delete_url(url)
 
 
-def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):   
+def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
     return root / (identifier + ".json")
+
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
     return url.stem
@@ -89,6 +81,7 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
         raise
+
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():

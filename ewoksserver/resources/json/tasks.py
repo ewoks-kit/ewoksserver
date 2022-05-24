@@ -13,9 +13,7 @@ class Task(resource.JsonResource):
 
     @api.get_resource("task")
     def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResponseType:
-        ret = self.load_resource(identifier)
-        print('get_resource', ret)
-        return ret
+        return self.load_resource(identifier)
 
     @api.put_resource("task")
     def put(
@@ -42,9 +40,7 @@ class Tasks(resource.JsonResource):
 
     @api.list_resource_identifiers("task")
     def get(self) -> resource.ResponseType:
-        ret = self.list_resource_identifiers()
-        print('list_resource_identifiers', ret)
-        return ret
+        return self.list_resource_identifiers()
 
     @api.post_resource("task")
     def post(self, **resource) -> resource.ResponseType:
@@ -61,9 +57,7 @@ class Descriptions(resource.JsonResource):
 
     @api.list_resource_content("task")
     def get(self):
-        ret = self.list_resource_content()
-        print('list_resource_content', ret)
-        return ret
+        return self.list_resource_content()
 
 class DiscoverTasks(resource.JsonResource):
     RESOURCE_TYPE = "task"

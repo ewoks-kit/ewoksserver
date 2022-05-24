@@ -6,9 +6,6 @@ from typing import Iterable, Union
 from flask import Response, send_file, send_from_directory
 import os
 import io
-from PIL import Image
-from io import StringIO
-import base64
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
@@ -46,15 +43,6 @@ def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     return _identifier_to_url(root, identifier).exists()
 
 
-def save_resource(
-    root: ResourceUrlType,
-    identifier: ResourceIdentifierType,
-    resource: ResourceContentType,
-):
-    url = _identifier_to_url(root, identifier)
-    _save_url(url, resource)
-
-
 def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
@@ -72,17 +60,11 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
     path = root / identifier
     return path
 
+
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    print('----------BBBBinary utils _url_to_identifier', url, url.name, url.stem)
+    print('----------Binary utils _url_to_identifier', url, url.name, url.stem)
     return url.name
     # .stem
-
-
-def _save_url(url: ResourceUrlType, resource: ResourceContentType):
-    _logger.debug("Save file '%s'", url)
-    url.parent.mkdir(parents=True, exist_ok=True)
-    with open(url, "w") as f:
-        json.dump(resource, f, indent=2)
 
 
 def _load_url(url: ResourceUrlType) -> ResourceContentType:
@@ -95,6 +77,7 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
         _logger.error(f"'{url}' not found")
         raise
 
+
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     print('utils: _load_icon_url', url, resource)
 
@@ -105,24 +88,15 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
     path=os.path.join(UPLOAD_FOLDER, resource)
     print(path, uploads_path, Path(path).exists())
 
-    # with open(path, "rb") as img:
-
-    #     str = base64.b64encode(img.read())
-    #     print('---------base64', str) 
-
     try:
         with open(path, "rb") as svg:
-            # b = io.BytesIO(f)
-            print('--129', svg, type(svg))
             data = io.BytesIO(svg.read())
-            print('--131', data, type(data))
+            print('------to be sent', data, type(data))
             return data
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
-        raise
+        raise   
 
-    # breakpoint()
-    # return rv    
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():
