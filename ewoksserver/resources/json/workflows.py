@@ -56,10 +56,9 @@ class Description(resource.JsonResource):
     ) -> resource.ResourceIdentifierType:
         return resource["graph"]["id"]
 
-    @api.list_resource_partial_content("workflow")
-    def get(self):
-        print('-----------', self.list_resource_partial_content())
-        return self.list_resource_partial_content()
+    @api.list_resource_descriptions("workflow")
+    def get(self) -> resource.ResponseType:
+        return self.list_resource_descriptions()
 
 
 class Execute(resource.JsonResource):

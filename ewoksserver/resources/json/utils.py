@@ -7,6 +7,7 @@ from typing import Iterable, Union
 ResourceIdentifierType = str
 ResourceUrlType = Path
 ResourceContentType = dict
+ResourceDescriptionType = dict
 
 _logger = logging.getLogger(__name__)
 
@@ -34,22 +35,13 @@ def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
         if child.is_file() and not child.name.startswith("."):
             yield _load_url(child)
 
-def partial_resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
+def resource_descriptions(root: ResourceUrlType) -> Iterable[ResourceDescriptionType]:
     if not root.exists():
         return
     for child in root.iterdir():
         if child.is_file() and not child.name.startswith("."):
-            print(child)
             res = _load_url(child)
-            resDict = dict([
-                    ('title', res['graph']['label']),
-                    ('id', res['graph']['id']),
-                    # ('category', res['graph']['category'])
-                    ])
-            print(type(res), type(resDict),
-                res['graph']['id'],  
-                
-            )
+            resDict = {key:res['graph'][key] for key in ("id", "label", "category") if key in res['graph']}
             yield resDict
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:

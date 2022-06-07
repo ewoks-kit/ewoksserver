@@ -133,12 +133,11 @@ class JsonResource(Resource):
         body = {"items": list(utils.resources(self.root_url))}
         return body, 200
 
-    def list_resource_partial_content(self) -> ResponseType:
+    def list_resource_descriptions(self) -> ResponseType:
         """
         200: OK
         """
-        print(utils.partial_resources(self.root_url))
-        body = {"items": list(utils.partial_resources(self.root_url))}
+        body = {"items": list(utils.resource_descriptions(self.root_url))}
         return body, 200
 
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
