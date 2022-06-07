@@ -35,8 +35,6 @@ class BinaryResource(Resource):
         409: already exists  (`error_on_exists=True`)
         """
 
-        print("upload attempt", identifier, resource, request.files['file'])
-
         target='icons'
         root_url = self.root_url
         file = request.files['file']
@@ -60,8 +58,8 @@ class BinaryResource(Resource):
             )
 
         try:
-            if not os.path.isdir(target):
-                print('no folder found')
+            # if not os.path.isdir(target):
+            #     print('no folder found')
 
             destination="/".join([target, file.filename])
             file.save(destination)
@@ -84,7 +82,6 @@ class BinaryResource(Resource):
         404: not found
         """
         try:
-            print('load_resource', utils.load_resource(self.root_url, identifier))
             return utils.load_resource(self.root_url, identifier), 200
         except PermissionError:
             return self.make_response(

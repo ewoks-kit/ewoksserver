@@ -14,7 +14,6 @@ class Icon(resource.BinaryResource):
     @api.get_resource_binary("icon")
     def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResourceIdentifierType:
         ret = self.load_resource(identifier)
-        print('-----from icons to be send', ret[0], identifier, os.path.splitext(identifier))
         name, extension = os.path.splitext(identifier)
 
         mimeType = ''
@@ -22,7 +21,6 @@ class Icon(resource.BinaryResource):
             mimeType = 'image/png'
         elif extension == '.svg':
             mimeType = 'image/svg+xml'
-        print ('---------extension', extension, mimeType)
         return Response(ret[0], mimetype=mimeType)
 
     @api.delete_resource("icon")

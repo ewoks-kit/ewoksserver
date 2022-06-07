@@ -253,6 +253,15 @@ def list_resource_content(resource_type: str):
 
     return wrapper
 
+def list_resource_partial_content(resource_type: str):
+    def wrapper(func: Callable):
+        func = doc(summary=f"Get a list of {resource_type}s")(func)
+        func = marshal_with(get_resource_content_list_schema(resource_type), code=200)(
+            func
+        )
+        return func
+
+    return wrapper
 
 def execute_resource(resource_type: str):
     def wrapper(func: Callable):

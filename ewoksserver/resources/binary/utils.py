@@ -31,7 +31,6 @@ def resource_identifiers(root: ResourceUrlType) -> Iterable[ResourceIdentifierTy
 
 
 def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
-    print('try to get all svgs at once in an Array?')
     if not root.exists():
         return
     for child in root.iterdir():
@@ -47,13 +46,11 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    print('utils-load resource', _load_icon_url(url, identifier), url, root, identifier)
     return _load_icon_url(url, identifier)
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
     url = _identifier_to_url(root, identifier)
-    print('---delete', root, identifier)
     _delete_url(url)
 
 
@@ -63,16 +60,13 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    print('----------Binary utils _url_to_identifier', url, url.name, url.stem)
     return url.name
     # .stem
 
 
 def _load_url(url: ResourceUrlType) -> ResourceContentType:
-    print(url)
     try:
         with open(url, "r") as f:
-            print(url, f)
             return json.load(f)
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
@@ -80,19 +74,15 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
 
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
-    print('utils: _load_icon_url', url, resource)
-
     basedir = os.path.abspath(os.path.dirname(__file__))
     uploads_path = os.path.join(basedir, 'icons')
     
     UPLOAD_FOLDER =r"./icons"
     path=os.path.join(UPLOAD_FOLDER, resource)
-    print(path, uploads_path, Path(path).exists())
 
     try:
         with open(path, "rb") as svg:
             data = io.BytesIO(svg.read())
-            print('------to be sent', data, type(data))
             return data
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")

@@ -48,6 +48,19 @@ class Workflows(resource.JsonResource):
     def post(self, **resource) -> resource.ResponseType:
         return self.save_resource(resource, error_on_exists=True)
 
+class Description(resource.JsonResource):
+    RESOURCE_TYPE = "workflow"
+
+    def get_identifier(
+        self, resource: resource.ResourceContentType
+    ) -> resource.ResourceIdentifierType:
+        return resource["graph"]["id"]
+
+    @api.list_resource_partial_content("workflow")
+    def get(self):
+        print('-----------', self.list_resource_partial_content())
+        return self.list_resource_partial_content()
+
 
 class Execute(resource.JsonResource):
     RESOURCE_TYPE = "workflow"

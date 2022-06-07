@@ -34,6 +34,23 @@ def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
         if child.is_file() and not child.name.startswith("."):
             yield _load_url(child)
 
+def partial_resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
+    if not root.exists():
+        return
+    for child in root.iterdir():
+        if child.is_file() and not child.name.startswith("."):
+            print(child)
+            res = _load_url(child)
+            resDict = dict([
+                    ('title', res['graph']['label']),
+                    ('id', res['graph']['id']),
+                    # ('category', res['graph']['category'])
+                    ])
+            print(type(res), type(resDict),
+                res['graph']['id'],  
+                
+            )
+            yield resDict
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
     return _identifier_to_url(root, identifier).exists()
@@ -65,6 +82,7 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
+    print(url)
     return url.stem
 
 
