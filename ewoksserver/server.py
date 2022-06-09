@@ -43,7 +43,7 @@ def configure_app(app: flask.Flask, configuration: Optional[str] = None, **confi
         filename = os.path.relpath(filename, app.config.root_path)
         app.config.from_pyfile(filename, silent=False)
     if config:
-        config = {k.upper(): v for k, v in config.items()}
+        config = {k.upper(): v for k, v in config.items() if v is not None}
         app.config.update(config)
     if app.config.get("CELERY"):
         current_app.conf.update(app.config["CELERY"])
