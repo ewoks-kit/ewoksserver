@@ -32,7 +32,7 @@ RESOURCE_DIRECTORY = "/path/to/resource/directory/"
 
 EWOKS = {"handlers": ...}
 
-CELERY = {"broker_url", ...}
+CELERY = {"broker_url":...}
 ```
 
 Specify the configuration file through the CLI
@@ -46,4 +46,28 @@ or using the environment variable EWOKSSERVER_SETTINGS
 ```bash
 export EWOKSSERVER_SETTINGS=/tmp/config.py
 ewoks-server
+```
+
+### Example
+
+```python
+import os
+
+_SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+RESOURCE_DIRECTORY = os.path.join(_SCRIPT_DIR, "resources")
+
+EWOKS = {
+    "handlers": [
+        {
+            "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
+            "arguments": [
+                {
+                    "name": "uri",
+                    "value": "file:" + os.path.join(_SCRIPT_DIR, "ewoks_events.db"),
+                }
+            ],
+        }
+    ]
+}
 ```

@@ -14,6 +14,7 @@ from flask_restful import Api
 from flask_apispec import FlaskApiSpec
 
 from celery import current_app
+from ewoksjob.client.process import pool_context
 
 from .resources import add_resources
 from .events import add_events
@@ -43,7 +44,7 @@ def configure_app(app: flask.Flask, configuration: Optional[str] = None, **confi
         filename = os.path.relpath(filename, app.config.root_path)
         app.config.from_pyfile(filename, silent=False)
     if config:
-        config = {k.upper(): v for k, v in config.items()}
+        config = {k.upper(): v for k, v in config.items() if v is not None}
         app.config.update(config)
     if app.config.get("CELERY"):
         current_app.conf.update(app.config["CELERY"])
@@ -95,7 +96,11 @@ def run_app(
 @contextmanager
 def run_context(app: flask.Flask):
     with app.app_context():
-        yield
+        if app.config.get("CELERY") is None:
+            with pool_context():
+                yield
+        else:
+            yield
 
 
 def main(argv=None):
