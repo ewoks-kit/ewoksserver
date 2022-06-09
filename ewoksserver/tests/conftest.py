@@ -7,6 +7,9 @@ from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from ewoksjob.tests.conftest import sqlite3_ewoks_events  # noqa F401
 
+from .data import resource_filenames
+from ..resources.binary.utils import _load_url
+
 
 @pytest.fixture
 def serverside_client(tmpdir):
@@ -76,3 +79,15 @@ def remote_client_with_socket(
             sclient = socketio.test_client(app, flask_test_client=client)
             yield client, sclient
             sclient.disconnect()
+
+
+@pytest.fixture
+def png_icons():
+    filenames = resource_filenames()
+    return [_load_url(filename) for filename in filenames if filename.endswith(".png")]
+
+
+@pytest.fixture
+def svg_icons():
+    filenames = resource_filenames()
+    return [_load_url(filename) for filename in filenames if filename.endswith(".svg")]

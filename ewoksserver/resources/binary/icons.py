@@ -1,50 +1,38 @@
-import os
 from . import resource
 from .. import api
-from flask import Response
 
 
 class Icon(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
-    def get_identifier(
-        self, resource: resource.ResourceContentType
-    ) -> resource.ResourceIdentifierType:
-        return resource["name"]
-
-    @api.get_resource_binary("icon")
+    @api.get_resource("icon")
     def get(
         self, identifier: resource.ResourceIdentifierType
     ) -> resource.ResourceIdentifierType:
-        ret = self.load_resource(identifier)
-        name, extension = os.path.splitext(identifier)
-
-        mimeType = ""
-        if extension == ".png":
-            mimeType = "image/png"
-        elif extension == ".svg":
-            mimeType = "image/svg+xml"
-        return Response(ret[0], mimetype=mimeType)
+        return self.load_resource(identifier)
 
     @api.delete_resource("icon")
     def delete(
         self, identifier: resource.ResourceIdentifierType
-    ) -> resource.FileResponseType:
+    ) -> resource.ResponseType:
         return self.delete_resource(identifier)
+
+    @api.put_resource("icon")
+    def put(
+        self, identifier: resource.ResourceIdentifierType, **resource
+    ) -> resource.ResponseType:
+        return self.save_resource(identifier, resource, error_on_missing=True)
+
+    @api.post_resource("icon")
+    def post(
+        self, identifier: resource.ResourceIdentifierType, **resource
+    ) -> resource.ResponseType:
+        return self.save_resource(identifier, resource, error_on_exists=True)
 
 
 class Icons(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
-    def get_identifier(
-        self, resource: resource.ResourceContentType
-    ) -> resource.ResourceIdentifierType:
-        return resource["name"]
-
     @api.list_resource_identifiers("icon")
-    def get(self) -> resource.FileResponseType:
+    def get(self) -> resource.ResponseType:
         return self.list_resource_identifiers()
-
-    @api.upload_resource("icon")
-    def post(self, **resource) -> resource.FileResponseType:
-        return self.upload_resource(resource, error_on_exists=True)

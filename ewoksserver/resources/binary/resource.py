@@ -1,12 +1,12 @@
-from typing import Optional, Tuple
-from flask import current_app, request
+from typing import Tuple
+from flask import current_app
 from ..utils import Resource
 from . import utils
 from .utils import ResourceUrlType
 from .utils import ResourceContentType
 from .utils import ResourceIdentifierType
 
-FileResponseType = Tuple[bin, int]
+ResponseType = Tuple[dict, int]
 
 
 class BinaryResource(Resource):
@@ -20,13 +20,13 @@ class BinaryResource(Resource):
             current_app.config.get("RESOURCE_DIRECTORY"), self.RESOURCE_TYPE + "s"
         )
 
-    def upload_resource(
+    def save_resource(
         self,
+        identifier: ResourceIdentifierType,
         resource: ResourceContentType,
         error_on_exists: bool = False,
         error_on_missing: bool = False,
-        identifier: Optional[ResourceIdentifierType] = None,
-    ) -> FileResponseType:
+    ) -> ResponseType:
         """
         200: OK
         400: bad request (fails due to a client error)
@@ -34,21 +34,7 @@ class BinaryResource(Resource):
         404: not found (`error_on_missing=True`)
         409: already exists  (`error_on_exists=True`)
         """
-
-        target = "icons"
         root_url = self.root_url
-        file = request.files["file"]
-        identifier = file.filename
-
-        # try:
-        #     ridentifier = file.filename
-        # except Exception as e:
-        #     return self.make_response(
-        #         400,
-        #         message=f"Failed to extract filename: {e}.",
-        #         identifier=identifier,
-        #     )
-
         exists = utils.resource_exists(root_url, identifier)
         if error_on_exists and exists:
             return self.make_response(
@@ -57,9 +43,15 @@ class BinaryResource(Resource):
                 identifier=identifier,
             )
 
+        if error_on_missing and not exists:
+            return self.make_response(
+                404,
+                message=f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' is not found.",
+                identifier=identifier,
+            )
+
         try:
-            destination = "/".join([target, file.filename])
-            file.save(destination)
+            utils.save_resource(root_url, identifier, resource)
         except PermissionError:
             return self.make_response(
                 403,
@@ -67,12 +59,12 @@ class BinaryResource(Resource):
                 identifier=identifier,
             )
 
-        return {file: file.filename}, 200
+        return resource, 200
 
     def load_resource(
         self,
         identifier: ResourceIdentifierType,
-    ) -> FileResponseType:
+    ) -> ResponseType:
         """
         200: OK
         403: forbidden
@@ -93,7 +85,7 @@ class BinaryResource(Resource):
                 identifier=identifier,
             )
 
-    def delete_resource(self, identifier: ResourceIdentifierType) -> FileResponseType:
+    def delete_resource(self, identifier: ResourceIdentifierType) -> ResponseType:
         """
         200: OK
         403: forbidden
@@ -108,17 +100,24 @@ class BinaryResource(Resource):
             )
         return self.make_response(200, identifier=identifier)
 
-    def list_resource_identifiers(self) -> FileResponseType:
+    def list_resource_identifiers(self) -> ResponseType:
         """
         200: OK
         """
         body = {"identifiers": list(utils.resource_identifiers(self.root_url))}
         return body, 200
 
+    def list_resource_content(self) -> ResponseType:
+        """
+        200: OK
+        """
+        body = {"items": list(utils.resources(self.root_url))}
+        return body, 200
+
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
         raise NotImplementedError
 
     @classmethod
-    def make_response(cls, code: int, **body) -> FileResponseType:
+    def make_response(cls, code: int, **body) -> ResponseType:
         body["type"] = cls.RESOURCE_TYPE
         return body, code

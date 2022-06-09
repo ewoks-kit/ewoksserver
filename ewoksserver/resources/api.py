@@ -4,7 +4,6 @@
 from typing import Callable
 from flask_apispec import marshal_with, doc, use_kwargs
 from marshmallow import Schema, fields
-import marshmallow
 
 
 class ErrorSchema(Schema):
@@ -42,8 +41,8 @@ class EwoksGraphDescriptionSchema(Schema):
     category = fields.Str()
 
 
-class EwoksIconBinarySchema(Schema):
-    file = marshmallow.fields.Raw(type="file")
+class EwoksDataUrlSchema(Schema):
+    data_url = fields.Str(required=True)
 
 
 class EwoksTaskSchema(Schema):
@@ -78,7 +77,7 @@ def get_resource_content_schema(resource_type: str):
     elif resource_type == "task":
         return EwoksTaskSchema
     elif resource_type == "icon":
-        return EwoksIconBinarySchema
+        return EwoksDataUrlSchema
     else:
         raise TypeError(resource_type)
 
@@ -102,35 +101,11 @@ def get_resource_description_list_schema(resource_type: str):
 def get_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Get a {resource_type} as JSON")(func)
+        func = doc(summary=f"Get a {resource_type}")(func)
         func = marshal_with(
             bodyschema,
             code=200,
-            description=f"{resource_type} in JSON format",
-        )(func)
-        func = marshal_with(
-            ErrorSchema,
-            code=403,
-            description=f"no permission to read the {resource_type}",
-        )(func)
-        func = marshal_with(
-            ErrorSchema,
-            code=404,
-            description=f"requested {resource_type} is not found",
-        )(func)
-        return func
-
-    return wrapper
-
-
-def get_resource_binary(resource_type: str):
-    def wrapper(func: Callable):
-        bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Get an {resource_type} as Binary")(func)
-        func = marshal_with(
-            bodyschema,
-            code=200,
-            description=f"{resource_type} in binary format",
+            description=f"{resource_type} returned",
         )(func)
         func = marshal_with(
             ErrorSchema,
@@ -150,7 +125,7 @@ def get_resource_binary(resource_type: str):
 def put_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Update a {resource_type} from JSON")(func)
+        func = doc(summary=f"Update a {resource_type}")(func)
         func = use_kwargs(bodyschema)(func)
         func = marshal_with(
             bodyschema,
@@ -180,47 +155,17 @@ def put_resource(resource_type: str):
 def post_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Create a {resource_type} from JSON")(func)
+        func = doc(summary=f"Create a {resource_type}")(func)
         func = use_kwargs(bodyschema)(func)
         func = marshal_with(
             bodyschema,
             code=200,
-            description=f"{resource_type} in JSON format",
+            description=f"{resource_type} was created",
         )(func)
         func = marshal_with(
             ErrorSchema,
             code=400,
             description=f"bad {resource_type} create request",
-        )(func)
-        func = marshal_with(
-            ErrorSchema,
-            code=403,
-            description=f"no permission to write the {resource_type}",
-        )(func)
-        func = marshal_with(
-            ErrorSchema,
-            code=409,
-            description=f"requested {resource_type} already exists",
-        )(func)
-        return func
-
-    return wrapper
-
-
-def upload_resource(resource_type: str):
-    def wrapper(func: Callable):
-        bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Upload an {resource_type} in Binary format")(func)
-        func = use_kwargs(bodyschema)(func)
-        func = marshal_with(
-            bodyschema,
-            code=200,
-            description=f"{resource_type} in Binary format",
-        )(func)
-        func = marshal_with(
-            ErrorSchema,
-            code=400,
-            description=f"bad {resource_type} upload request",
         )(func)
         func = marshal_with(
             ErrorSchema,
