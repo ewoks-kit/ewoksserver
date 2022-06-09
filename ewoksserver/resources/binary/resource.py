@@ -58,9 +58,6 @@ class BinaryResource(Resource):
             )
 
         try:
-            # if not os.path.isdir(target):
-            #     print('no folder found')
-
             destination="/".join([target, file.filename])
             file.save(destination)
         except PermissionError:

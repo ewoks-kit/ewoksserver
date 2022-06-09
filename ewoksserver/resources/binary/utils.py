@@ -61,7 +61,6 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
     return url.name
-    # .stem
 
 
 def _load_url(url: ResourceUrlType) -> ResourceContentType:
