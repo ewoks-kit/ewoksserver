@@ -14,6 +14,7 @@ from flask_restful import Api
 from flask_apispec import FlaskApiSpec
 
 from celery import current_app
+from ewoksjob.client.process import pool_context
 
 from .resources import add_resources
 from .events import add_events
@@ -95,7 +96,11 @@ def run_app(
 @contextmanager
 def run_context(app: flask.Flask):
     with app.app_context():
-        yield
+        if app.config.get("CELERY") is None:
+            with pool_context():
+                yield
+        else:
+            yield
 
 
 def main(argv=None):
