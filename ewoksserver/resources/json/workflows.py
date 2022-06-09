@@ -1,6 +1,7 @@
 from flask import current_app
-# from ewoksjob.client import submit
-# from ewoksjob.client.process import submit as submit_local
+
+from ewoksjob.client import submit
+from ewoksjob.client.process import submit as submit_local
 from . import resource
 from .. import api
 
@@ -47,6 +48,7 @@ class Workflows(resource.JsonResource):
     @api.post_resource("workflow")
     def post(self, **resource) -> resource.ResponseType:
         return self.save_resource(resource, error_on_exists=True)
+
 
 class Description(resource.JsonResource):
     RESOURCE_TYPE = "workflow"

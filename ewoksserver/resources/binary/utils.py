@@ -3,9 +3,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Iterable, Union
-from flask import Response, send_file, send_from_directory
 import os
-import io
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
@@ -73,11 +71,8 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
 
 
 def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    uploads_path = os.path.join(basedir, 'icons')
-    
-    UPLOAD_FOLDER =r"./icons"
-    path=os.path.join(UPLOAD_FOLDER, resource)
+    UPLOAD_FOLDER = r"./icons"
+    path = os.path.join(UPLOAD_FOLDER, resource)
 
     try:
         with open(path, "rb") as svg:
@@ -85,7 +80,7 @@ def _load_icon_url(url: ResourceUrlType, resource: ResourceContentType):
             return data
     except FileNotFoundError:
         _logger.error(f"'{url}' not found")
-        raise   
+        raise
 
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:

@@ -35,14 +35,20 @@ def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
         if child.is_file() and not child.name.startswith("."):
             yield _load_url(child)
 
+
 def resource_descriptions(root: ResourceUrlType) -> Iterable[ResourceDescriptionType]:
     if not root.exists():
         return
     for child in root.iterdir():
         if child.is_file() and not child.name.startswith("."):
             res = _load_url(child)
-            resDict = {key:res['graph'][key] for key in ("id", "label", "category") if key in res['graph']}
+            resDict = {
+                key: res["graph"][key]
+                for key in ("id", "label", "category")
+                if key in res["graph"]
+            }
             yield resDict
+
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
     return _identifier_to_url(root, identifier).exists()

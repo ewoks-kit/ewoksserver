@@ -1,5 +1,4 @@
 from typing import Optional, Tuple
-import os
 from flask import current_app, request
 from ..utils import Resource
 from . import utils
@@ -21,7 +20,8 @@ class BinaryResource(Resource):
             current_app.config.get("RESOURCE_DIRECTORY"), self.RESOURCE_TYPE + "s"
         )
 
-    def upload_resource(self,
+    def upload_resource(
+        self,
         resource: ResourceContentType,
         error_on_exists: bool = False,
         error_on_missing: bool = False,
@@ -35,19 +35,19 @@ class BinaryResource(Resource):
         409: already exists  (`error_on_exists=True`)
         """
 
-        target='icons'
+        target = "icons"
         root_url = self.root_url
-        file = request.files['file']
+        file = request.files["file"]
         identifier = file.filename
 
-        try:
-            ridentifier = file.filename
-        except Exception as e:
-            return self.make_response(
-                400,
-                message=f"Failed to extract filename: {e}.",
-                identifier=identifier,
-            )
+        # try:
+        #     ridentifier = file.filename
+        # except Exception as e:
+        #     return self.make_response(
+        #         400,
+        #         message=f"Failed to extract filename: {e}.",
+        #         identifier=identifier,
+        #     )
 
         exists = utils.resource_exists(root_url, identifier)
         if error_on_exists and exists:
@@ -58,7 +58,7 @@ class BinaryResource(Resource):
             )
 
         try:
-            destination="/".join([target, file.filename])
+            destination = "/".join([target, file.filename])
             file.save(destination)
         except PermissionError:
             return self.make_response(

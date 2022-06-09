@@ -35,6 +35,7 @@ class EwoksGraphSchema(Schema):
     nodes = fields.List(fields.Mapping)
     links = fields.List(fields.Mapping)
 
+
 class EwoksGraphDescriptionSchema(Schema):
     id = fields.Str()
     label = fields.Str()
@@ -42,7 +43,8 @@ class EwoksGraphDescriptionSchema(Schema):
 
 
 class EwoksIconBinarySchema(Schema):
-    file = marshmallow.fields.Raw(type='file')
+    file = marshmallow.fields.Raw(type="file")
+
 
 class EwoksTaskSchema(Schema):
     task_type = fields.Str(required=True)
@@ -89,11 +91,13 @@ def get_resource_content_list_schema(resource_type: str):
     else:
         raise TypeError(resource_type)
 
+
 def get_resource_description_list_schema(resource_type: str):
     if resource_type == "workflow":
         return EwoksGraphDescriptionListSchema
     else:
         raise TypeError(resource_type)
+
 
 def get_resource(resource_type: str):
     def wrapper(func: Callable):
@@ -117,6 +121,7 @@ def get_resource(resource_type: str):
         return func
 
     return wrapper
+
 
 def get_resource_binary(resource_type: str):
     def wrapper(func: Callable):
@@ -201,6 +206,7 @@ def post_resource(resource_type: str):
 
     return wrapper
 
+
 def upload_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
@@ -268,15 +274,17 @@ def list_resource_content(resource_type: str):
 
     return wrapper
 
+
 def list_resource_descriptions(resource_type: str):
     def wrapper(func: Callable):
         func = doc(summary=f"Get a list of {resource_type}s")(func)
-        func = marshal_with(get_resource_description_list_schema(resource_type), code=200)(
-            func
-        )
+        func = marshal_with(
+            get_resource_description_list_schema(resource_type), code=200
+        )(func)
         return func
 
     return wrapper
+
 
 def execute_resource(resource_type: str):
     def wrapper(func: Callable):

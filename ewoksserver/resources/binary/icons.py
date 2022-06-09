@@ -3,6 +3,7 @@ from . import resource
 from .. import api
 from flask import Response
 
+
 class Icon(resource.BinaryResource):
     RESOURCE_TYPE = "icon"
 
@@ -12,15 +13,17 @@ class Icon(resource.BinaryResource):
         return resource["name"]
 
     @api.get_resource_binary("icon")
-    def get(self, identifier: resource.ResourceIdentifierType) -> resource.ResourceIdentifierType:
+    def get(
+        self, identifier: resource.ResourceIdentifierType
+    ) -> resource.ResourceIdentifierType:
         ret = self.load_resource(identifier)
         name, extension = os.path.splitext(identifier)
 
-        mimeType = ''
-        if extension == '.png':
-            mimeType = 'image/png'
-        elif extension == '.svg':
-            mimeType = 'image/svg+xml'
+        mimeType = ""
+        if extension == ".png":
+            mimeType = "image/png"
+        elif extension == ".svg":
+            mimeType = "image/svg+xml"
         return Response(ret[0], mimetype=mimeType)
 
     @api.delete_resource("icon")
