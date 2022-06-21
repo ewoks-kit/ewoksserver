@@ -46,5 +46,5 @@ htmlcov/
 /icons
 
 # the db file
-.ewoks_events.db
+/ewoks_events.db
 
