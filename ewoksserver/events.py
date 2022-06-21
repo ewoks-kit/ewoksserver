@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-import time
 from typing import Optional
 import threading
 from flask import current_app
@@ -25,7 +24,8 @@ def copy_current_app_context(fn):
 def add_events(socketio: SocketIO):
     socketio.on("connect")(connect)
     socketio.on("disconnect")(disconnect)
-        
+
+
 def connect():
     _EMITTER.connect()
 
