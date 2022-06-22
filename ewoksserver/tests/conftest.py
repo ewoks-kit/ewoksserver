@@ -112,3 +112,10 @@ def default_workflow_identifiers() -> List[Path]:
         for url in (DEFAULT_ROOT / "workflows").iterdir()
         if url.suffix == ".json"
     ]
+
+
+@pytest.fixture(scope="session")
+def default_task_identifiers() -> List[Path]:
+    return [
+        url.stem for url in (DEFAULT_ROOT / "tasks").iterdir() if url.suffix == ".json"
+    ]
