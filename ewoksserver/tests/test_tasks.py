@@ -65,11 +65,11 @@ def test_single_task(serverside_client):
     assert data == expected
 
 
-def test_multiple_tasks(serverside_client):
+def test_multiple_tasks(serverside_client, default_task_identifiers):
     response = serverside_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": []}
+    assert data == {"identifiers": list(default_task_identifiers)}
 
     task1a = {
         "task_identifier": "myproject.tasks.Dummy1",
@@ -110,15 +110,18 @@ def test_multiple_tasks(serverside_client):
     response = serverside_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200, data
-    expected = {"myproject.tasks.Dummy1", "myproject.tasks.Dummy2"}
+    expected = set(default_task_identifiers) | {
+        "myproject.tasks.Dummy1",
+        "myproject.tasks.Dummy2",
+    }
     assert set(data["identifiers"]) == expected
 
 
-def test_discover_tasks(serverside_client):
+def test_discover_tasks(serverside_client, default_task_identifiers):
     response = serverside_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": []}
+    assert data == {"identifiers": list(default_task_identifiers)}
 
     module = "ewoksserver.tests.dummy_tasks"
 
@@ -134,7 +137,7 @@ def test_discover_tasks(serverside_client):
     response = serverside_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    expected = {
+    expected = set(default_task_identifiers) | {
         "ewoksserver.tests.dummy_tasks.MyTask1",
         "ewoksserver.tests.dummy_tasks.MyTask2",
     }
@@ -146,11 +149,16 @@ def test_discover_tasks(serverside_client):
     assert "already exists" in data["message"]
 
 
-def test_task_descriptions(serverside_client):
+def test_task_descriptions(serverside_client, default_task_identifiers):
     response = serverside_client.get("/tasks/descriptions")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"items": []}
+    default_descriptions = [
+        desc
+        for desc in data["items"]
+        if desc["task_identifier"] in default_task_identifiers
+    ]
+    assert data == {"items": default_descriptions}
 
     module = "ewoksserver.tests.dummy_tasks"
 

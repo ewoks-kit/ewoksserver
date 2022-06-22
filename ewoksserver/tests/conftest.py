@@ -1,3 +1,5 @@
+from pathlib import Path
+from typing import List
 import pytest
 from ewoksserver.server import create_app
 from ewoksserver.server import run_context
@@ -9,6 +11,7 @@ from ewoksjob.tests.conftest import sqlite3_ewoks_events  # noqa F401
 
 from .data import resource_filenames
 from ..resources.binary.utils import _load_url
+from ..resources.data import DEFAULT_ROOT
 
 
 @pytest.fixture
@@ -91,3 +94,28 @@ def png_icons():
 def svg_icons():
     filenames = resource_filenames()
     return [_load_url(filename) for filename in filenames if filename.endswith(".svg")]
+
+
+@pytest.fixture(scope="session")
+def default_icon_identifiers() -> List[Path]:
+    return [
+        url.name
+        for url in (DEFAULT_ROOT / "icons").iterdir()
+        if not url.name == "__init__.py"
+    ]
+
+
+@pytest.fixture(scope="session")
+def default_workflow_identifiers() -> List[Path]:
+    return [
+        url.stem
+        for url in (DEFAULT_ROOT / "workflows").iterdir()
+        if url.suffix == ".json"
+    ]
+
+
+@pytest.fixture(scope="session")
+def default_task_identifiers() -> List[Path]:
+    return [
+        url.stem for url in (DEFAULT_ROOT / "tasks").iterdir() if url.suffix == ".json"
+    ]

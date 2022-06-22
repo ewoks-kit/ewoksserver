@@ -1,7 +1,8 @@
 import json
 import logging
 from pathlib import Path
-from typing import Iterable, Union
+from typing import Iterator, Union
+from ..data import DEFAULT_ROOT
 
 
 ResourceIdentifierType = str
@@ -20,38 +21,48 @@ def root_url(root_url: Union[str, Path, None], category: str) -> ResourceUrlType
     return root_url / category
 
 
-def resource_identifiers(root: ResourceUrlType) -> Iterable[ResourceIdentifierType]:
-    if not root.exists():
-        return
-    for child in root.iterdir():
-        if child.is_file() and not child.name.startswith("."):
-            yield _url_to_identifier(child)
+def resource_identifiers(root: ResourceUrlType) -> Iterator[ResourceIdentifierType]:
+    for url in _resource_urls(root):
+        yield _url_to_identifier(url)
 
 
-def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
-    if not root.exists():
-        return
-    for child in root.iterdir():
-        if child.is_file() and not child.name.startswith("."):
-            yield _load_url(child)
+def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
+    for url in _resource_urls(root):
+        yield _load_url(url)
 
 
-def resource_descriptions(root: ResourceUrlType) -> Iterable[ResourceDescriptionType]:
-    if not root.exists():
-        return
-    for child in root.iterdir():
-        if child.is_file() and not child.name.startswith("."):
-            res = _load_url(child)
-            resDict = {
-                key: res["graph"][key]
-                for key in ("id", "label", "category")
-                if key in res["graph"]
-            }
-            yield resDict
+def resource_descriptions(root: ResourceUrlType) -> Iterator[ResourceDescriptionType]:
+    for res in resources(root):
+        resDict = {
+            key: res["graph"][key]
+            for key in ("id", "label", "category")
+            if key in res["graph"]
+        }
+        yield resDict
 
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
-    return _identifier_to_url(root, identifier).exists()
+    for root in [root, _default_root_url(root)]:
+        if _identifier_to_url(root, identifier).exists():
+            return True
+    return False
+
+
+def _default_root_url(root: ResourceUrlType) -> ResourceUrlType:
+    return DEFAULT_ROOT / root.name
+
+
+def _resource_urls(root: ResourceUrlType) -> Iterator[ResourceUrlType]:
+    for root in [root, _default_root_url(root)]:
+        if not root.exists():
+            continue
+        for url in root.iterdir():
+            if _is_resource(url):
+                yield url
+
+
+def _is_resource(url: ResourceUrlType) -> bool:
+    return url.is_file() and url.name.endswith(".json")
 
 
 def save_resource(
@@ -67,7 +78,11 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    return _load_url(url)
+    try:
+        return _load_url(url)
+    except FileNotFoundError:
+        url = _identifier_to_url(DEFAULT_ROOT / root.name, identifier)
+        return _load_url(url)
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:

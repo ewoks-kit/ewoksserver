@@ -1,3 +1,7 @@
+from pathlib import Path
+
+RESOURCE_DIRECTORY = str(Path(__file__).absolute().parent)
+
 EWOKS = {
     "handlers": [
         {
@@ -11,3 +15,8 @@ EWOKS = {
         }
     ]
 }
+
+# CELERY = {
+#    "broker_url": "redis://localhost:25001/2",
+#    "result_backend": "redis://localhost:25001/3",
+# }
