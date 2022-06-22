@@ -74,8 +74,18 @@ class DiscoverTasks(resource.JsonResource):
             task_discovery.discover_tasks_from_modules(*modules, task_type=task_type)
         )
         for _resource in tasks:
+            self._default_task_properties(_resource)
             response, code = self.save_resource(_resource, error_on_exists=True)
             if code != 200:
                 return response, code
         tasks = [desc["task_identifier"] for desc in tasks]
         return self.make_response(200, identifiers=tasks)
+
+    @staticmethod
+    def _default_task_properties(_resource: dict) -> None:
+        if not _resource.get("icon"):
+            _resource["icon"] = "default.png"
+        if not _resource.get("label"):
+            task_identifier = _resource.get("task_identifier")
+            if task_identifier:
+                _resource["label"] = task_identifier.split(".")[-1]
