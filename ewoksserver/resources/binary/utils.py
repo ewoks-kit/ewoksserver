@@ -1,4 +1,6 @@
-import json
+import base64
+import mimetypes
+from urllib import request
 import logging
 from pathlib import Path
 from typing import Iterable, Union
@@ -7,7 +9,6 @@ from typing import Iterable, Union
 ResourceIdentifierType = str
 ResourceUrlType = Path
 ResourceContentType = dict
-ResourceDescriptionType = dict
 
 _logger = logging.getLogger(__name__)
 
@@ -36,20 +37,6 @@ def resources(root: ResourceUrlType) -> Iterable[ResourceContentType]:
             yield _load_url(child)
 
 
-def resource_descriptions(root: ResourceUrlType) -> Iterable[ResourceDescriptionType]:
-    if not root.exists():
-        return
-    for child in root.iterdir():
-        if child.is_file() and not child.name.startswith("."):
-            res = _load_url(child)
-            resDict = {
-                key: res["graph"][key]
-                for key in ("id", "label", "category")
-                if key in res["graph"]
-            }
-            yield resDict
-
-
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
     return _identifier_to_url(root, identifier).exists()
 
@@ -75,31 +62,43 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     _delete_url(url)
 
 
-def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    return root / (identifier + ".json")
-
-
-def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    return url.stem
-
-
-def _save_url(url: ResourceUrlType, resource: ResourceContentType):
-    _logger.debug("Save file '%s'", url)
-    url.parent.mkdir(parents=True, exist_ok=True)
-    with open(url, "w") as f:
-        json.dump(resource, f, indent=2)
-
-
-def _load_url(url: ResourceUrlType) -> ResourceContentType:
-    try:
-        with open(url, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        _logger.error(f"'{url}' not found")
-        raise
-
-
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     if url.exists():
         _logger.debug("Delete file '%s'", url)
         url.unlink()
+
+
+def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
+    return root / identifier
+
+
+def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
+    return url.name
+
+
+def _load_url(url: ResourceUrlType) -> ResourceContentType:
+    mimetype, encoding = mimetypes.guess_type(url, strict=True)
+    if mimetype is None:
+        raise ValueError(f"Cannot derive mime type from '{url}'")
+
+    try:
+        with open(url, "rb") as f:
+            data = f.read()
+    except FileNotFoundError:
+        _logger.error(f"'{url}' not found")
+        raise
+
+    if not encoding:
+        encoding = "base64"
+        data = base64.b64encode(data).decode()
+
+    return {"data_url": f"data:{mimetype};{encoding},{data}"}
+
+
+def _save_url(url: ResourceUrlType, resource: ResourceContentType) -> None:
+    _logger.debug("Save file '%s'", url)
+    url.parent.mkdir(parents=True, exist_ok=True)
+    with request.urlopen(resource["data_url"]) as f:
+        data = f.read()
+    with open(url, "wb") as f:
+        f.write(data)

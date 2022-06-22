@@ -40,6 +40,11 @@ htmlcov/
 /.vscode/
 /.history/
 
-# workflows and tasks
+# workflows, tasks and icons folders
 /workflows
 /tasks
+/icons
+
+# the db file
+/ewoks_events.db
+

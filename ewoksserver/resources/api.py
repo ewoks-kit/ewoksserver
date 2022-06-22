@@ -35,6 +35,16 @@ class EwoksGraphSchema(Schema):
     links = fields.List(fields.Mapping)
 
 
+class EwoksGraphDescriptionSchema(Schema):
+    id = fields.Str()
+    label = fields.Str()
+    category = fields.Str()
+
+
+class EwoksDataUrlSchema(Schema):
+    data_url = fields.Str(required=True)
+
+
 class EwoksTaskSchema(Schema):
     task_type = fields.Str(required=True)
     task_identifier = fields.Str(required=True)
@@ -47,6 +57,10 @@ class EwoksTaskSchema(Schema):
 
 class EwoksGraphListSchema(Schema):
     items = fields.List(fields.Nested(EwoksGraphSchema()))
+
+
+class EwoksGraphDescriptionListSchema(Schema):
+    items = fields.List(fields.Nested(EwoksGraphDescriptionSchema()))
 
 
 class EwoksTaskListSchema(Schema):
@@ -62,6 +76,8 @@ def get_resource_content_schema(resource_type: str):
         return EwoksGraphSchema
     elif resource_type == "task":
         return EwoksTaskSchema
+    elif resource_type == "icon":
+        return EwoksDataUrlSchema
     else:
         raise TypeError(resource_type)
 
@@ -75,14 +91,21 @@ def get_resource_content_list_schema(resource_type: str):
         raise TypeError(resource_type)
 
 
+def get_resource_description_list_schema(resource_type: str):
+    if resource_type == "workflow":
+        return EwoksGraphDescriptionListSchema
+    else:
+        raise TypeError(resource_type)
+
+
 def get_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Get a {resource_type} as JSON")(func)
+        func = doc(summary=f"Get a {resource_type}")(func)
         func = marshal_with(
             bodyschema,
             code=200,
-            description=f"{resource_type} in JSON format",
+            description=f"{resource_type} returned",
         )(func)
         func = marshal_with(
             ErrorSchema,
@@ -102,7 +125,7 @@ def get_resource(resource_type: str):
 def put_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Overwrite a {resource_type} from JSON")(func)
+        func = doc(summary=f"Update a {resource_type}")(func)
         func = use_kwargs(bodyschema)(func)
         func = marshal_with(
             bodyschema,
@@ -112,7 +135,7 @@ def put_resource(resource_type: str):
         func = marshal_with(
             ErrorSchema,
             code=400,
-            description=f"bad {resource_type} overwrite request",
+            description=f"bad {resource_type} update request",
         )(func)
         func = marshal_with(
             ErrorSchema,
@@ -132,17 +155,17 @@ def put_resource(resource_type: str):
 def post_resource(resource_type: str):
     def wrapper(func: Callable):
         bodyschema = get_resource_content_schema(resource_type)
-        func = doc(summary=f"Create a {resource_type} from JSON")(func)
+        func = doc(summary=f"Create a {resource_type}")(func)
         func = use_kwargs(bodyschema)(func)
         func = marshal_with(
             bodyschema,
             code=200,
-            description=f"{resource_type} in JSON format",
+            description=f"{resource_type} was created",
         )(func)
         func = marshal_with(
             ErrorSchema,
             code=400,
-            description=f"bad {resource_type} overwrite request",
+            description=f"bad {resource_type} create request",
         )(func)
         func = marshal_with(
             ErrorSchema,
@@ -192,6 +215,17 @@ def list_resource_content(resource_type: str):
         func = marshal_with(get_resource_content_list_schema(resource_type), code=200)(
             func
         )
+        return func
+
+    return wrapper
+
+
+def list_resource_descriptions(resource_type: str):
+    def wrapper(func: Callable):
+        func = doc(summary=f"Get a list of {resource_type}s")(func)
+        func = marshal_with(
+            get_resource_description_list_schema(resource_type), code=200
+        )(func)
         return func
 
     return wrapper

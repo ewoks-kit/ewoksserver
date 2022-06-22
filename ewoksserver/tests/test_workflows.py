@@ -69,3 +69,32 @@ def test_multiple_workflows(serverside_client):
     assert response.status_code == 200
     expected = {"myworkflow1", "myworkflow2"}
     assert set(data["identifiers"]) == expected
+
+
+def test_workflow_descriptions(serverside_client):
+    response = serverside_client.get("/workflows/descriptions")
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data == {"items": []}
+
+    workflow1 = {
+        "graph": {"id": "myworkflow1", "label": "label1", "category": "cat1"},
+        "nodes": [{"id": "task1"}],
+    }
+    workflow2 = {"graph": {"id": "myworkflow2"}, "nodes": [{"id": "task1"}]}
+    response = serverside_client.post("/workflows", json=workflow1)
+    data = response.get_json()
+    assert response.status_code == 200, data
+    response = serverside_client.post("/workflows", json=workflow2)
+    data = response.get_json()
+    assert response.status_code == 200, data
+
+    response = serverside_client.get("/workflows/descriptions")
+    data = response.get_json()["items"]
+    assert response.status_code == 200
+    expected = [
+        {"id": "myworkflow1", "label": "label1", "category": "cat1"},
+        {"id": "myworkflow2"},
+    ]
+    data = sorted(data, key=lambda x: x["id"])
+    assert data == expected

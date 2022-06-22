@@ -85,7 +85,7 @@ class EwoksEventEmitter:
                 for event in reader.wait_events(stop_event=self._stop_event):
                     if self._stop_event.is_set():
                         break
-                    emit("ewoks", event, broadcast=True)
+                    emit("Executing", event, broadcast=True)
         finally:
             self._thread = None
 

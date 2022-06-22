@@ -1,5 +1,4 @@
-from typing import Optional, Tuple
-
+from typing import Tuple
 from flask import current_app
 from ..utils import Resource
 from . import utils
@@ -10,7 +9,7 @@ from .utils import ResourceIdentifierType
 ResponseType = Tuple[dict, int]
 
 
-class JsonResource(Resource):
+class BinaryResource(Resource):
     """Base class without end points"""
 
     RESOURCE_TYPE = NotImplemented
@@ -23,10 +22,10 @@ class JsonResource(Resource):
 
     def save_resource(
         self,
+        identifier: ResourceIdentifierType,
         resource: ResourceContentType,
         error_on_exists: bool = False,
         error_on_missing: bool = False,
-        identifier: Optional[ResourceIdentifierType] = None,
     ) -> ResponseType:
         """
         200: OK
@@ -35,24 +34,6 @@ class JsonResource(Resource):
         404: not found (`error_on_missing=True`)
         409: already exists  (`error_on_exists=True`)
         """
-        try:
-            ridentifier = self.get_identifier(resource)
-        except Exception as e:
-            return self.make_response(
-                400,
-                message=f"Failed to extract {self.RESOURCE_TYPE} identifier from '{resource}': {e}.",
-                identifier=identifier,
-            )
-        if identifier is None:
-            identifier = ridentifier
-
-        if identifier != ridentifier:
-            return self.make_response(
-                400,
-                message=f"Resource identifier '{identifier}' is not equal to '{ridentifier}'.",
-                identifier=identifier,
-            )
-
         root_url = self.root_url
         exists = utils.resource_exists(root_url, identifier)
         if error_on_exists and exists:
@@ -131,13 +112,6 @@ class JsonResource(Resource):
         200: OK
         """
         body = {"items": list(utils.resources(self.root_url))}
-        return body, 200
-
-    def list_resource_descriptions(self) -> ResponseType:
-        """
-        200: OK
-        """
-        body = {"items": list(utils.resource_descriptions(self.root_url))}
         return body, 200
 
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
