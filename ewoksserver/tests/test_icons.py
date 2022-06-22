@@ -6,12 +6,16 @@ def test_single_icon_svg(serverside_client, svg_icons):
     assert_single_icon(serverside_client, svg_icons, ".svg")
 
 
-def test_multiple_icons_png(serverside_client, png_icons):
-    assert_multiple_icons(serverside_client, png_icons, ".png")
+def test_multiple_icons_png(serverside_client, png_icons, default_icon_identifiers):
+    assert_multiple_icons(
+        serverside_client, png_icons, ".png", default_icon_identifiers
+    )
 
 
-def test_multiple_iconssvg(serverside_client, svg_icons):
-    assert_multiple_icons(serverside_client, svg_icons, ".svg")
+def test_multiple_icons_svg(serverside_client, svg_icons, default_icon_identifiers):
+    assert_multiple_icons(
+        serverside_client, svg_icons, ".svg", default_icon_identifiers
+    )
 
 
 def assert_single_icon(serverside_client, icons, ext):
@@ -63,9 +67,8 @@ def assert_single_icon(serverside_client, icons, ext):
     assert data == expected
 
 
-def assert_multiple_icons(serverside_client, icons, ext):
-
-    expected = list()
+def assert_multiple_icons(serverside_client, icons, ext, existing):
+    expected = list(existing)
     for i, icon in enumerate(icons):
         identifier = f"icon{i}{ext}"
         expected.append(identifier)

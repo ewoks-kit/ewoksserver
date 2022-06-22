@@ -1,0 +1,182 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {
+    "id": "demo",
+    "label": "demo",
+    "schema_version": "1.0"
+  },
+  "nodes": [
+    {
+      "default_inputs": [
+        {
+          "name": "list",
+          "value": [
+            0,
+            1,
+            2
+          ]
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumlist.SumList",
+      "id": "task0"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "a",
+          "value": 1
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task1"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "a",
+          "value": 2
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task2"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "b",
+          "value": 3
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task3"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "b",
+          "value": 4
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task4"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "b",
+          "value": 5
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task5"
+    },
+    {
+      "default_inputs": [
+        {
+          "name": "b",
+          "value": 6
+        },
+        {
+          "name": "delay",
+          "value": 0
+        }
+      ],
+      "task_type": "class",
+      "task_identifier": "ewokscore.tests.examples.tasks.sumtask.SumTask",
+      "id": "task6"
+    }
+  ],
+  "links": [
+    {
+      "data_mapping": [
+        {
+          "target_input": "a",
+          "source_output": "sum"
+        }
+      ],
+      "source": "task0",
+      "target": "task1"
+    },
+    {
+      "data_mapping": [
+        {
+          "target_input": "a",
+          "source_output": "result"
+        }
+      ],
+      "source": "task1",
+      "target": "task3"
+    },
+    {
+      "data_mapping": [
+        {
+          "target_input": "a",
+          "source_output": "result"
+        }
+      ],
+      "source": "task2",
+      "target": "task4"
+    },
+    {
+      "data_mapping": [
+        {
+          "target_input": "a",
+          "source_output": "result"
+        }
+      ],
+      "source": "task3",
+      "target": "task5"
+    },
+    {
+      "data_mapping": [
+        {
+          "target_input": "b",
+          "source_output": "result"
+        }
+      ],
+      "source": "task4",
+      "target": "task5"
+    },
+    {
+      "data_mapping": [
+        {
+          "target_input": "a",
+          "source_output": "result"
+        }
+      ],
+      "source": "task5",
+      "target": "task6"
+    }
+  ]
+}

@@ -42,11 +42,11 @@ def test_single_workflow(serverside_client):
     assert data["message"] == f"Workflow '{identifier}' is not found."
 
 
-def test_multiple_workflows(serverside_client):
+def test_multiple_workflows(serverside_client, default_workflow_identifiers):
     response = serverside_client.get("/workflows")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": []}
+    assert data == {"identifiers": list(default_workflow_identifiers)}
 
     workflow1a = {"graph": {"id": "myworkflow1"}, "nodes": [{"id": "task1"}]}
     workflow1b = {"graph": {"id": "myworkflow1"}, "nodes": [{"id": "task2"}]}
@@ -67,15 +67,18 @@ def test_multiple_workflows(serverside_client):
     response = serverside_client.get("/workflows")
     data = response.get_json()
     assert response.status_code == 200
-    expected = {"myworkflow1", "myworkflow2"}
+    expected = set(default_workflow_identifiers) | {"myworkflow1", "myworkflow2"}
     assert set(data["identifiers"]) == expected
 
 
-def test_workflow_descriptions(serverside_client):
+def test_workflow_descriptions(serverside_client, default_workflow_identifiers):
     response = serverside_client.get("/workflows/descriptions")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"items": []}
+    default_descriptions = [
+        desc for desc in data["items"] if desc["id"] in default_workflow_identifiers
+    ]
+    assert data == {"items": default_descriptions}
 
     workflow1 = {
         "graph": {"id": "myworkflow1", "label": "label1", "category": "cat1"},
@@ -92,7 +95,7 @@ def test_workflow_descriptions(serverside_client):
     response = serverside_client.get("/workflows/descriptions")
     data = response.get_json()["items"]
     assert response.status_code == 200
-    expected = [
+    expected = default_descriptions + [
         {"id": "myworkflow1", "label": "label1", "category": "cat1"},
         {"id": "myworkflow2"},
     ]
