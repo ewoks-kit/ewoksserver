@@ -1,15 +1,12 @@
-from contextlib import contextmanager
 from datetime import datetime
-from typing import Optional
 import threading
-from flask import current_app
+
 from flask import copy_current_request_context
 from flask.globals import _app_ctx_stack
 from flask_socketio import SocketIO
 from flask_socketio import emit
 
-from ewoksjob.events.readers import EwoksEventReader
-from ewoksjob.events.readers import instantiate_reader
+from .ewoks_events import reader_context
 
 
 def copy_current_app_context(fn):
@@ -79,9 +76,8 @@ class EwoksEventEmitter:
 
     def _main(self):
         try:
-            with self._reader_context() as reader:
+            with reader_context() as reader:
                 if reader is None:
-                    current_app.logger.warning("Configure ewoks event handlers")
                     return
                 starttime = datetime.now().astimezone()
                 for event in reader.wait_events(
@@ -92,28 +88,6 @@ class EwoksEventEmitter:
                     emit("Executing", event, broadcast=True)
         finally:
             self._thread = None
-
-    @staticmethod
-    @contextmanager
-    def _reader_context() -> Optional[EwoksEventReader]:
-        cfg = current_app.config.get("EWOKS", dict())
-        handlers = cfg.get("handlers", list())
-        argmap = {"uri": "url"}
-        for name in ("Redis", "Sqlite3", None):
-            for handler in handlers:
-                if name is None or name in handler["class"]:
-                    arguments = handler.get("arguments", list())
-                    arguments = {
-                        argmap.get(arg["name"], arg["name"]): arg["value"]
-                        for arg in arguments
-                    }
-                    reader = instantiate_reader(**arguments)
-                    try:
-                        yield reader
-                    finally:
-                        reader.close()
-                        return
-        yield None
 
 
 _EMITTER = EwoksEventEmitter()

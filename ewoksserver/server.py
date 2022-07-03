@@ -13,11 +13,11 @@ from flask_socketio import SocketIO
 from flask_restful import Api
 from flask_apispec import FlaskApiSpec
 
-from celery import current_app
+from celery import current_app as current_celery_app
 from ewoksjob.client.process import pool_context
 
 from .resources import add_resources
-from .events import add_events
+from .events.websocket import add_events
 
 
 def create_app(**config) -> Tuple[flask.Flask, Api, FlaskApiSpec]:
@@ -47,7 +47,7 @@ def configure_app(app: flask.Flask, configuration: Optional[str] = None, **confi
         config = {k.upper(): v for k, v in config.items() if v is not None}
         app.config.update(config)
     if app.config.get("CELERY"):
-        current_app.conf.update(app.config["CELERY"])
+        current_celery_app.conf.update(app.config["CELERY"])
 
 
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
