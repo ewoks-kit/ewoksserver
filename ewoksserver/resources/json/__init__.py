@@ -8,7 +8,7 @@ from . import workflows
 from ..utils import register_resource
 
 
-def add_file_resources(api: Api, apidoc: FlaskApiSpec):
+def add_resources(api: Api, apidoc: FlaskApiSpec):
     # Save/load/execute workflows
     register_resource(workflows.Workflows, "/workflows", api, apidoc)
     register_resource(workflows.Description, "/workflows/descriptions", api, apidoc)

@@ -7,7 +7,7 @@ from . import icons
 from ..utils import register_resource
 
 
-def add_file_resources(api: Api, apidoc: FlaskApiSpec):
+def add_resources(api: Api, apidoc: FlaskApiSpec):
     # Save/load icons
     register_resource(icons.Icons, "/icons", api, apidoc)
     register_resource(icons.Icon, "/icon/<string:identifier>", api, apidoc)

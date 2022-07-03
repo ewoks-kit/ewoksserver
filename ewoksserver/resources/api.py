@@ -71,6 +71,44 @@ class DiscoverSchema(Schema):
     modules = fields.List(fields.Str)
 
 
+class EwoksEventSchema(Schema):
+    host_name = fields.Str(required=True)
+    process_id = fields.Int(required=True)
+    user_name = fields.Str(required=True)
+    job_id = fields.Str(required=True)
+    binding = fields.Str(default=None)
+    context = fields.Str(required=True)
+    workflow_id = fields.Str(required=True)
+    node_id = fields.Str(default=None)
+    task_id = fields.Str(default=None)
+    type = fields.Str(required=True)
+    time = fields.Str(required=True)
+    error = fields.Boolean(default=None)
+    error_message = fields.Str(default=None)
+    error_traceback = fields.Str(default=None)
+    progress = fields.Int(default=None)
+    task_uri = fields.Str(default=None)
+    input_uris = fields.List(fields.Mapping, default=None)
+    output_uris = fields.List(fields.Mapping, default=None)
+
+
+class EwoksEventQuerySchema(Schema):
+    user_name = fields.Str()
+    job_id = fields.Str()
+    context = fields.Str()
+    workflow_id = fields.Str()
+    node_id = fields.Str()
+    task_id = fields.Str()
+    type = fields.Str()
+    starttime = fields.Str()
+    endtime = fields.Str()
+    error = fields.Boolean()
+
+
+class EwoksEventListSchema(Schema):
+    jobs = fields.List(fields.List(fields.Nested(EwoksEventSchema())))
+
+
 def get_resource_content_schema(resource_type: str):
     if resource_type == "workflow":
         return EwoksGraphSchema
@@ -269,6 +307,21 @@ def discover_resources(resource_type: str):
             ErrorSchema,
             code=409,
             description=f"requested {resource_type} already exists",
+        )(func)
+        return func
+
+    return wrapper
+
+
+def get_ewoks_events():
+    def wrapper(func: Callable):
+        func = doc(summary="Get ewoks execution events")(func)
+        func = use_kwargs(EwoksEventQuerySchema)(func)
+        func = marshal_with(EwoksEventListSchema, code=200)(func)
+        func = marshal_with(
+            ErrorSchema,
+            code=500,
+            description="most likely the server was not configured for ewoks events",
         )(func)
         return func
 

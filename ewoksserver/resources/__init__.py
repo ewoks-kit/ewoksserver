@@ -7,6 +7,7 @@ from flask_apispec import FlaskApiSpec, doc, marshal_with
 
 from . import json
 from . import binary
+from . import events
 from . import utils
 
 
@@ -20,5 +21,6 @@ class Home(utils.Resource):
 def add_resources(api: Api, apidoc: FlaskApiSpec):
     """Currently only one resource backend is supported: file system"""
     utils.register_resource(Home, "/", api, apidoc)
-    json.add_file_resources(api, apidoc)
-    binary.add_file_resources(api, apidoc)
+    json.add_resources(api, apidoc)
+    binary.add_resources(api, apidoc)
+    events.add_resources(api, apidoc)
