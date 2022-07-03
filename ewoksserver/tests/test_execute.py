@@ -30,6 +30,15 @@ def test_execute_without_celery(local_exec_client):
     _test_execute(*local_exec_client)
 
 
+def test_new_client_new_events(local_exec_client):
+    client, sclient = local_exec_client
+    _test_execute(client, sclient)
+    sclient.disconnect()
+    sclient.connect()
+    time.sleep(1)
+    assert not sclient.get_received()
+
+
 def _test_execute(client, sclient):
     graph_name, expected = _upload_graph(client)
     response = client.post(f"/execute/{graph_name}")

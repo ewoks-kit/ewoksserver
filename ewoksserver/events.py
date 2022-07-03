@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Optional
 import threading
 from flask import current_app
@@ -82,7 +83,10 @@ class EwoksEventEmitter:
                 if reader is None:
                     current_app.logger.warning("Configure ewoks event handlers")
                     return
-                for event in reader.wait_events(stop_event=self._stop_event):
+                starttime = datetime.now().astimezone()
+                for event in reader.wait_events(
+                    starttime=starttime, stop_event=self._stop_event
+                ):
                     if self._stop_event.is_set():
                         break
                     emit("Executing", event, broadcast=True)
