@@ -73,3 +73,7 @@ EWOKS = {
     ]
 }
 ```
+
+## Documentation
+
+https://ewoksserver.readthedocs.io/
