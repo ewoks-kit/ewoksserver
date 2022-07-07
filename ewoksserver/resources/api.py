@@ -316,7 +316,7 @@ def discover_resources(resource_type: str):
 def get_ewoks_events():
     def wrapper(func: Callable):
         func = doc(summary="Get ewoks execution events")(func)
-        func = use_kwargs(EwoksEventQuerySchema)(func)
+        func = use_kwargs(EwoksEventQuerySchema, location="query")(func)
         func = marshal_with(EwoksEventListSchema, code=200)(func)
         func = marshal_with(
             ErrorSchema,
