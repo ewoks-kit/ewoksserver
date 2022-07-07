@@ -1,5 +1,4 @@
 from typing import List
-from flask import request
 from ..utils import Resource
 from .. import api
 from ...events.ewoks_events import reader_context
@@ -8,9 +7,6 @@ from ...events.ewoks_events import reader_context
 class ExecutionEvents(Resource):
     @api.get_ewoks_events()
     def get(self, **filters) -> List[List[dict]]:
-        queryparams = request.args.to_dict()
-        if queryparams:
-            filters = {**queryparams, **filters}
         jobs = list()
         job = None
         job_id = None
