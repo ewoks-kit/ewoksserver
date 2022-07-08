@@ -16,9 +16,9 @@ test_sdist-3.8-win:
 build_doc:
   extends: .build_doc
   script:
-    - python -m pip install .[doc]
+    - python3 -m pip install .[doc]
     - ewoks-server -s doc/spec.json
-    - python setup.py build_sphinx
+    - python3 setup.py build_sphinx
 
 pages:
   extends: .pages

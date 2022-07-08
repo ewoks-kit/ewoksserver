@@ -9,7 +9,7 @@ It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emit
 Install from source
 
 ```bash
-python -m pip install -e .[dev]
+python3 -m pip install -e .[dev]
 ```
 
 Run tests
@@ -22,6 +22,12 @@ Launch the backend
 
 ```bash
 ewoks-server
+```
+
+or for an installation with the system python
+
+```bash
+python3 -m ewoksserver.server
 ```
 
 ## Configuration
