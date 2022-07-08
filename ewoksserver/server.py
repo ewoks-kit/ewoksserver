@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from pprint import pformat
 from typing import Optional, Tuple
 
 import argparse
@@ -48,6 +49,25 @@ def configure_app(app: flask.Flask, configuration: Optional[str] = None, **confi
         app.config.update(config)
     if app.config.get("CELERY"):
         current_celery_app.conf.update(app.config["CELERY"])
+
+
+def print_config(app: flask.Flask):
+    resourcedir = app.config.get("RESOURCE_DIRECTORY")
+    if not resourcedir:
+        resourcedir = "."
+    print(f"\nRESOURCE DIRECTORY:\n {os.path.abspath(resourcedir)}\n")
+
+    adict = app.config.get("CELERY")
+    if adict:
+        print(f"\nCELERY:\n {pformat(adict)}\n")
+    else:
+        print("\nCELERY:\n Not configured (local workflow execution)\n")
+
+    adict = app.config.get("EWOKS")
+    if adict:
+        print(f"\nEWOKS:\n {pformat(adict)}\n")
+    else:
+        print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
 
 
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
@@ -160,6 +180,8 @@ def main(argv=None):
         return
     socketio = add_socket(app)
     set_log_level(log_level=log_level)
+
+    print_config(app)
     run_app(app, socketio=socketio, port=args.port)
 
 
