@@ -1,6 +1,7 @@
 from datetime import datetime
 import threading
 
+import flask
 from flask import copy_current_request_context
 from flask.globals import _app_ctx_stack
 from flask_socketio import SocketIO
@@ -10,6 +11,12 @@ from .ewoks_events import reader_context
 
 
 def copy_current_app_context(fn):
+    # TODO: not sure what this actually does
+    fversion = tuple(map(int, flask.__version__.split(".")))[:2]
+    if fversion >= (2, 2):
+        # _app_ctx_stack is deprecated, simply skip it?
+        return fn
+
     app_context = _app_ctx_stack.top
 
     def wrapper(*args, **kwargs):
