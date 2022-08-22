@@ -3,18 +3,20 @@ import threading
 
 import flask
 from flask import copy_current_request_context
-from flask.globals import _app_ctx_stack
 from flask_socketio import SocketIO
 from flask_socketio import emit
 
 from .ewoks_events import reader_context
 
+fversion = tuple(map(int, flask.__version__.split(".")))[:2]
+if fversion < (2, 2):
+    from flask.globals import _app_ctx_stack
+else:
+    _app_ctx_stack = None
+
 
 def copy_current_app_context(fn):
-    # TODO: not sure what this actually does
-    fversion = tuple(map(int, flask.__version__.split(".")))[:2]
-    if fversion >= (2, 2):
-        # _app_ctx_stack is deprecated, simply skip it?
+    if _app_ctx_stack is None:
         return fn
 
     app_context = _app_ctx_stack.top
