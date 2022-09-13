@@ -72,7 +72,7 @@ def print_config(app: flask.Flask):
 
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
     if app is None:
-        logging.getLogger().setLevel(log_level)
+        logging.basicConfig(level=log_level)
     else:
         app.logger.setLevel(log_level)
 
@@ -110,7 +110,7 @@ def run_app(
         if socketio is None:
             app.run(port=port)
         else:
-            socketio.run(app, port=port)
+            socketio.run(app, port=port, allow_unsafe_werkzeug=True)
 
 
 @contextmanager
