@@ -17,12 +17,20 @@ from flask_apispec import FlaskApiSpec
 from celery import current_app as current_celery_app
 from ewoksjob.client.process import pool_context
 
+try:
+    from ewoksweb.serverutils import get_static_root
+except ImportError:
+
+    def get_static_root():
+        return "static"
+
+
 from .resources import add_resources
 from .events.websocket import add_events
 
 
 def create_app(**config) -> Tuple[flask.Flask, Api, FlaskApiSpec]:
-    app = flask.Flask(__name__, static_url_path="")
+    app = flask.Flask(__name__, static_folder=get_static_root(), static_url_path="")
     CORS(app)
     configure_app(app, **config)
     apidoc = add_apidoc(app)
@@ -110,7 +118,8 @@ def run_app(
         if socketio is None:
             app.run(port=port)
         else:
-            socketio.run(app, port=port, allow_unsafe_werkzeug=True)
+            # allow_unsafe_werkzeug=True, see MR1877
+            socketio.run(app, port=port)
 
 
 @contextmanager
