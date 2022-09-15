@@ -1,7 +1,7 @@
 from flask import current_app
 
 from ewoksjob.client import submit
-from ewoksjob.client.process import submit as submit_local
+from ewoksjob.client.local import submit as submit_local
 from . import resource
 from .. import api
 
