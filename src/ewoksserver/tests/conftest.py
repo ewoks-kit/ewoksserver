@@ -4,7 +4,7 @@ import pytest
 from ewoksserver.server import create_app
 from ewoksserver.server import run_context
 from ewoksserver.server import add_socket
-from ewoksjob.client.process import pool_context
+from ewoksjob.client.local import pool_context
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 

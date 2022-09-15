@@ -15,7 +15,7 @@ from flask_restful import Api
 from flask_apispec import FlaskApiSpec
 
 from celery import current_app as current_celery_app
-from ewoksjob.client.process import pool_context
+from ewoksjob.client.local import pool_context
 
 try:
     from ewoksweb.serverutils import get_static_root
