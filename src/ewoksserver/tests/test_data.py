@@ -43,7 +43,7 @@ def test_workflows_fallback(tmpdir, default_workflow_identifiers):
 def assert_resource_fallback(
     utils, user_root, category, existing, nonexisting, user, extension, all_resources
 ):
-    user_root = Path(user_root).absolute()
+    user_root = Path(user_root).resolve()
     user_icons_root = utils.root_url(user_root, category)
     default_icons_root = utils.root_url(DEFAULT_ROOT, category)
 
