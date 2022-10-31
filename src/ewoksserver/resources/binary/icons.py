@@ -9,6 +9,7 @@ class Icon(resource.BinaryResource):
     def get(
         self, identifier: resource.ResourceIdentifierType
     ) -> resource.ResourceIdentifierType:
+        print(self, identifier)
         return self.load_resource(identifier)
 
     @api.delete_resource("icon")
@@ -27,6 +28,7 @@ class Icon(resource.BinaryResource):
     def post(
         self, identifier: resource.ResourceIdentifierType, **resource
     ) -> resource.ResponseType:
+        print(self, identifier, resource)
         return self.save_resource(identifier, resource, error_on_exists=True)
 
 
@@ -35,4 +37,5 @@ class Icons(resource.BinaryResource):
 
     @api.list_resource_identifiers("icon")
     def get(self) -> resource.ResponseType:
+        print(self)
         return self.list_resource_identifiers()

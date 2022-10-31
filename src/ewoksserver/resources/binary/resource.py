@@ -33,8 +33,17 @@ class BinaryResource(Resource):
         403: forbidden
         404: not found (`error_on_missing=True`)
         409: already exists  (`error_on_exists=True`)
+        422: unprocessable entity resource (i.e. missing identifier)
         """
         root_url = self.root_url
+
+        if not identifier:
+            return self.make_response(
+                422,
+                message=f"{self.RESOURCE_TYPE.capitalize()} empty identifiers are not allowed",
+                identifier=identifier,
+            )
+
         exists = utils.resource_exists(root_url, identifier)
         if error_on_exists and exists:
             return self.make_response(
