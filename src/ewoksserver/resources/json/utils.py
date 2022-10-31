@@ -100,7 +100,7 @@ def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
 
 def _save_url(url: ResourceUrlType, resource: ResourceContentType):
     _logger.debug("Save file '%s'", url)
-    if not url.stem:
+    if not url.suffix:
         raise ValueError("Saving files without a name is not allowed")
     url.parent.mkdir(parents=True, exist_ok=True)
     with open(url, "w") as f:

@@ -54,12 +54,12 @@ class JsonResource(Resource):
                 identifier=identifier,
             )
 
-        if not identifier:
-            return self.make_response(
-                422,
-                message=f"{self.RESOURCE_TYPE.capitalize()} empty identifiers are not allowed.",
-                identifier=identifier,
-            )
+        # if not identifier:
+        #     return self.make_response(
+        #         422,
+        #         message=f"{self.RESOURCE_TYPE.capitalize()} empty identifiers are not allowed.",
+        #         identifier=identifier,
+        #     )
 
         root_url = self.root_url
 
