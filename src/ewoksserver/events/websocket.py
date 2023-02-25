@@ -1,5 +1,6 @@
 from datetime import datetime
 import threading
+from typing import Optional
 
 import flask
 from flask import copy_current_request_context
@@ -61,10 +62,14 @@ class EwoksEventEmitter:
             self.stop(timeout=3)
 
     def is_running(self) -> bool:
-        return self._thread is not None
+        return self._is_running(self._thread)
 
-        if self._thread is not None:
+    @staticmethod
+    def _is_running(thread: Optional[threading.Thread] = None) -> bool:
+        return thread is not None and thread.is_alive()
+
     def start(self) -> None:
+        if self.is_running():
             return
 
         # Flask context's have thread affinity
@@ -74,14 +79,16 @@ class EwoksEventEmitter:
             self._main()
 
         self._stop_event.clear()
-        self._thread = threading.Thread(target=main, daemon=True)
-        self._thread.start()
+        thread = threading.Thread(target=main, daemon=True)
+        thread.start()
+        self._thread = thread
 
     def stop(self, timeout: float = None) -> None:
-        if self._thread is None:
+        thread = self._thread
+        if not self._is_running(thread):
             return
         self._stop_event.set()
-        self._thread.join(timeout=timeout)
+        thread.join(timeout=timeout)
 
     def _main(self) -> None:
         try:
