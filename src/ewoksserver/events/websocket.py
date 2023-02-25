@@ -51,20 +51,20 @@ class EwoksEventEmitter:
         self._thread = None
         self._counter = 0
 
-    def connect(self):
+    def connect(self) -> None:
         self._counter += 1
         self.start()
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self._counter = max(self._counter - 1, 0)
         if self._counter == 0:
             self.stop(timeout=3)
 
-    def is_running(self):
+    def is_running(self) -> bool:
         return self._thread is not None
 
-    def start(self):
         if self._thread is not None:
+    def start(self) -> None:
             return
 
         # Flask context's have thread affinity
@@ -77,13 +77,13 @@ class EwoksEventEmitter:
         self._thread = threading.Thread(target=main, daemon=True)
         self._thread.start()
 
-    def stop(self, timeout: float = None):
+    def stop(self, timeout: float = None) -> None:
         if self._thread is None:
             return
         self._stop_event.set()
         self._thread.join(timeout=timeout)
 
-    def _main(self):
+    def _main(self) -> None:
         try:
             with reader_context() as reader:
                 if reader is None:
