@@ -83,7 +83,7 @@ class EwoksEventEmitter:
         thread.start()
         self._thread = thread
 
-    def stop(self, timeout: float = None) -> None:
+    def stop(self, timeout: Optional[float] = None) -> None:
         thread = self._thread
         if not self._is_running(thread):
             return
