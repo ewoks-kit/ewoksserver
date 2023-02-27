@@ -1,5 +1,6 @@
 from datetime import datetime
 import threading
+from typing import Optional
 
 import flask
 from flask import copy_current_request_context
@@ -51,20 +52,24 @@ class EwoksEventEmitter:
         self._thread = None
         self._counter = 0
 
-    def connect(self):
+    def connect(self) -> None:
         self._counter += 1
         self.start()
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self._counter = max(self._counter - 1, 0)
         if self._counter == 0:
             self.stop(timeout=3)
 
-    def is_running(self):
-        return self._thread is not None
+    def is_running(self) -> bool:
+        return self._is_running(self._thread)
 
-    def start(self):
-        if self._thread is not None:
+    @staticmethod
+    def _is_running(thread: Optional[threading.Thread] = None) -> bool:
+        return thread is not None and thread.is_alive()
+
+    def start(self) -> None:
+        if self.is_running():
             return
 
         # Flask context's have thread affinity
@@ -74,16 +79,18 @@ class EwoksEventEmitter:
             self._main()
 
         self._stop_event.clear()
-        self._thread = threading.Thread(target=main, daemon=True)
-        self._thread.start()
+        thread = threading.Thread(target=main, daemon=True)
+        thread.start()
+        self._thread = thread
 
-    def stop(self, timeout: float = None):
-        if self._thread is None:
+    def stop(self, timeout: Optional[float] = None) -> None:
+        thread = self._thread
+        if not self._is_running(thread):
             return
         self._stop_event.set()
-        self._thread.join(timeout=timeout)
+        thread.join(timeout=timeout)
 
-    def _main(self):
+    def _main(self) -> None:
         try:
             with reader_context() as reader:
                 if reader is None:
