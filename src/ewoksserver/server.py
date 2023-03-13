@@ -91,9 +91,8 @@ def print_serve_message(app, port: Optional[int] = None) -> None:
 
 
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
-    if app is None:
-        logging.basicConfig(level=log_level)
-    else:
+    logging.basicConfig(level=log_level)
+    if app is not None:
         app.logger.setLevel(log_level)
 
 
