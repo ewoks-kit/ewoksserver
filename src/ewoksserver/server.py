@@ -78,6 +78,18 @@ def print_config(app: flask.Flask):
         print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
 
 
+def print_serve_message(app, port: Optional[int] = None) -> None:
+    host = "127.0.0.1"
+    if port is None:
+        server_name = app.config["SERVER_NAME"]
+        if server_name and ":" in server_name:
+            port = int(server_name.rsplit(":", 1)[1])
+        else:
+            port = 5000
+    print("\nTo start editing workflows, open this link in a browser:\n")
+    print(f"    http://{host}:{port}\n")
+
+
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
     if app is None:
         logging.basicConfig(level=log_level)
@@ -191,6 +203,7 @@ def main(argv=None):
     set_log_level(log_level=log_level)
 
     print_config(app)
+    print_serve_message(app, port=args.port)
     run_app(app, socketio=socketio, port=args.port)
 
 
