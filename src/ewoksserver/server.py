@@ -188,6 +188,11 @@ def main(argv=None):
         type=str,
         help="Save the Swagger docs as JSON",
     )
+    parser.add_argument(
+        "--without-events",
+        action="store_true",
+        help="Without websocket events",
+    )
 
     args = parser.parse_args(argv[1:])
     log_level = getattr(logging, args.log_level)
@@ -198,7 +203,10 @@ def main(argv=None):
     if args.spec_filename:
         save_apidoc(apidoc, args.spec_filename)
         return
-    socketio = add_socket(app)
+    if args.without_events:
+        socketio = None
+    else:
+        socketio = add_socket(app)
     set_log_level(log_level=log_level)
 
     print_config(app)
