@@ -78,10 +78,21 @@ def print_config(app: flask.Flask):
         print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
 
 
+def print_serve_message(app, port: Optional[int] = None) -> None:
+    host = "127.0.0.1"
+    if port is None:
+        server_name = app.config["SERVER_NAME"]
+        if server_name and ":" in server_name:
+            port = int(server_name.rsplit(":", 1)[1])
+        else:
+            port = 5000
+    print("\nTo start editing workflows, open this link in a browser:\n")
+    print(f"    http://{host}:{port}\n")
+
+
 def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
-    if app is None:
-        logging.basicConfig(level=log_level)
-    else:
+    logging.basicConfig(level=log_level)
+    if app is not None:
         app.logger.setLevel(log_level)
 
 
@@ -177,6 +188,11 @@ def main(argv=None):
         type=str,
         help="Save the Swagger docs as JSON",
     )
+    parser.add_argument(
+        "--without-events",
+        action="store_true",
+        help="Without websocket events",
+    )
 
     args = parser.parse_args(argv[1:])
     log_level = getattr(logging, args.log_level)
@@ -187,10 +203,14 @@ def main(argv=None):
     if args.spec_filename:
         save_apidoc(apidoc, args.spec_filename)
         return
-    socketio = add_socket(app)
+    if args.without_events:
+        socketio = None
+    else:
+        socketio = add_socket(app)
     set_log_level(log_level=log_level)
 
     print_config(app)
+    print_serve_message(app, port=args.port)
     run_app(app, socketio=socketio, port=args.port)
 
 
