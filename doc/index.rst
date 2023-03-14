@@ -14,7 +14,7 @@ Install requirements
 
 .. code:: bash
 
-    python3 -m pip install ewokserver[frontend]
+    pip install ewokserver[frontend]
 
 Start the REST server which also serves the frontend
 
@@ -32,8 +32,8 @@ Run the tests
 
 .. code:: bash
 
-    python3 -m pip install ewokserver[test]
-    python3 -m pytest --pyargs ewokserver.tests
+    pip install ewokserver[test]
+    pytest --pyargs ewokserver.tests
 
 Documentation
 -------------

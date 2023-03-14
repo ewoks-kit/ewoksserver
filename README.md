@@ -9,7 +9,7 @@ It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emit
 Install from source
 
 ```bash
-python3 -m pip install -e .[dev]
+pip install -e .[dev]
 ```
 
 Run tests
