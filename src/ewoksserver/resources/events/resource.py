@@ -1,4 +1,7 @@
 from typing import List
+
+from ewoksutils import event_utils
+
 from ..utils import Resource
 from .. import api
 from ...events.ewoks_events import reader_context
@@ -18,5 +21,7 @@ class ExecutionEvents(Resource):
                     job_id = event["job_id"]
                     job = list()
                     jobs.append(job)
+                if "engine" in event_utils.FIELD_TYPES:
+                    event["binding"] = event["engine"]
                 job.append(event)
         return {"jobs": jobs}, 200
