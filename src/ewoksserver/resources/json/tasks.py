@@ -70,8 +70,8 @@ class DiscoverTasks(resource.JsonResource):
 
     @api.discover_resources("task")
     def post(self, modules=None, task_type="class"):
-        tasks = list(
-            task_discovery.discover_tasks_from_modules(*modules, task_type=task_type)
+        tasks = task_discovery.discover_tasks_from_modules(
+            *modules, task_type=task_type
         )
         for _resource in tasks:
             self._default_task_properties(_resource)
