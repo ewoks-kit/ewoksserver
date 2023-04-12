@@ -305,6 +305,11 @@ def discover_resources(resource_type: str):
         )(func)
         func = marshal_with(
             ErrorSchema,
+            code=404,
+            description="module not found",
+        )(func)
+        func = marshal_with(
+            ErrorSchema,
             code=409,
             description=f"requested {resource_type} already exists",
         )(func)
