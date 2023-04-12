@@ -70,9 +70,12 @@ class DiscoverTasks(resource.JsonResource):
 
     @api.discover_resources("task")
     def post(self, modules=None, task_type="class"):
-        tasks = task_discovery.discover_tasks_from_modules(
-            *modules, task_type=task_type
-        )
+        try:
+            tasks = task_discovery.discover_tasks_from_modules(
+                *modules, task_type=task_type
+            )
+        except ModuleNotFoundError as e:
+            return self.make_response(404, message=str(e))
         for _resource in tasks:
             self._default_task_properties(_resource)
             response, code = self.save_resource(_resource, error_on_exists=True)
