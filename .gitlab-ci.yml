@@ -19,8 +19,7 @@ build_doc:
   script:
     - python -m pip install .[doc]
     - ewoks-server -s doc/spec.json
-    - python setup.py build_sphinx
-    - mv build/sphinx/html html
+    - sphinx-build doc html
 
 pages:
   extends: .pages

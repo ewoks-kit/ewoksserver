@@ -1,4 +1,4 @@
-ewoksserver |release|
+ewoksserver |version|
 =====================
 
 *ewoksserver* is a REST server to manage and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
