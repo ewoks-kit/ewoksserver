@@ -25,6 +25,12 @@ except ImportError:
         return "static"
 
 
+try:
+    from ewoksweb.serverutils import get_test_config
+except ImportError:
+    get_test_config = None
+
+
 from .resources import add_resources
 from .events.websocket import add_events
 
@@ -193,9 +199,22 @@ def main(argv=None):
         action="store_true",
         help="Without websocket events",
     )
+    parser.add_argument(
+        "--frontend-tests",
+        action="store_true",
+        help="Configure the server for frontend tests",
+    )
 
     args = parser.parse_args(argv[1:])
     log_level = getattr(logging, args.log_level)
+
+    if args.frontend_tests:
+        if get_test_config is None:
+            raise RuntimeError("ewoksweb is not installed")
+        args.configuration = get_test_config()
+        args.resource_directory = None
+        args.port = 5000
+        args.spec_filename = None
 
     app, _, apidoc = create_app(
         configuration=args.configuration, resource_directory=args.resource_directory
