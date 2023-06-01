@@ -72,7 +72,7 @@ class DiscoverTasks(resource.JsonResource):
     def post(self, modules=None, task_type="class"):
         try:
             tasks = task_discovery.discover_tasks_from_modules(
-                *modules, task_type=task_type
+                *modules, task_type=task_type, reload=True
             )
         except ModuleNotFoundError as e:
             return self.make_response(404, message=str(e))
