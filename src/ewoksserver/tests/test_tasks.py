@@ -145,8 +145,7 @@ def test_discover_tasks(rest_client, default_task_identifiers):
 
     response = rest_client.post("/tasks/discover", json={"modules": [module]})
     data = response.get_json()
-    assert response.status_code == 409, data
-    assert "already exists" in data["message"]
+    assert response.status_code == 200, data
 
     response = rest_client.post("/tasks/discover", json={"modules": ["not_a_module"]})
     data = response.get_json()

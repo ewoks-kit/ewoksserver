@@ -78,7 +78,7 @@ class DiscoverTasks(resource.JsonResource):
             return self.make_response(404, message=str(e))
         for _resource in tasks:
             self._default_task_properties(_resource)
-            response, code = self.save_resource(_resource, error_on_exists=True)
+            response, code = self.save_resource(_resource)
             if code != 200:
                 return response, code
         tasks = [desc["task_identifier"] for desc in tasks]
