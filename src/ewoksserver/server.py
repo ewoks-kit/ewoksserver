@@ -2,11 +2,11 @@ import os
 import sys
 import json
 from pprint import pformat
-from typing import Optional, Tuple
+from typing import Optional, Tuple, ContextManager, Dict
 
 import argparse
 import logging
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 
 import flask
 from flask_cors import CORS
@@ -30,8 +30,9 @@ try:
 except ImportError:
     get_test_config = None
 
-
 from .resources import add_resources
+from .resources.json import utils as resource_utils
+from .resources.json.tasks import discover_tasks
 from .events.websocket import add_events
 
 
@@ -129,9 +130,12 @@ def save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
 
 
 def run_app(
-    app: flask.Flask, socketio: Optional[SocketIO] = None, port: int = 5000
+    app: flask.Flask,
+    socketio: Optional[SocketIO] = None,
+    port: int = 5000,
+    init_context: Optional[ContextManager] = None,
 ) -> None:
-    with run_context(app):
+    with run_context(app, init_context=init_context):
         if socketio is None:
             app.run(port=port)
         else:
@@ -140,13 +144,30 @@ def run_app(
 
 
 @contextmanager
-def run_context(app: flask.Flask):
-    with app.app_context():
+def run_context(
+    app: flask.Flask,
+    init_context: Optional[ContextManager] = None,
+    local_pool_options: Optional[Dict] = None,
+):
+    with ExitStack() as stack:
+        ctx = app.app_context()
+        stack.enter_context(ctx)
         if app.config.get("CELERY") is None:
-            with pool_context():
-                yield
-        else:
-            yield
+            if local_pool_options is None:
+                local_pool_options = dict()
+            ctx = pool_context(**local_pool_options)
+            stack.enter_context(ctx)
+        if init_context is not None:
+            ctx = init_context(app)
+            stack.enter_context(ctx)
+        yield
+
+
+def rediscover_tasks(app: flask.Flask):
+    tasks = discover_tasks(app)
+    root_url = resource_utils.root_url(app.config.get("RESOURCE_DIRECTORY"), "tasks")
+    for resource in tasks:
+        resource_utils.save_resource(root_url, resource["task_identifier"], resource)
 
 
 def main(argv=None):
@@ -204,6 +225,12 @@ def main(argv=None):
         action="store_true",
         help="Load frontend test configuration",
     )
+    parser.add_argument(
+        "-r",
+        "--rediscover-tasks",
+        action="store_true",
+        help="Run task discovery",
+    )
 
     args = parser.parse_args(argv[1:])
     log_level = getattr(logging, args.log_level)
@@ -219,15 +246,22 @@ def main(argv=None):
     if args.spec_filename:
         save_apidoc(apidoc, args.spec_filename)
         return
+
     if args.without_events:
         socketio = None
     else:
         socketio = add_socket(app)
     set_log_level(log_level=log_level)
 
+    @contextmanager
+    def init_context(app):
+        if args.rediscover_tasks:
+            rediscover_tasks(app)
+        yield
+
     print_config(app)
     print_serve_message(app, port=args.port)
-    run_app(app, socketio=socketio, port=args.port)
+    run_app(app, socketio=socketio, port=args.port, init_context=init_context)
 
 
 if __name__ == "__main__":
