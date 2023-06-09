@@ -68,7 +68,7 @@ class EwoksTaskListSchema(Schema):
 
 
 class DiscoverSchema(Schema):
-    modules = fields.List(fields.Str)
+    modules = fields.List(fields.Str, dump_default=None, load_default=None)
 
 
 class EwoksEventSchema(Schema):
