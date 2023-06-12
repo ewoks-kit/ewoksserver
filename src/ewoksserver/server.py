@@ -229,7 +229,7 @@ def main(argv=None):
         "-r",
         "--rediscover-tasks",
         action="store_true",
-        help="Run task discovery",
+        help="Run task discovery on start up",
     )
 
     args = parser.parse_args(argv[1:])
