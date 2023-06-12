@@ -2,6 +2,13 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.2.0
+
+New features:
+  - Task discovery in local or celery workers
+  - Automatic task discovery without specifying modules
+  - Optional automatic task discovery when starting the server
+
 ## 0.1.1
 
 Changes:
