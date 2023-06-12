@@ -152,6 +152,11 @@ def test_discover_tasks(rest_client, default_task_identifiers):
     assert response.status_code == 404, data
     assert "No module named" in data["message"]
 
+    response = rest_client.post("/tasks/discover")
+    data = response.get_json()
+    assert response.status_code == 200, data
+    assert data["identifiers"]
+
 
 def test_task_descriptions(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks/descriptions")
