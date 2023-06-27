@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.2.1
+
+New features:
+  - CLI "host" argument (to allow external access)
+
 ## 0.2.0
 
 New features:
