@@ -85,13 +85,20 @@ def print_config(app: flask.Flask):
         print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
 
 
-def print_serve_message(app, port: Optional[int] = None) -> None:
-    host = "127.0.0.1"
-    if port is None:
+def print_serve_message(
+    app, host: Optional[str] = None, port: Optional[int] = None
+) -> None:
+    if host is None or port is None:
         server_name = app.config["SERVER_NAME"]
-        if server_name and ":" in server_name:
-            port = int(server_name.rsplit(":", 1)[1])
-        else:
+        if server_name is not None:
+            _host, _, _port = server_name.rpartition(":")
+            if host is None and _host:
+                host = _host
+            if port is None and _port:
+                port = _port
+        if host is None:
+            host = "127.0.0.1"
+        if port is None:
             port = 5000
     print("\nTo start editing workflows, open this link in a browser:\n")
     print(f"    http://{host}:{port}\n")
@@ -132,15 +139,16 @@ def save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
 def run_app(
     app: flask.Flask,
     socketio: Optional[SocketIO] = None,
+    host: str = "127.0.0.1",
     port: int = 5000,
     init_context: Optional[ContextManager] = None,
 ) -> None:
     with run_context(app, init_context=init_context):
         if socketio is None:
-            app.run(port=port)
+            app.run(host=host, port=port)
         else:
             # allow_unsafe_werkzeug=True, see MR1877
-            socketio.run(app, port=port)
+            socketio.run(app, host=host, port=port)
 
 
 @contextmanager
@@ -183,6 +191,13 @@ def main(argv=None):
         default="WARNING",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Set the logging level",
+    )
+    parser.add_argument(
+        "--host",
+        dest="host",
+        type=str,
+        default="127.0.0.1",
+        help="Host name",
     )
     parser.add_argument(
         "-p",
@@ -260,8 +275,8 @@ def main(argv=None):
         yield
 
     print_config(app)
-    print_serve_message(app, port=args.port)
-    run_app(app, socketio=socketio, port=args.port, init_context=init_context)
+    print_serve_message(app, host=args.host, port=args.port)
+    run_app(app, socketio=socketio, host=args.host, init_context=init_context)
 
 
 if __name__ == "__main__":
