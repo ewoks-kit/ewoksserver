@@ -39,19 +39,19 @@ from .events.websocket import add_events
 def create_app(**config) -> Tuple[flask.Flask, Api, FlaskApiSpec]:
     app = flask.Flask(__name__, static_folder=get_static_root(), static_url_path="")
     CORS(app)
-    configure_app(app, **config)
-    apidoc = add_apidoc(app)
-    api = add_api(app, apidoc)
+    _configure_app(app, **config)
+    apidoc = __add_apidoc(app)
+    api = _add_api(app, apidoc)
     return app, api, apidoc
 
 
-def add_api(app: flask.Flask, apidoc: FlaskApiSpec) -> Api:
+def _add_api(app: flask.Flask, apidoc: FlaskApiSpec) -> Api:
     api = Api(app)
     add_resources(api, apidoc)
     return api
 
 
-def configure_app(app: flask.Flask, configuration: Optional[str] = None, **config):
+def _configure_app(app: flask.Flask, configuration: Optional[str] = None, **config):
     app.config["CORS_HEADERS"] = "Content-Type"
     filename = os.environ.get("EWOKSSERVER_SETTINGS")
     if configuration:
@@ -66,7 +66,7 @@ def configure_app(app: flask.Flask, configuration: Optional[str] = None, **confi
         current_celery_app.conf.update(app.config["CELERY"])
 
 
-def print_config(app: flask.Flask):
+def _print_config(app: flask.Flask):
     resourcedir = app.config.get("RESOURCE_DIRECTORY")
     if not resourcedir:
         resourcedir = "."
@@ -85,19 +85,12 @@ def print_config(app: flask.Flask):
         print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
 
 
-def print_serve_message(app, port: Optional[int] = None) -> None:
-    host = "127.0.0.1"
-    if port is None:
-        server_name = app.config["SERVER_NAME"]
-        if server_name and ":" in server_name:
-            port = int(server_name.rsplit(":", 1)[1])
-        else:
-            port = 5000
+def _print_serve_message(host: str, port: int) -> None:
     print("\nTo start editing workflows, open this link in a browser:\n")
     print(f"    http://{host}:{port}\n")
 
 
-def set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
+def _set_log_level(app: Optional[flask.Flask] = None, log_level=logging.WARNING):
     logging.basicConfig(level=log_level)
     if app is not None:
         app.logger.setLevel(log_level)
@@ -109,7 +102,7 @@ def add_socket(app: flask.Flask) -> SocketIO:
     return socketio
 
 
-def add_apidoc(app: flask.Flask) -> FlaskApiSpec:
+def __add_apidoc(app: flask.Flask) -> FlaskApiSpec:
     app.config.update(
         {
             "APISPEC_TITLE": "ewoks",
@@ -121,7 +114,7 @@ def add_apidoc(app: flask.Flask) -> FlaskApiSpec:
     return FlaskApiSpec(app)
 
 
-def save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
+def _save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
     save_spec_dir = os.path.dirname(filename)
     if save_spec_dir:
         os.makedirs(save_spec_dir, exist_ok=True)
@@ -129,18 +122,19 @@ def save_apidoc(apidoc: FlaskApiSpec, filename: str) -> None:
         json.dump(apidoc.spec.to_dict(), f)
 
 
-def run_app(
+def _run_app(
     app: flask.Flask,
+    host: str,
+    port: int,
     socketio: Optional[SocketIO] = None,
-    port: int = 5000,
     init_context: Optional[ContextManager] = None,
 ) -> None:
     with run_context(app, init_context=init_context):
         if socketio is None:
-            app.run(port=port)
+            app.run(host=host, port=port)
         else:
             # allow_unsafe_werkzeug=True, see MR1877
-            socketio.run(app, port=port)
+            socketio.run(app, host=host, port=port)
 
 
 @contextmanager
@@ -163,7 +157,7 @@ def run_context(
         yield
 
 
-def rediscover_tasks(app: flask.Flask):
+def _rediscover_tasks(app: flask.Flask):
     tasks = discover_tasks(app)
     root_url = resource_utils.root_url(app.config.get("RESOURCE_DIRECTORY"), "tasks")
     for resource in tasks:
@@ -183,6 +177,13 @@ def main(argv=None):
         default="WARNING",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Set the logging level",
+    )
+    parser.add_argument(
+        "--host",
+        dest="host",
+        type=str,
+        default="127.0.0.1",
+        help="Host name",
     )
     parser.add_argument(
         "-p",
@@ -244,24 +245,24 @@ def main(argv=None):
         configuration=args.configuration, resource_directory=args.resource_directory
     )
     if args.spec_filename:
-        save_apidoc(apidoc, args.spec_filename)
+        _save_apidoc(apidoc, args.spec_filename)
         return
 
     if args.without_events:
         socketio = None
     else:
         socketio = add_socket(app)
-    set_log_level(log_level=log_level)
+    _set_log_level(log_level=log_level)
 
     @contextmanager
     def init_context(app):
         if args.rediscover_tasks:
-            rediscover_tasks(app)
+            _rediscover_tasks(app)
         yield
 
-    print_config(app)
-    print_serve_message(app, port=args.port)
-    run_app(app, socketio=socketio, port=args.port, init_context=init_context)
+    _print_config(app)
+    _print_serve_message(args.host, args.port)
+    _run_app(app, args.host, args.port, socketio=socketio, init_context=init_context)
 
 
 if __name__ == "__main__":
