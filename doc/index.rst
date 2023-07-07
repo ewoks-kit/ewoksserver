@@ -41,5 +41,6 @@ Documentation
 .. toctree::
     :maxdepth: 2
 
+    configuration
     restapi
     api
