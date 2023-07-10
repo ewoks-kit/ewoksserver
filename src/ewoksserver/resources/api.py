@@ -78,7 +78,7 @@ class EwoksEventSchema(Schema):
     job_id = fields.Str(required=True)
     binding = fields.Str(dump_default=None, load_default=None)
     context = fields.Str(required=True)
-    workflow_id = fields.Str(required=True)
+    workflow_id = fields.Str()
     node_id = fields.Str(dump_default=None, load_default=None)
     task_id = fields.Str(dump_default=None, load_default=None)
     type = fields.Str(required=True)
