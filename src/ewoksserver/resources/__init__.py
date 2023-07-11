@@ -20,7 +20,7 @@ class Home(utils.Resource):
 
 def add_resources(api: Api, apidoc: FlaskApiSpec):
     """Currently only one resource backend is supported: file system"""
-    utils.register_resource(Home, "/", api, apidoc)
+    utils.register_resource(Home, ("/", "/edit", "/monitor"), api, apidoc)
     json.add_resources(api, apidoc)
     binary.add_resources(api, apidoc)
     events.add_resources(api, apidoc)
