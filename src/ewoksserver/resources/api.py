@@ -36,7 +36,7 @@ class EwoksGraphSchema(Schema):
 
 
 class EwoksGraphDescriptionSchema(Schema):
-    id = fields.Str()
+    id = fields.Str(required=True)
     label = fields.Str()
     category = fields.Str()
 
