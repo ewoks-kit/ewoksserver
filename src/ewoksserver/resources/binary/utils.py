@@ -83,7 +83,7 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     _delete_url(url)
 
 
-def _delete_url(url: ResourceUrlType) -> ResourceContentType:
+def _delete_url(url: ResourceUrlType) -> None:
     if url.exists():
         _logger.debug("Delete file '%s'", url)
         url.unlink()
@@ -113,7 +113,10 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
         encoding = "base64"
         data = base64.b64encode(data).decode()
 
-    return {"data_url": f"data:{mimetype};{encoding},{data}"}
+    return {
+        "data_url": f"data:{mimetype};{encoding},{data}",
+        "identifier": _url_to_identifier(url),
+    }
 
 
 def _save_url(url: ResourceUrlType, resource: ResourceContentType) -> None:

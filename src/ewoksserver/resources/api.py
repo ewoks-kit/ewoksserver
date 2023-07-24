@@ -43,6 +43,7 @@ class EwoksGraphDescriptionSchema(Schema):
 
 class EwoksDataUrlSchema(Schema):
     data_url = fields.Str(required=True)
+    identifier = fields.Str(required=True)
 
 
 class EwoksTaskSchema(Schema):
