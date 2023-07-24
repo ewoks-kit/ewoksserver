@@ -65,6 +65,21 @@ def _configure_app(app: flask.Flask, configuration: Optional[str] = None, **conf
     if app.config.get("CELERY"):
         current_celery_app.conf.update(app.config["CELERY"])
 
+    if not filename and not config:
+        app.config["EWOKS"] = {
+            "handlers": [
+                {
+                    "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
+                    "arguments": [
+                        {
+                            "name": "uri",
+                            "value": "file:ewoks_events.db",
+                        }
+                    ],
+                }
+            ]
+        }
+
 
 def _print_config(app: flask.Flask):
     resourcedir = app.config.get("RESOURCE_DIRECTORY")
