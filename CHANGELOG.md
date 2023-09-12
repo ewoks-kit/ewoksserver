@@ -1,6 +1,9 @@
 # CHANGELOG.md
 
-## 0.2.0 (unreleased)
+## 0.3.0 (unreleased)
+
+Bug fixes:
+  - GET /execution/events: event grouping per job failed in case of parallel workflows
 
 ## 0.2.1
 
