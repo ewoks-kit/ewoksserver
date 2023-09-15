@@ -139,6 +139,13 @@ class JsonResource(Resource):
         """
         body = {"items": list(utils.resource_descriptions(self.root_url))}
         return body, 200
+    
+    def list_resource_full(self) -> ResponseType:
+        """
+        200: OK
+        """
+        body = {"items": list(utils.resource_full(self.root_url))}
+        return body, 200
 
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
         raise NotImplementedError

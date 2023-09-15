@@ -25,6 +25,9 @@ def resource_identifiers(root: ResourceUrlType) -> Iterator[ResourceIdentifierTy
     for url in _resource_urls(root):
         yield _url_to_identifier(url)
 
+def resource_full(root: ResourceUrlType) -> Iterator[ResourceContentType]:
+    for res in resources(root):
+        yield res
 
 def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
     for url in _resource_urls(root):
@@ -95,6 +98,7 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
+    print(url, url.stem)
     return url.stem
 
 

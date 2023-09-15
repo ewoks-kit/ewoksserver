@@ -41,9 +41,9 @@ class Workflows(resource.JsonResource):
     ) -> resource.ResourceIdentifierType:
         return resource["graph"]["id"]
 
-    @api.list_resource_identifiers("workflow")
+    @api.list_resource("workflow")
     def get(self) -> resource.ResponseType:
-        return self.list_resource_identifiers()
+        return self.list_resource_full()
 
     @api.post_resource("workflow")
     def post(self, **resource) -> resource.ResponseType:

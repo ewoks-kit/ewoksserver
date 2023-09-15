@@ -246,6 +246,14 @@ def list_resource_identifiers(resource_type: str):
 
     return wrapper
 
+def list_resource(resource_type: str):
+    def wrapper(func: Callable):
+        func = doc(summary=f"Get a list of {resource_type} identifiers")(func)
+        func = marshal_with(EwoksGraphListSchema, code=200)(func)
+        return func
+
+    return wrapper
+
 
 def list_resource_content(resource_type: str):
     def wrapper(func: Callable):
