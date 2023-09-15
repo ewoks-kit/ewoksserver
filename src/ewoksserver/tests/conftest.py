@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List
 import pytest
+import logging
+import json
 from ewoksserver.server import create_app
 from ewoksserver.server import run_context
 from ewoksserver.server import add_socket
@@ -12,6 +14,7 @@ from .data import resource_filenames
 from ..resources.binary.utils import _load_url
 from ..resources.data import DEFAULT_ROOT
 
+_logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def rest_client(tmpdir):
@@ -91,6 +94,19 @@ def default_workflow_identifiers() -> List[Path]:
         if url.suffix == ".json"
     ]
 
+@pytest.fixture(scope="session")
+def default_workflows() -> List[dict]:
+    workflows = []
+    for url in (DEFAULT_ROOT / "workflows").iterdir():
+        if url.suffix == ".json":
+            try:
+                with open(url, "r") as f:
+                    workflow = json.load(f)
+                    workflows.append(workflow)
+            except FileNotFoundError:
+                _logger.error(f"'{url}' not found")
+                raise
+    return workflows
 
 @pytest.fixture(scope="session")
 def default_task_identifiers() -> List[Path]:

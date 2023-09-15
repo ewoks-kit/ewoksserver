@@ -98,7 +98,6 @@ def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:
-    print(url, url.stem)
     return url.stem
 
 
