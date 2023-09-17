@@ -25,7 +25,7 @@ def test_get_execution_events(local_exec_client):
     nevents += nevents_per_exec
 
     # Wait until all events have been received over the websocket
-    events1 = get_events(sclient, nevents, timeout=3)
+    events1 = get_events(sclient, nevents)
 
     # Query should return the same a what was recieved over the websocket
     response = client.get("/execution/events")
@@ -56,7 +56,7 @@ def test_get_execution_events(local_exec_client):
     nevents += nevents_per_exec
 
     # Wait until all events have been received over the websocket
-    events2 = get_events(sclient, nevents_per_exec, timeout=3)
+    events2 = get_events(sclient, nevents_per_exec)
 
     response = client.get("/execution/events")
     assert response.status_code == 200
