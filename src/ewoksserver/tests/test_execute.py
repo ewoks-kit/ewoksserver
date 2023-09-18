@@ -38,7 +38,7 @@ def upload_graph(client):
     return graph_name, expected
 
 
-def get_events(sclient, nevents, timeout=3):
+def get_events(sclient, nevents, timeout=10):
     t0 = time.time()
     events = list()
     while True:
@@ -48,7 +48,7 @@ def get_events(sclient, nevents, timeout=3):
             break
         time.sleep(0.1)
         if time.time() - t0 > timeout:
-            break
+            raise TimeoutError(f"Received {len(events)} instead of {nevents}")
 
     ewoks_events = list()
     for flask_event in events:
