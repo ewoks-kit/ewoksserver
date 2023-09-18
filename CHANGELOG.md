@@ -1,11 +1,13 @@
 # CHANGELOG.md
 
-## 0.3.0 (unreleased)
+## 0.4.0 (unreleased)
+
+## 0.3.1
 
 Bug fixes:
   - GET /execution/events: event grouping per job failed in case of parallel workflows
 
-## 0.2.1
+## 0.3.0
 
 New features:
   - CLI "host" argument (to allow external access)
