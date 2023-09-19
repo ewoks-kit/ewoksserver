@@ -2,6 +2,11 @@
 
 ## 0.4.0 (unreleased)
 
+## 0.3.2
+
+Changes:
+  - Allow to run the `socketio` server in production environments
+
 ## 0.3.1
 
 Bug fixes:
