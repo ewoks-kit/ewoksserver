@@ -148,8 +148,7 @@ def _run_app(
         if socketio is None:
             app.run(host=host, port=port)
         else:
-            # allow_unsafe_werkzeug=True, see MR1877
-            socketio.run(app, host=host, port=port)
+            socketio.run(app, host=host, port=port, allow_unsafe_werkzeug=True)
 
 
 @contextmanager
