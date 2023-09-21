@@ -2,7 +2,7 @@
 
 ## 0.4.0 (unreleased)
 
-## 0.3.3 (unreleased)
+## 0.3.3
 
 Bug fixes:
   - Fix bug with absolute configuration filename
