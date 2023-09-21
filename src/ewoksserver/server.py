@@ -57,7 +57,8 @@ def _configure_app(app: flask.Flask, configuration: Optional[str] = None, **conf
     if configuration:
         filename = configuration
     if filename:
-        filename = os.path.relpath(filename, app.config.root_path)
+        if not os.path.isabs(filename):
+            filename = os.path.relpath(filename, app.config.root_path)
         app.config.from_pyfile(filename, silent=False)
     if config:
         config = {k.upper(): v for k, v in config.items() if v is not None}
