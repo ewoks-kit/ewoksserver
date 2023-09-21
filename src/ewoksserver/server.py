@@ -57,7 +57,8 @@ def _configure_app(app: flask.Flask, configuration: Optional[str] = None, **conf
     if configuration:
         filename = configuration
     if filename:
-        filename = os.path.relpath(filename, app.config.root_path)
+        if not os.path.isabs(filename):
+            filename = os.path.relpath(filename, app.config.root_path)
         app.config.from_pyfile(filename, silent=False)
     if config:
         config = {k.upper(): v for k, v in config.items() if v is not None}
@@ -88,16 +89,16 @@ def _print_config(app: flask.Flask):
     print(f"\nRESOURCE DIRECTORY:\n {os.path.abspath(resourcedir)}\n")
 
     adict = app.config.get("CELERY")
-    if adict:
-        print(f"\nCELERY:\n {pformat(adict)}\n")
-    else:
+    if adict is None:
         print("\nCELERY:\n Not configured (local workflow execution)\n")
+    else:
+        print(f"\nCELERY:\n {pformat(adict)}\n")
 
     adict = app.config.get("EWOKS")
-    if adict:
-        print(f"\nEWOKS:\n {pformat(adict)}\n")
+    if adict is None:
+        print("\nEWOKS:\n Not configured\n")
     else:
-        print("\nEWOKS:\n Not configured (no ewoks execution events)\n")
+        print(f"\nEWOKS:\n {pformat(adict)}\n")
 
 
 def _print_serve_message(host: str, port: int) -> None:

@@ -2,6 +2,14 @@
 
 ## 0.4.0 (unreleased)
 
+## 0.3.3 (unreleased)
+
+Bug fixes:
+  - Fix bug with absolute configuration filename
+
+Changes:
+  - Logs: celery and ewoks configurations could be empty dictionaries
+
 ## 0.3.2
 
 Changes:
