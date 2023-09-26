@@ -51,8 +51,12 @@ def test_single_task(rest_client):
 
     response = rest_client.delete(f"/task/{identifier}")
     data = response.get_json()
-    assert response.status_code == 200
-    assert data == {"identifier": identifier}
+    assert response.status_code == 404
+    assert data == {
+        "identifier": identifier,
+        "message": f"Task '{identifier}' is not found.",
+        "type": "task",
+    }
 
     response = rest_client.get(f"/task/{identifier}")
     data = response.get_json()

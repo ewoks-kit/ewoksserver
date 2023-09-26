@@ -98,6 +98,12 @@ class BinaryResource(Resource):
                 message=f"No permission to delete {self.RESOURCE_TYPE} '{identifier}'.",
                 identifier=identifier,
             )
+        except FileNotFoundError:
+            return self.make_response(
+                404,
+                message=f"{self.RESOURCE_TYPE.capitalize()} '{identifier}' is not found.",
+                identifier=identifier,
+            )
         return self.make_response(200, identifier=identifier)
 
     def list_resource_identifiers(self) -> ResponseType:

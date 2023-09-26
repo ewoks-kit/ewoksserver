@@ -49,8 +49,12 @@ def assert_single_icon(rest_client, icons, ext):
 
     response = rest_client.delete(f"/icon/{identifier}")
     data = response.get_json()
-    assert response.status_code == 200
-    assert data == {"identifier": identifier}
+    assert response.status_code == 404
+    assert data == {
+        "identifier": identifier,
+        "message": f"Icon '{identifier}' is not found.",
+        "type": "icon",
+    }
 
     response = rest_client.get(f"/icon/{identifier}")
     data = response.get_json()
