@@ -115,6 +115,5 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
 
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
-    if url.exists():
-        _logger.debug("Delete file '%s'", url)
-        url.unlink()
+    _logger.debug("Delete file '%s'", url)
+    url.unlink()

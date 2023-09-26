@@ -33,8 +33,8 @@ def test_single_workflow(rest_client):
 
     response = rest_client.delete(f"/workflow/{identifier}")
     data = response.get_json()
-    assert response.status_code == 200
-    assert data == {"identifier": identifier}
+    assert response.status_code == 404
+    assert data["message"] == f"Workflow '{identifier}' is not found."
 
     response = rest_client.get(f"/workflow/{identifier}")
     data = response.get_json()

@@ -84,9 +84,8 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
 
 
 def _delete_url(url: ResourceUrlType) -> ResourceContentType:
-    if url.exists():
-        _logger.debug("Delete file '%s'", url)
-        url.unlink()
+    _logger.debug("Delete file '%s'", url)
+    url.unlink()
 
 
 def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
