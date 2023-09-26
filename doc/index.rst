@@ -28,12 +28,15 @@ or for an installation with the system python
 
     python3 -m ewoksserver.server
 
-Run the tests
 
-.. code:: bash
+.. note::
 
-    pip install ewokserver[test]
-    pytest --pyargs ewokserver.tests
+    ``ewoks-server`` takes the port 5000 by default. If there are other applications running on this port (e.g. Airplay on Mac), another port can be chosen
+
+    .. code:: bash
+
+        ewoks-server -p 6666
+
 
 Documentation
 -------------
