@@ -101,3 +101,94 @@ def test_workflow_descriptions(rest_client, default_workflow_identifiers):
     ]
     data = sorted(data, key=lambda x: x["id"])
     assert data == expected
+
+
+def test_workflow_description_keys(rest_client, default_workflow_identifiers):
+    desc = {
+        "id": "myworkflow1",
+        "label": "label1",
+        "category": "cat1",
+        "keywords": {"key": "value"},
+        "input_schema": {"dummy": "dummy"},
+        "execute_arguments": {"dummy": "dummy"},
+        "worker_options": {"dummy": "dummy"},
+    }
+    workflow1 = {
+        "graph": {**desc, "custom1": 1, "custom2": {}},
+        "nodes": [{"id": "task1"}],
+    }
+    response = rest_client.post("/workflows", json=workflow1)
+    data = response.get_json()
+    assert response.status_code == 200, data
+
+    response = rest_client.get(
+        "/workflows/descriptions", json={"keywords": {"key": "value"}}
+    )
+    data = response.get_json()["items"]
+    assert data == [desc], data
+
+
+def test_workflow_keywords(rest_client, default_workflow_identifiers):
+    for key1 in ("A", "B"):
+        for key2 in ("1", "2"):
+            workflow1 = {
+                "graph": {
+                    "id": f"myworkflow{key1}{key2}",
+                    "label": "label1",
+                    "category": "cat1",
+                    "keywords": {"key1": key1, "key2": key2},
+                },
+                "nodes": [{"id": "task1"}],
+            }
+            response = rest_client.post("/workflows", json=workflow1)
+            data = response.get_json()
+            assert response.status_code == 200, data
+
+    response = rest_client.get("/workflows")
+    data = response.get_json()["identifiers"]
+    assert response.status_code == 200
+    expected = set(default_workflow_identifiers) | {
+        "myworkflowA1",
+        "myworkflowA2",
+        "myworkflowB1",
+        "myworkflowB2",
+    }
+    assert set(data) == expected
+
+    response = rest_client.get("/workflows", json={"keywords": {"key1": "A"}})
+    data = response.get_json()["identifiers"]
+    assert response.status_code == 200
+    expected = {"myworkflowA1", "myworkflowA2"}
+    assert set(data) == expected
+
+    response = rest_client.get(
+        "/workflows", json={"keywords": {"key1": "A", "key2": "1"}}
+    )
+    data = response.get_json()["identifiers"]
+    assert response.status_code == 200
+    expected = {"myworkflowA1"}
+    assert set(data) == expected
+
+    response = rest_client.get("/workflows/descriptions")
+    data = [res["id"] for res in response.get_json()["items"]]
+    expected = set(default_workflow_identifiers) | {
+        "myworkflowA1",
+        "myworkflowA2",
+        "myworkflowB1",
+        "myworkflowB2",
+    }
+    assert set(data) == expected
+
+    response = rest_client.get(
+        "/workflows/descriptions", json={"keywords": {"key1": "A"}}
+    )
+    data = [res["id"] for res in response.get_json()["items"]]
+    expected = {"myworkflowA1", "myworkflowA2"}
+    assert set(data) == expected
+
+    response = rest_client.get(
+        "/workflows/descriptions", json={"keywords": {"key1": "A", "key2": "1"}}
+    )
+    data = [res["id"] for res in response.get_json()["items"]]
+    expected = {"myworkflowA1"}
+    assert set(data) == expected

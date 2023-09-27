@@ -73,7 +73,7 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": list(default_task_identifiers)}
+    assert set(data["identifiers"]) == set(default_task_identifiers)
 
     task1a = {
         "task_identifier": "myproject.tasks.Dummy1",
@@ -125,7 +125,7 @@ def test_discover_tasks(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": list(default_task_identifiers)}
+    assert set(data["identifiers"]) == set(default_task_identifiers)
 
     module = "ewoksserver.tests.dummy_tasks"
 

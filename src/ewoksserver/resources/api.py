@@ -39,6 +39,14 @@ class EwoksGraphDescriptionSchema(Schema):
     id = fields.Str()
     label = fields.Str()
     category = fields.Str()
+    input_schema = fields.Mapping()
+    keywords = fields.Mapping()
+    execute_arguments = fields.Mapping()
+    worker_options = fields.Mapping()
+
+
+class ResourceListQuerySchema(Schema):
+    keywords = fields.Mapping()
 
 
 class EwoksDataUrlSchema(Schema):
@@ -241,6 +249,7 @@ def delete_resource(resource_type: str):
 def list_resource_identifiers(resource_type: str):
     def wrapper(func: Callable):
         func = doc(summary=f"Get a list of {resource_type} identifiers")(func)
+        func = use_kwargs(ResourceListQuerySchema)(func)
         func = marshal_with(ResourceIdentifierListSchema, code=200)(func)
         return func
 
@@ -261,6 +270,7 @@ def list_resource_content(resource_type: str):
 def list_resource_descriptions(resource_type: str):
     def wrapper(func: Callable):
         func = doc(summary=f"Get a list of {resource_type}s")(func)
+        func = use_kwargs(ResourceListQuerySchema)(func)
         func = marshal_with(
             get_resource_description_list_schema(resource_type), code=200
         )(func)
