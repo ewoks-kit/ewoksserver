@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import json
 from pprint import pformat
@@ -16,6 +17,8 @@ from flask_apispec import FlaskApiSpec
 
 from celery import current_app as current_celery_app
 from ewoksjob.client.local import pool_context
+
+from .resources.data import DEFAULT_ROOT
 
 try:
     from ewoksweb.serverutils import get_static_root
@@ -80,6 +83,8 @@ def _configure_app(app: flask.Flask, configuration: Optional[str] = None, **conf
                 }
             ]
         }
+
+    _copy_default_resources(app)
 
 
 def _print_config(app: flask.Flask):
@@ -177,6 +182,30 @@ def _rediscover_tasks(app: flask.Flask):
     root_url = resource_utils.root_url(app.config.get("RESOURCE_DIRECTORY"), "tasks")
     for resource in tasks:
         resource_utils.save_resource(root_url, resource["task_identifier"], resource)
+
+
+def _copy_default_resources(app: flask.Flask):
+    resource_dir = app.config.get("RESOURCE_DIRECTORY")
+
+    for resource, resource_ext in {
+        "tasks": [".json"],
+        "icons": [".png", ".svg"],
+        "workflows": [".json"],
+    }.items():
+        root_url = resource_utils.root_url(resource_dir, resource)
+        os.makedirs(root_url, exist_ok=True)
+        for filename in os.listdir(DEFAULT_ROOT / resource):
+            _, ext = os.path.splitext(filename)
+            if ext not in resource_ext:
+                continue
+
+            src = DEFAULT_ROOT / resource / filename
+            if not os.path.isfile(src):
+                continue
+
+            dest = root_url / filename
+            if not os.path.exists(dest):
+                shutil.copy(src, dest)
 
 
 def main(argv=None):

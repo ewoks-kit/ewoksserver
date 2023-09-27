@@ -2,7 +2,6 @@ import json
 import logging
 from pathlib import Path
 from typing import Iterator, Union
-from ..data import DEFAULT_ROOT
 
 
 ResourceIdentifierType = str
@@ -42,23 +41,13 @@ def resource_descriptions(root: ResourceUrlType) -> Iterator[ResourceDescription
 
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
-    for root in [root, _default_root_url(root)]:
-        if _identifier_to_url(root, identifier).exists():
-            return True
-    return False
-
-
-def _default_root_url(root: ResourceUrlType) -> ResourceUrlType:
-    return DEFAULT_ROOT / root.name
+    return _identifier_to_url(root, identifier).exists()
 
 
 def _resource_urls(root: ResourceUrlType) -> Iterator[ResourceUrlType]:
-    for root in [root, _default_root_url(root)]:
-        if not root.exists():
-            continue
-        for url in root.iterdir():
-            if _is_resource(url):
-                yield url
+    for url in root.iterdir():
+        if _is_resource(url):
+            yield url
 
 
 def _is_resource(url: ResourceUrlType) -> bool:
@@ -78,11 +67,7 @@ def load_resource(
     root: ResourceUrlType, identifier: ResourceIdentifierType
 ) -> ResourceContentType:
     url = _identifier_to_url(root, identifier)
-    try:
-        return _load_url(url)
-    except FileNotFoundError:
-        url = _identifier_to_url(DEFAULT_ROOT / root.name, identifier)
-        return _load_url(url)
+    return _load_url(url)
 
 
 def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -> None:
