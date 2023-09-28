@@ -54,9 +54,9 @@ def resource_descriptions(
             if not _include_resource(description.get("keywords", dict()), **keywords):
                 continue
         yield {
-            key: description[key]
-            for key in RESOURCE_DESCRIPTION_KEYS
-            if key in description
+            key: value
+            for key, value in description.items()
+            if key in RESOURCE_DESCRIPTION_KEYS
         }
 
 
