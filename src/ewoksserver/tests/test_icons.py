@@ -80,4 +80,4 @@ def assert_multiple_icons(rest_client, icons, ext, existing):
     response = rest_client.get("/icons")
     data = response.get_json()
     assert response.status_code == 200, data
-    assert set(data["identifiers"]) == set(expected)
+    assert sorted(data["identifiers"]) == sorted(expected)
