@@ -131,7 +131,7 @@ def test_workflow_description_keys(rest_client, default_workflow_identifiers):
 def test_workflow_keywords(rest_client, default_workflow_identifiers):
     for key1 in ("A", "B"):
         for key2 in ("1", "2"):
-            workflow1 = {
+            workflow = {
                 "graph": {
                     "id": f"myworkflow{key1}{key2}",
                     "label": "label1",
@@ -140,7 +140,7 @@ def test_workflow_keywords(rest_client, default_workflow_identifiers):
                 },
                 "nodes": [{"id": "task1"}],
             }
-            response = rest_client.post("/workflows", json=workflow1)
+            response = rest_client.post("/workflows", json=workflow)
             data = response.get_json()
             assert response.status_code == 200, data
 
