@@ -108,10 +108,10 @@ def test_workflow_description_keys(rest_client, default_workflow_identifiers):
         "id": "myworkflow1",
         "label": "label1",
         "category": "cat1",
-        "keywords": {"key": "value"},
-        "input_schema": {"dummy": "dummy"},
-        "execute_arguments": {"dummy": "dummy"},
-        "worker_options": {"dummy": "dummy"},
+        "keywords": {"tags": ["XRPD", "ID00"]},
+        "input_schema": {"title": "Demo workflow"},
+        "execute_arguments": {"engine": "ppf"},
+        "worker_options": {"queue": "id00"},
     }
     workflow1 = {
         "graph": {**desc, "custom1": 1, "custom2": {}},
@@ -122,21 +122,24 @@ def test_workflow_description_keys(rest_client, default_workflow_identifiers):
     assert response.status_code == 200, data
 
     response = rest_client.get(
-        "/workflows/descriptions", json={"keywords": {"key": "value"}}
+        "/workflows/descriptions", json={"keywords": {"tags": ["XRPD", "ID00"]}}
     )
     data = response.get_json()["items"]
     assert data == [desc], data
 
 
 def test_workflow_keywords(rest_client, default_workflow_identifiers):
-    for key1 in ("A", "B"):
-        for key2 in ("1", "2"):
+    for instrument_name in ("ID00", "ID99"):
+        for scan_type in ("ct", "loopscan"):
             workflow = {
                 "graph": {
-                    "id": f"myworkflow{key1}{key2}",
+                    "id": f"myworkflow_{instrument_name}_{scan_type}",
                     "label": "label1",
                     "category": "cat1",
-                    "keywords": {"key1": key1, "key2": key2},
+                    "keywords": {
+                        "instrument_name": instrument_name,
+                        "scan_type": scan_type,
+                    },
                 },
                 "nodes": [{"id": "task1"}],
             }
@@ -148,47 +151,50 @@ def test_workflow_keywords(rest_client, default_workflow_identifiers):
     data = response.get_json()["identifiers"]
     assert response.status_code == 200
     expected = set(default_workflow_identifiers) | {
-        "myworkflowA1",
-        "myworkflowA2",
-        "myworkflowB1",
-        "myworkflowB2",
+        "myworkflow_ID00_ct",
+        "myworkflow_ID00_loopscan",
+        "myworkflow_ID99_ct",
+        "myworkflow_ID99_loopscan",
     }
     assert set(data) == expected
 
-    response = rest_client.get("/workflows", json={"keywords": {"key1": "A"}})
-    data = response.get_json()["identifiers"]
-    assert response.status_code == 200
-    expected = {"myworkflowA1", "myworkflowA2"}
-    assert set(data) == expected
-
     response = rest_client.get(
-        "/workflows", json={"keywords": {"key1": "A", "key2": "1"}}
+        "/workflows", json={"keywords": {"instrument_name": "ID00"}}
     )
     data = response.get_json()["identifiers"]
     assert response.status_code == 200
-    expected = {"myworkflowA1"}
+    expected = {"myworkflow_ID00_ct", "myworkflow_ID00_loopscan"}
+    assert set(data) == expected
+
+    response = rest_client.get(
+        "/workflows", json={"keywords": {"instrument_name": "ID00", "scan_type": "ct"}}
+    )
+    data = response.get_json()["identifiers"]
+    assert response.status_code == 200
+    expected = {"myworkflow_ID00_ct"}
     assert set(data) == expected
 
     response = rest_client.get("/workflows/descriptions")
     data = [res["id"] for res in response.get_json()["items"]]
     expected = set(default_workflow_identifiers) | {
-        "myworkflowA1",
-        "myworkflowA2",
-        "myworkflowB1",
-        "myworkflowB2",
+        "myworkflow_ID00_ct",
+        "myworkflow_ID00_loopscan",
+        "myworkflow_ID99_ct",
+        "myworkflow_ID99_loopscan",
     }
     assert set(data) == expected
 
     response = rest_client.get(
-        "/workflows/descriptions", json={"keywords": {"key1": "A"}}
+        "/workflows/descriptions", json={"keywords": {"instrument_name": "ID00"}}
     )
     data = [res["id"] for res in response.get_json()["items"]]
-    expected = {"myworkflowA1", "myworkflowA2"}
+    expected = {"myworkflow_ID00_ct", "myworkflow_ID00_loopscan"}
     assert set(data) == expected
 
     response = rest_client.get(
-        "/workflows/descriptions", json={"keywords": {"key1": "A", "key2": "1"}}
+        "/workflows/descriptions",
+        json={"keywords": {"instrument_name": "ID00", "scan_type": "ct"}},
     )
     data = [res["id"] for res in response.get_json()["items"]]
-    expected = {"myworkflowA1"}
+    expected = {"myworkflow_ID00_ct"}
     assert set(data) == expected
