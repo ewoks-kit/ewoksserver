@@ -1,13 +1,22 @@
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Iterator, Union, Optional
 
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
 ResourceContentType = dict
 ResourceDescriptionType = dict
+RESOURCE_DESCRIPTION_KEYS = (
+    "id",
+    "label",
+    "category",
+    "input_schema",
+    "keywords",
+    "execute_arguments",
+    "worker_options",
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -20,9 +29,15 @@ def root_url(root_url: Union[str, Path, None], category: str) -> ResourceUrlType
     return root_url / category
 
 
-def resource_identifiers(root: ResourceUrlType) -> Iterator[ResourceIdentifierType]:
-    for url in _resource_urls(root):
-        yield _url_to_identifier(url)
+def resource_identifiers(
+    root: ResourceUrlType, keywords: Optional[dict] = None
+) -> Iterator[ResourceIdentifierType]:
+    if keywords:
+        for description in resource_descriptions(root, keywords):
+            yield description["id"]
+    else:
+        for url in _resource_urls(root):
+            yield _url_to_identifier(url)
 
 
 def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
@@ -30,14 +45,24 @@ def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
         yield _load_url(url)
 
 
-def resource_descriptions(root: ResourceUrlType) -> Iterator[ResourceDescriptionType]:
+def resource_descriptions(
+    root: ResourceUrlType, keywords: Optional[dict] = None
+) -> Iterator[ResourceDescriptionType]:
     for res in resources(root):
-        resDict = {
-            key: res["graph"][key]
-            for key in ("id", "label", "category")
-            if key in res["graph"]
+        description = res["graph"]
+        if not _include_resource(description.get("keywords", dict()), keywords):
+            continue
+        yield {
+            key: value
+            for key, value in description.items()
+            if key in RESOURCE_DESCRIPTION_KEYS
         }
-        yield resDict
+
+
+def _include_resource(res_keywords: dict, keywords: Optional[dict] = None) -> bool:
+    if keywords is None:
+        return True
+    return all(res_keywords.get(key) == value for key, value in keywords.items())
 
 
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:

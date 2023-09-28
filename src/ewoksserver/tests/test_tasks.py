@@ -73,7 +73,7 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": list(default_task_identifiers)}
+    assert sorted(data["identifiers"]) == sorted(default_task_identifiers)
 
     task1a = {
         "task_identifier": "myproject.tasks.Dummy1",
@@ -114,38 +114,38 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200, data
-    expected = set(default_task_identifiers) | {
+    expected = default_task_identifiers + [
         "myproject.tasks.Dummy1",
         "myproject.tasks.Dummy2",
-    }
-    assert set(data["identifiers"]) == expected
+    ]
+    assert sorted(data["identifiers"]) == sorted(expected)
 
 
 def test_discover_tasks(rest_client, default_task_identifiers):
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    assert data == {"identifiers": list(default_task_identifiers)}
+    assert sorted(data["identifiers"]) == sorted(default_task_identifiers)
 
     module = "ewoksserver.tests.dummy_tasks"
 
     response = rest_client.post("/tasks/discover", json={"modules": [module]})
     data = response.get_json()
     assert response.status_code == 200, data
-    expected = {
+    expected = [
         "ewoksserver.tests.dummy_tasks.MyTask1",
         "ewoksserver.tests.dummy_tasks.MyTask2",
-    }
-    assert set(data["identifiers"]) == expected
+    ]
+    assert sorted(data["identifiers"]) == sorted(expected)
 
     response = rest_client.get("/tasks")
     data = response.get_json()
     assert response.status_code == 200
-    expected = set(default_task_identifiers) | {
+    expected = default_task_identifiers + [
         "ewoksserver.tests.dummy_tasks.MyTask1",
         "ewoksserver.tests.dummy_tasks.MyTask2",
-    }
-    assert set(data["identifiers"]) == expected
+    ]
+    assert sorted(data["identifiers"]) == sorted(expected)
 
     response = rest_client.post("/tasks/discover", json={"modules": [module]})
     data = response.get_json()
@@ -181,8 +181,8 @@ def test_task_descriptions(rest_client, default_task_identifiers):
 
     response = rest_client.get("/tasks/descriptions")
     data2 = response.get_json()["items"]
-    data2 = {
+    data2 = [
         r["task_identifier"] for r in data2 if r["task_identifier"].startswith(module)
-    }
+    ]
     assert response.status_code == 200
-    assert set(data1["identifiers"]) == data2
+    assert sorted(data1["identifiers"]) == sorted(data2)

@@ -125,11 +125,17 @@ class JsonResource(Resource):
             )
         return self.make_response(200, identifier=identifier)
 
-    def list_resource_identifiers(self) -> ResponseType:
+    def list_resource_identifiers(
+        self, keywords: Optional[dict] = None
+    ) -> ResponseType:
         """
         200: OK
         """
-        body = {"identifiers": list(utils.resource_identifiers(self.root_url))}
+        body = {
+            "identifiers": list(
+                utils.resource_identifiers(self.root_url, keywords=keywords)
+            )
+        }
         return body, 200
 
     def list_resource_content(self) -> ResponseType:
@@ -139,11 +145,15 @@ class JsonResource(Resource):
         body = {"items": list(utils.resources(self.root_url))}
         return body, 200
 
-    def list_resource_descriptions(self) -> ResponseType:
+    def list_resource_descriptions(
+        self, keywords: Optional[dict] = None
+    ) -> ResponseType:
         """
         200: OK
         """
-        body = {"items": list(utils.resource_descriptions(self.root_url))}
+        body = {
+            "items": list(utils.resource_descriptions(self.root_url, keywords=keywords))
+        }
         return body, 200
 
     def get_identifier(self, resource: ResourceContentType) -> ResourceIdentifierType:
