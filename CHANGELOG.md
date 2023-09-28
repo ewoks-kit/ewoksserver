@@ -1,6 +1,14 @@
 # CHANGELOG.md
 
-## 0.4.0 (unreleased)
+## 0.5.0 (unreleased)
+
+## 0.4.0
+
+Bug fixes:
+  - Trying to delete a non-existing entity now returns 404
+
+Changes:
+  - Default resources are now copied in the launched server resource directory
 
 ## 0.3.3
 
