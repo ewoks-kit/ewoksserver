@@ -45,7 +45,7 @@ class Workflows(resource.JsonResource):
     def get(self, keywords=None) -> resource.ResponseType:
         if keywords is None:
             keywords = dict()
-        return self.list_resource_identifiers(**keywords)
+        return self.list_resource_identifiers(keywords=keywords)
 
     @api.post_resource("workflow")
     def post(self, **resource) -> resource.ResponseType:
@@ -64,7 +64,7 @@ class Description(resource.JsonResource):
     def get(self, keywords=None) -> resource.ResponseType:
         if keywords is None:
             keywords = dict()
-        return self.list_resource_descriptions(**keywords)
+        return self.list_resource_descriptions(keywords=keywords)
 
 
 class Execute(resource.JsonResource):
