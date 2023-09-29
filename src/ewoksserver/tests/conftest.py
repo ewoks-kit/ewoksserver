@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import List
+from collections import namedtuple
+
 import pytest
 from ewoksserver.server import create_app
 from ewoksserver.server import run_context
@@ -97,3 +99,25 @@ def default_task_identifiers() -> List[Path]:
     return [
         url.stem for url in (DEFAULT_ROOT / "tasks").iterdir() if url.suffix == ".json"
     ]
+
+
+@pytest.fixture
+def mocked_local_submit(mocker) -> str:
+    submit_local_mock = mocker.patch(
+        "ewoksserver.resources.json.workflows.submit_local"
+    )
+
+    MockFuture = namedtuple("Future", ["task_id"])
+
+    arguments = dict()
+    task_id = 0
+
+    def mocked_submit(*args, **kwargs):
+        nonlocal task_id
+        arguments["args"] = args
+        arguments["kwargs"] = kwargs
+        task_id += 1
+        return MockFuture(task_id=task_id)
+
+    submit_local_mock.side_effect = mocked_submit
+    return arguments

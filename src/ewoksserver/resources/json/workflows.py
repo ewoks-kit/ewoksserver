@@ -4,6 +4,7 @@ from ewoksjob.client import submit
 from ewoksjob.client.local import submit as submit_local
 from . import resource
 from .. import api
+from .utils import merge_mappings
 
 
 class Workflow(resource.JsonResource):
@@ -86,12 +87,13 @@ class Execute(resource.JsonResource):
         if error_code != 200:
             return graph, error_code
 
-        if execute_arguments is None:
-            execute_arguments = dict()
-        if worker_options is None:
-            submit_kwargs = dict()
-        else:
-            submit_kwargs = dict(worker_options)
+        execute_arguments = merge_mappings(
+            graph["graph"].get("execute_arguments"), execute_arguments
+        )
+        submit_kwargs = merge_mappings(
+            graph["graph"].get("worker_options"), worker_options
+        )
+
         submit_kwargs["args"] = (graph,)
         submit_kwargs["kwargs"] = execute_arguments
 

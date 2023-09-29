@@ -19,6 +19,78 @@ def test_new_client_new_events(local_exec_client):
     assert not sclient.get_received()
 
 
+def test_execute_options(rest_client, mocked_local_submit):
+    workflow = {
+        "graph": {
+            "id": "myworkflow",
+            "label": "label1",
+            "category": "cat1",
+            "execute_arguments": {
+                "engine": "ppf",
+                "_slurm_spawn_arguments": {
+                    "parameters": {"time_limit": 10, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "worker_options": {"queue": "id00"},
+        },
+        "nodes": [{"id": "task1"}],
+    }
+    response = rest_client.post("/workflows", json=workflow)
+    data = response.get_json()
+    assert response.status_code == 200, data
+
+    # Check that the backend uses execute_arguments and worker_options
+    # from the workflow definition
+    response = rest_client.post("/execute/myworkflow")
+    expected_submit_arguments = {
+        "args": (),
+        "kwargs": {
+            "args": (workflow,),
+            "kwargs": {
+                "engine": "ppf",
+                "_slurm_spawn_arguments": {
+                    "parameters": {"time_limit": 10, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "queue": "id00",
+        },
+    }
+    assert mocked_local_submit == expected_submit_arguments
+
+    # Check that the backend merges execute_arguments and worker_options
+    # from the client
+    data = {
+        "execute_arguments": {
+            "engine": "ppf",
+            "_slurm_spawn_arguments": {
+                "parameters": {"time_limit": 20, "partition": "nice"},
+                "pre_script": "module load ewoks",
+            },
+        },
+        "worker_options": {"queue": "id00", "time_limit": 30},
+    }
+
+    response = rest_client.post("/execute/myworkflow", json=data)
+    expected_submit_arguments = {
+        "args": (),
+        "kwargs": {
+            "args": (workflow,),
+            "kwargs": {
+                "engine": "ppf",
+                "_slurm_spawn_arguments": {
+                    "parameters": {"time_limit": 20, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "queue": "id00",
+            "time_limit": 30,
+        },
+    }
+    assert mocked_local_submit == expected_submit_arguments
+
+
 def _test_execute(client, sclient):
     graph_name, expected = upload_graph(client)
     response = client.post(f"/execute/{graph_name}")
