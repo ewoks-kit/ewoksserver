@@ -110,11 +110,16 @@ def test_workflow_description_keys(rest_client, default_workflow_identifiers):
         "category": "cat1",
         "keywords": {"tags": ["XRPD", "ID00"]},
         "input_schema": {"title": "Demo workflow"},
-        "execute_arguments": {"engine": "ppf"},
-        "worker_options": {"queue": "id00"},
+        "ui_schema": {"mx_pipeline_name": {"ui:widget": "checkboxes"}},
     }
     workflow1 = {
-        "graph": {**desc, "custom1": 1, "custom2": {}},
+        "graph": {
+            **desc,
+            "custom1": 1,
+            "custom2": {},
+            "execute_arguments": {"engine": "ppf"},
+            "worker_options": {"queue": "id00"},
+        },
         "nodes": [{"id": "task1"}],
     }
     response = rest_client.post("/workflows", json=workflow1)
