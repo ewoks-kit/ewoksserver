@@ -39,10 +39,9 @@ class EwoksGraphDescriptionSchema(Schema):
     id = fields.Str()
     label = fields.Str()
     category = fields.Str()
-    input_schema = fields.Mapping()
     keywords = fields.Mapping()
-    execute_arguments = fields.Mapping()
-    worker_options = fields.Mapping()
+    input_schema = fields.Mapping()
+    ui_schema = fields.Mapping()
 
 
 class ResourceListQuerySchema(Schema):

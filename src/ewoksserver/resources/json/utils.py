@@ -12,10 +12,9 @@ RESOURCE_DESCRIPTION_KEYS = (
     "id",
     "label",
     "category",
-    "input_schema",
     "keywords",
-    "execute_arguments",
-    "worker_options",
+    "input_schema",
+    "ui_schema",
 )
 
 _logger = logging.getLogger(__name__)
