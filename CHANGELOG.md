@@ -11,7 +11,7 @@ Changes:
      keywords, input_schema and ui_schema.
   - `/workflow/{identifier}` and `/workflows`: the `EwoksGraphSchema` did not change but
     the `graph` field may now contain the following extra keys: keywords, input_schema, ui_schema,
-    execute_parameters and worker_options.
+    `execute_parameters` and `worker_options`.
   - The `execute_parameters` and `worker_options` field from the workflow are merged with the
     equivalent dictionaries provided by the client when calling `POST /execute/{identifier}`
 
