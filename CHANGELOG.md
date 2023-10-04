@@ -1,6 +1,19 @@
 # CHANGELOG.md
 
-## 0.5.0 (unreleased)
+## 0.6.0 (unreleased)
+
+## 0.5.0
+
+Changes:
+  - `GET /workflows`: optional `keywords` to filter the workflows
+  - `GET /workflows/descriptions`: optional `keywords` to filter the workflows
+  - `GET /workflows/descriptions`: result `EwoksGraphDescriptionSchema` changed. It may include
+     keywords, input_schema and ui_schema.
+  - `/workflow/{identifier}` and `/workflows`: the `EwoksGraphSchema` did not change but
+    the `graph` field may now contain the following extra keys: keywords, input_schema, ui_schema,
+    execute_parameters and worker_options.
+  - The `execute_parameters` and `worker_options` field from the workflow are merged with the
+    equivalent dictionaries provided by the client when calling `POST /execute/{identifier}`
 
 ## 0.4.0
 
