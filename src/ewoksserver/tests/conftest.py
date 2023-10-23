@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import List
 from collections import namedtuple
+from fastapi.testclient import TestClient
 
 import pytest
-from ewoksserver.server import create_app
-from ewoksserver.server import run_context
-from ewoksserver.server import add_socket
+from ewoksserver import oldserver
+from ewoksserver import app as newserver
+
 from ewoksjob.client.local import pool_context
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
@@ -16,12 +17,19 @@ from ..resources.data import DEFAULT_ROOT
 
 
 @pytest.fixture
-def rest_client(tmpdir):
+def rest_client_old(tmpdir):
     """Client to the REST server (no execution)."""
-    app, *_ = create_app(resource_directory=str(tmpdir))
-    with run_context(app):
+    app, *_ = oldserver.create_app(resource_directory=str(tmpdir))
+    with oldserver.run_context(app):
         with app.test_client() as client:
             yield client
+
+
+@pytest.fixture
+def rest_client(tmpdir):
+    """Client to the REST server (no execution)."""
+    app = newserver.create_app()
+    return TestClient(app)
 
 
 @pytest.fixture()
@@ -39,9 +47,9 @@ def ewoks_handlers(tmpdir):
 def local_exec_client(tmpdir, ewoks_handlers):
     """Client to the REST server and websocket (execution with process pool)."""
     ewoks_config = {"handlers": ewoks_handlers}
-    app, *_ = create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
-    socketio = add_socket(app)
-    with run_context(app):
+    app, *_ = oldserver.create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
+    socketio = oldserver.add_socket(app)
+    with oldserver.run_context(app):
         with pool_context():
             with app.test_client() as client:
                 sclient = socketio.test_client(app, flask_test_client=client)
@@ -53,11 +61,11 @@ def local_exec_client(tmpdir, ewoks_handlers):
 def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
     """Client to the REST server and websocket (execution with celery)."""
     ewoks_config = {"handlers": ewoks_handlers}
-    app, *_ = create_app(
+    app, *_ = oldserver.create_app(
         resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
     )
-    socketio = add_socket(app)
-    with run_context(app):
+    socketio = oldserver.add_socket(app)
+    with oldserver.run_context(app):
         with app.test_client() as client:
             sclient = socketio.test_client(app, flask_test_client=client)
             yield client, sclient

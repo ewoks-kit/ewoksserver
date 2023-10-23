@@ -19,7 +19,7 @@ def test_new_client_new_events(local_exec_client):
     assert not sclient.get_received()
 
 
-def test_execute_options(rest_client, mocked_local_submit):
+def test_execute_options(rest_client_old, mocked_local_submit):
     workflow = {
         "graph": {
             "id": "myworkflow",
@@ -36,13 +36,13 @@ def test_execute_options(rest_client, mocked_local_submit):
         },
         "nodes": [{"id": "task1"}],
     }
-    response = rest_client.post("/workflows", json=workflow)
+    response = rest_client_old.post("/workflows", json=workflow)
     data = response.get_json()
     assert response.status_code == 200, data
 
     # Check that the backend uses execute_arguments and worker_options
     # from the workflow definition
-    response = rest_client.post("/execute/myworkflow")
+    response = rest_client_old.post("/execute/myworkflow")
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
@@ -72,7 +72,7 @@ def test_execute_options(rest_client, mocked_local_submit):
         "worker_options": {"queue": "id00", "time_limit": 30},
     }
 
-    response = rest_client.post("/execute/myworkflow", json=data)
+    response = rest_client_old.post("/execute/myworkflow", json=data)
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
