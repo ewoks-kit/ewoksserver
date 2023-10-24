@@ -18,7 +18,7 @@ build_doc:
   extends: .build_doc
   script:
     - python -m pip install .[doc]
-    - ewoks-server -s doc/spec.json
+    - ewoks-server-spec doc/spec.json
     - sphinx-build doc html
 
 pages:
