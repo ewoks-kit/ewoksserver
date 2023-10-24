@@ -7,8 +7,8 @@ from .test_execute import upload_graph
 from .test_execute import get_events
 
 
-def test_get_execution_events(local_exec_client):
-    client, sclient = local_exec_client
+def test_get_execution_events(local_exec_client_old):
+    client, sclient = local_exec_client_old
 
     graph_name, expected = upload_graph(client)
     nevents = 0
@@ -99,8 +99,8 @@ def test_get_execution_events(local_exec_client):
     assert events[0] == events2
 
 
-def test_get_execution_events_parallel(local_exec_client):
-    client, sclient = local_exec_client
+def test_get_execution_events_parallel(local_exec_client_old):
+    client, sclient = local_exec_client_old
 
     _, expected = get_graph("demo")
     nevents = 0

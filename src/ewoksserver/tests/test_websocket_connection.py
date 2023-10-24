@@ -2,13 +2,13 @@ import time
 from ..events.websocket import is_running
 
 
-def test_websocket_connection_local(local_exec_client):
-    _, sclient = local_exec_client
+def test_websocket_connection_local(local_exec_client_old):
+    _, sclient = local_exec_client_old
     _test_websocket_connection(sclient)
 
 
-def test_websocket_connection_celery(celery_exec_client):
-    _, sclient = celery_exec_client
+def test_websocket_connection_celery(celery_exec_client_old):
+    _, sclient = celery_exec_client_old
     _test_websocket_connection(sclient)
 
 

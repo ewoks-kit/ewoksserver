@@ -2,16 +2,16 @@ import time
 from ewokscore.tests.examples.graphs import get_graph
 
 
-def test_execute_with_celery(celery_exec_client):
-    _test_execute(*celery_exec_client)
+def test_execute_with_celery(celery_exec_client_old):
+    _test_execute(*celery_exec_client_old)
 
 
-def test_execute_without_celery(local_exec_client):
-    _test_execute(*local_exec_client)
+def test_execute_without_celery(local_exec_client_old):
+    _test_execute(*local_exec_client_old)
 
 
-def test_new_client_new_events(local_exec_client):
-    client, sclient = local_exec_client
+def test_new_client_new_events(local_exec_client_old):
+    client, sclient = local_exec_client_old
     _test_execute(client, sclient)
     sclient.disconnect()
     sclient.connect()

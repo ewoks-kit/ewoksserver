@@ -1,11 +1,14 @@
 from pathlib import Path
 from typing import List
+from functools import lru_cache
 from collections import namedtuple
-from fastapi.testclient import TestClient
 
 import pytest
+from fastapi.testclient import TestClient
+
 from ewoksserver import oldserver
 from ewoksserver import app as newserver
+from ewoksserver.app import config as serverconfig
 
 from ewoksjob.client.local import pool_context
 from ewoksjob.tests.conftest import celery_config  # noqa F401
@@ -29,7 +32,15 @@ def rest_client_old(tmpdir):
 def rest_client(tmpdir):
     """Client to the REST server (no execution)."""
     app = newserver.create_app()
-    return TestClient(app)
+
+    @lru_cache()
+    def get_api_settings_for_tests():
+        return serverconfig.ApiSettings(resource_directory=str(tmpdir))
+
+    app.dependency_overrides[serverconfig.get_api_settings] = get_api_settings_for_tests
+
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture()
@@ -46,6 +57,24 @@ def ewoks_handlers(tmpdir):
 @pytest.fixture
 def local_exec_client(tmpdir, ewoks_handlers):
     """Client to the REST server and websocket (execution with process pool)."""
+    app = newserver.create_app()
+
+    def get_settings_override():
+        return serverconfig.ApiSettings(
+            resource_directory=str(tmpdir), ewoks={"handlers": ewoks_handlers}
+        )
+
+    app.dependency_overrides[serverconfig.get_api_settings] = get_settings_override
+
+    with TestClient(app) as client:
+        with client.websocket_connect("/events/websocket") as sclient:
+            with pool_context():
+                yield client, sclient
+
+
+@pytest.fixture
+def local_exec_client_old(tmpdir, ewoks_handlers):
+    """Client to the REST server and websocket (execution with process pool)."""
     ewoks_config = {"handlers": ewoks_handlers}
     app, *_ = oldserver.create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
     socketio = oldserver.add_socket(app)
@@ -59,6 +88,19 @@ def local_exec_client(tmpdir, ewoks_handlers):
 
 @pytest.fixture
 def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
+    """Client to the REST server and websocket (execution with celery)."""
+    ewoks_config = {"handlers": ewoks_handlers}
+    app = newserver.create_app(
+        resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
+    )
+    client = TestClient(app)
+    with client.websocket_connect("/events/websocket") as sclient:
+        with pool_context():
+            yield client, sclient
+
+
+@pytest.fixture
+def celery_exec_client_old(tmpdir, celery_session_worker, ewoks_handlers):
     """Client to the REST server and websocket (execution with celery)."""
     ewoks_config = {"handlers": ewoks_handlers}
     app, *_ = oldserver.create_app(

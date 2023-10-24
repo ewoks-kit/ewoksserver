@@ -1,7 +1,7 @@
-def test_single_task(rest_client):
+def test_single_task(rest_client_old):
     identifier = "myproject.tasks.Dummy"
 
-    response = rest_client.get(f"/task/{identifier}")
+    response = rest_client_old.get(f"/task/{identifier}")
     assert response.status_code == 404
 
     task1a = {
@@ -9,8 +9,8 @@ def test_single_task(rest_client):
         "task_type": "class",
         "required_input_names": ["a"],
     }
-    response = rest_client.post("/tasks/", json=task1a)
-    data = response.json()
+    response = rest_client_old.post("/tasks", json=task1a)
+    data = response.get_json()
     assert response.status_code == 200, data
     expected = {
         "required_input_names": ["a"],
@@ -19,8 +19,8 @@ def test_single_task(rest_client):
     }
     assert data == expected
 
-    response = rest_client.get(f"/task/{identifier}")
-    data = response.json()
+    response = rest_client_old.get(f"/task/{identifier}")
+    data = response.get_json()
     assert response.status_code == 200, data
     assert data == task1a
 
@@ -29,8 +29,8 @@ def test_single_task(rest_client):
         "task_type": "class",
         "required_input_names": ["a", "b"],
     }
-    response = rest_client.put(f"/task/{identifier}", json=task1b)
-    data = response.json()
+    response = rest_client_old.put(f"/task/{identifier}", json=task1b)
+    data = response.get_json()
     assert response.status_code == 200, data
     expected = {
         "required_input_names": ["a", "b"],
@@ -39,18 +39,18 @@ def test_single_task(rest_client):
     }
     assert data == expected
 
-    response = rest_client.get(f"/task/{identifier}")
-    data = response.json()
+    response = rest_client_old.get(f"/task/{identifier}")
+    data = response.get_json()
     assert response.status_code == 200, data
     assert data == task1b
 
-    response = rest_client.delete(f"/task/{identifier}")
-    data = response.json()
+    response = rest_client_old.delete(f"/task/{identifier}")
+    data = response.get_json()
     assert response.status_code == 200
     assert data == {"identifier": identifier}
 
-    response = rest_client.delete(f"/task/{identifier}")
-    data = response.json()
+    response = rest_client_old.delete(f"/task/{identifier}")
+    data = response.get_json()
     assert response.status_code == 404
     assert data == {
         "identifier": identifier,
@@ -58,8 +58,8 @@ def test_single_task(rest_client):
         "type": "task",
     }
 
-    response = rest_client.get(f"/task/{identifier}")
-    data = response.json()
+    response = rest_client_old.get(f"/task/{identifier}")
+    data = response.get_json()
     assert response.status_code == 404
     expected = {
         "identifier": identifier,
@@ -69,9 +69,9 @@ def test_single_task(rest_client):
     assert data == expected
 
 
-def test_multiple_tasks(rest_client, default_task_identifiers):
-    response = rest_client.get("/tasks")
-    data = response.json()
+def test_multiple_tasks(rest_client_old, default_task_identifiers):
+    response = rest_client_old.get("/tasks")
+    data = response.get_json()
     assert response.status_code == 200
     assert sorted(data["identifiers"]) == sorted(default_task_identifiers)
 
@@ -91,13 +91,13 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
         "required_input_names": ["a", "b"],
     }
 
-    response = rest_client.post("/tasks", json=task1a)
-    data = response.json()
+    response = rest_client_old.post("/tasks", json=task1a)
+    data = response.get_json()
     assert response.status_code == 200, data
     assert data == task1a
 
-    response = rest_client.post("/tasks", json=task1b)
-    data = response.json()
+    response = rest_client_old.post("/tasks", json=task1b)
+    data = response.get_json()
     assert response.status_code == 409, data
     expected = {
         "identifier": "myproject.tasks.Dummy1",
@@ -106,13 +106,13 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
     }
     assert data == expected
 
-    response = rest_client.post("/tasks", json=task2)
-    data = response.json()
+    response = rest_client_old.post("/tasks", json=task2)
+    data = response.get_json()
     assert response.status_code == 200, data
     assert data == task2
 
-    response = rest_client.get("/tasks")
-    data = response.json()
+    response = rest_client_old.get("/tasks")
+    data = response.get_json()
     assert response.status_code == 200, data
     expected = default_task_identifiers + [
         "myproject.tasks.Dummy1",
@@ -121,16 +121,16 @@ def test_multiple_tasks(rest_client, default_task_identifiers):
     assert sorted(data["identifiers"]) == sorted(expected)
 
 
-def test_discover_tasks(rest_client, default_task_identifiers):
-    response = rest_client.get("/tasks")
-    data = response.json()
+def test_discover_tasks(rest_client_old, default_task_identifiers):
+    response = rest_client_old.get("/tasks")
+    data = response.get_json()
     assert response.status_code == 200
     assert sorted(data["identifiers"]) == sorted(default_task_identifiers)
 
     module = "ewoksserver.tests.dummy_tasks"
 
-    response = rest_client.post("/tasks/discover", json={"modules": [module]})
-    data = response.json()
+    response = rest_client_old.post("/tasks/discover", json={"modules": [module]})
+    data = response.get_json()
     assert response.status_code == 200, data
     expected = [
         "ewoksserver.tests.dummy_tasks.MyTask1",
@@ -138,8 +138,8 @@ def test_discover_tasks(rest_client, default_task_identifiers):
     ]
     assert sorted(data["identifiers"]) == sorted(expected)
 
-    response = rest_client.get("/tasks")
-    data = response.json()
+    response = rest_client_old.get("/tasks")
+    data = response.get_json()
     assert response.status_code == 200
     expected = default_task_identifiers + [
         "ewoksserver.tests.dummy_tasks.MyTask1",
@@ -147,24 +147,26 @@ def test_discover_tasks(rest_client, default_task_identifiers):
     ]
     assert sorted(data["identifiers"]) == sorted(expected)
 
-    response = rest_client.post("/tasks/discover", json={"modules": [module]})
-    data = response.json()
+    response = rest_client_old.post("/tasks/discover", json={"modules": [module]})
+    data = response.get_json()
     assert response.status_code == 200, data
 
-    response = rest_client.post("/tasks/discover", json={"modules": ["not_a_module"]})
-    data = response.json()
+    response = rest_client_old.post(
+        "/tasks/discover", json={"modules": ["not_a_module"]}
+    )
+    data = response.get_json()
     assert response.status_code == 404, data
     assert "No module named" in data["message"]
 
-    response = rest_client.post("/tasks/discover")
-    data = response.json()
+    response = rest_client_old.post("/tasks/discover")
+    data = response.get_json()
     assert response.status_code == 200, data
     assert data["identifiers"]
 
 
-def test_task_descriptions(rest_client, default_task_identifiers):
-    response = rest_client.get("/tasks/descriptions")
-    data = response.json()
+def test_task_descriptions(rest_client_old, default_task_identifiers):
+    response = rest_client_old.get("/tasks/descriptions")
+    data = response.get_json()
     assert response.status_code == 200
     default_descriptions = [
         desc
@@ -175,12 +177,12 @@ def test_task_descriptions(rest_client, default_task_identifiers):
 
     module = "ewoksserver.tests.dummy_tasks"
 
-    response = rest_client.post("/tasks/discover", json={"modules": [module]})
-    data1 = response.json()
+    response = rest_client_old.post("/tasks/discover", json={"modules": [module]})
+    data1 = response.get_json()
     assert response.status_code == 200, data1
 
-    response = rest_client.get("/tasks/descriptions")
-    data2 = response.json()["items"]
+    response = rest_client_old.get("/tasks/descriptions")
+    data2 = response.get_json()["items"]
     data2 = [
         r["task_identifier"] for r in data2 if r["task_identifier"].startswith(module)
     ]

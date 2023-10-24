@@ -5,23 +5,36 @@
     uvicorn --factory ewoksserver.app:create_app --reload
 """
 
+
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 
-try:
-    from ewoksweb.serverutils import get_static_root
-except ImportError:
-
-    def get_static_root():
-        return "static"
+from .cors import enable_cors
+from .lifespan import fastapi_lifespan
+from .routers import utils as router_utils
+from .routers import tasks
+from .routers import frontend
 
 
 def create_app() -> FastAPI:
+    """Create the main API instance"""
+
+    task_routers = router_utils.parse_routers("tasks", tasks.routers)
+    all_parsed_routers = (task_routers,)
+    major, minor, patch = router_utils.extract_version(all_parsed_routers)
+
+    tags_metadata = [
+        {"name": "tasks", "description": "Ewoks workflow tasks"},
+        {"name": "workflows", "description": "Ewoks workflows"},
+        *(
+            {"name": "workflows", "description": f"Ewoks workflows API {name}"}
+            for name in router_utils.extract_version_tags(all_parsed_routers)
+        ),
+    ]
+
     app = FastAPI(
         title="ewoks",
         summary="Edit and execute ewoks workflows",
-        version="1.0.0",
+        version=f"{major}.{minor}.{patch}",
         contact={
             "name": "ESRF",
             "url": "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/issues",
@@ -30,27 +43,11 @@ def create_app() -> FastAPI:
             "name": "MIT",
             "identifier": "MIT",
         },
+        openapi_tags=tags_metadata,
+        lifespan=fastapi_lifespan,
+        routers=[frontend.router],
     )
 
-    _enable_cors(app)
-    _mount_ewoksweb(app)
-
+    enable_cors(app)
+    router_utils.add_routes(app, all_parsed_routers)
     return app
-
-
-def _mount_ewoksweb(app: FastAPI) -> None:
-    """Add the ewoksweb REACT application to specific paths"""
-    files = StaticFiles(directory=get_static_root(), html=True)
-    app.mount("/", app=files, name="ewoksweb")
-    app.mount("/edit", app=files, name="ewoksweb_edit")
-    app.mount("/monitor", app=files, name="ewoksweb_monitor")
-
-
-def _enable_cors(app: FastAPI) -> None:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
