@@ -12,21 +12,23 @@ from .cors import enable_cors
 from .lifespan import fastapi_lifespan
 from .routers import utils as router_utils
 from .routers import tasks
+from .routers import workflows
 from .routers import frontend
 
 
 def create_app() -> FastAPI:
     """Create the main API instance"""
-
-    task_routers = router_utils.parse_routers("tasks", tasks.routers)
-    all_parsed_routers = (task_routers,)
+    all_parsed_routers = (
+        router_utils.parse_routers("tasks", tasks.routers),
+        router_utils.parse_routers("workflows", workflows.routers),
+    )
     major, minor, patch = router_utils.extract_version(all_parsed_routers)
 
     tags_metadata = [
         {"name": "tasks", "description": "Ewoks workflow tasks"},
         {"name": "workflows", "description": "Ewoks workflows"},
         *(
-            {"name": "workflows", "description": f"Ewoks workflows API {name}"}
+            {"name": name, "description": f"Ewoks workflows API {name}"}
             for name in router_utils.extract_version_tags(all_parsed_routers)
         ),
     ]
