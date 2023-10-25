@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict
+from typing import List, Dict
 from typing_extensions import Annotated
 
 from fastapi import APIRouter
@@ -226,7 +226,7 @@ def create_task(
 
 @router.post(
     "/tasks/discover",
-    summary="Create ewoks task descriptions from the worker environments",
+    summary="Create ewoks task descriptions from a worker environment",
     response_model=models.EwoksTaskIdentifiers,
     response_description="Discovered ewoks task identifiers",
     status_code=200,
@@ -243,15 +243,16 @@ def create_task(
 )
 def discover_tasks(
     settings: ApiSettingsType,
-    modules: Annotated[
-        Optional[List[str]], Body(title="Ewoks task description")
+    options: Annotated[
+        models.EwoksTaskDiscovery, Body(title="Ewoks task discovery options")
     ] = None,
-    worker_options: Annotated[Optional[dict], Body(title="Worker options")] = None,
 ) -> Dict[str, List[str]]:
+    if options:
+        discover_options = options.model_dump()
+    else:
+        discover_options = dict()
     try:
-        tasks = discovery.discover_tasks(
-            settings, modules=modules, reload=True, worker_options=worker_options
-        )
+        tasks = discovery.discover_tasks(settings, **discover_options)
     except ModuleNotFoundError as e:
         return JSONResponse(
             {

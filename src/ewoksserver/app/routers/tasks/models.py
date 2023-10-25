@@ -44,3 +44,12 @@ class EwoksTaskIdentifiers(BaseModel):
 
 class EwoksTaskDescriptions(BaseModel):
     items: Annotated[List[EwoksTaskDescription], Field(title="Task descriptions")]
+
+
+class EwoksTaskDiscovery(BaseModel):
+    modules: Annotated[
+        Optional[List[str]], Field(title="Ewoks task description", default=None)
+    ]
+    worker_options: Annotated[
+        Optional[dict], Field(title="Worker options", default=None)
+    ]
