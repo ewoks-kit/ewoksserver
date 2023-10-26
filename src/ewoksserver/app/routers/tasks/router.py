@@ -10,8 +10,9 @@ from fastapi import status
 
 from ...backends import json_backend
 from ...config import ApiSettingsType
-from . import discovery
+from ..common import models as common_models
 from . import models
+from . import discovery
 
 router = APIRouter()
 
@@ -26,11 +27,11 @@ router = APIRouter()
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read task",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Task not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -106,15 +107,15 @@ def get_tasks(settings: ApiSettingsType) -> Dict[str, List[str]]:
     responses={
         status.HTTP_400_BAD_REQUEST: {
             "description": "Wrong task identifier",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Task not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to edit task",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -180,11 +181,11 @@ def update_task(
     responses={
         status.HTTP_409_CONFLICT: {
             "description": "Task already exists",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to create task",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -233,11 +234,11 @@ def create_task(
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to create or edit task",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Module not found",
-            "model": models.ResourceError,
+            "model": common_models.ResourceError,
         },
     },
 )
@@ -284,17 +285,17 @@ def discover_tasks(
 @router.delete(
     "/task/{identifier}",
     summary="Delete ewoks task",
-    response_model=models.ResourceInfo,
+    response_model=common_models.ResourceInfo,
     response_description="Deleted ewoks task",
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read task",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Task not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )

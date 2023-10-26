@@ -10,6 +10,7 @@ from fastapi import status
 
 from ...backends import binary_backend
 from ...config import ApiSettingsType
+from ..common import models as common_models
 from . import models
 
 router = APIRouter()
@@ -25,11 +26,11 @@ router = APIRouter()
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read icon",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Icon not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -92,11 +93,11 @@ def get_icon_identifiers(settings: ApiSettingsType) -> Dict[str, List[str]]:
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "Icon not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to edit icon",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -151,11 +152,11 @@ def update_icon(
     responses={
         status.HTTP_409_CONFLICT: {
             "description": "Icon already exists",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to create icon",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -203,17 +204,17 @@ def create_icon(
 @router.delete(
     "/icon/{identifier}",
     summary="Delete ewoks icon",
-    response_model=models.ResourceInfo,
+    response_model=common_models.ResourceInfo,
     response_description="Deleted ewoks icon",
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read icon",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Icon not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )

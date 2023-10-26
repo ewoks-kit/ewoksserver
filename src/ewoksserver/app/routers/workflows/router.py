@@ -12,6 +12,7 @@ from fastapi import status
 
 from ...backends import json_backend
 from ...config import ApiSettingsType
+from ..common import models as common_models
 from . import models
 
 router = APIRouter()
@@ -27,11 +28,11 @@ router = APIRouter()
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read workflow",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Workflow not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -134,15 +135,15 @@ def get_workflows(
     responses={
         status.HTTP_400_BAD_REQUEST: {
             "description": "Wrong workflow identifier",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Workflow not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to edit workflow",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -208,11 +209,11 @@ def update_workflow(
     responses={
         status.HTTP_409_CONFLICT: {
             "description": "Workflow already exists",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to create workflow",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
@@ -257,17 +258,17 @@ def create_workflow(
 @router.delete(
     "/workflow/{identifier}",
     summary="Delete ewoks workflow",
-    response_model=models.ResourceInfo,
+    response_model=common_models.ResourceInfo,
     response_description="Deleted ewoks workflow",
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {
             "description": "No permission to read workflow",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Workflow not found",
-            "model": models.ResourceIdentifierError,
+            "model": common_models.ResourceIdentifierError,
         },
     },
 )
