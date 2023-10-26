@@ -10,7 +10,7 @@ from fastapi import FastAPI
 
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
-from .routers import utils as router_utils
+from .routers import versioning
 from .routers import tasks
 from .routers import workflows
 from .routers import icons
@@ -20,11 +20,11 @@ from .routers import frontend
 def create_app() -> FastAPI:
     """Create the main API instance"""
     all_parsed_routers = (
-        router_utils.parse_routers("tasks", tasks.routers),
-        router_utils.parse_routers("workflows", workflows.routers),
-        router_utils.parse_routers("icons", icons.routers),
+        versioning.parse_routers("tasks", tasks.routers),
+        versioning.parse_routers("workflows", workflows.routers),
+        versioning.parse_routers("icons", icons.routers),
     )
-    major, minor, patch = router_utils.extract_version(all_parsed_routers)
+    major, minor, patch = versioning.extract_version(all_parsed_routers)
 
     tags_metadata = [
         {"name": "tasks", "description": "Ewoks workflow tasks"},
@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
         {"name": "icons", "description": "Ewoks workflow icons"},
         *(
             {"name": name, "description": f"Ewoks workflows API {name}"}
-            for name in router_utils.extract_version_tags(all_parsed_routers)
+            for name in versioning.extract_version_tags(all_parsed_routers)
         ),
     ]
 
@@ -54,5 +54,5 @@ def create_app() -> FastAPI:
     )
 
     enable_cors(app)
-    router_utils.add_routes(app, all_parsed_routers)
+    versioning.add_routes(app, all_parsed_routers)
     return app
