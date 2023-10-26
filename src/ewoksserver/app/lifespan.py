@@ -1,27 +1,36 @@
 import os
 import shutil
+from pprint import pformat
+from typing import Generator
+from contextlib import contextmanager
 from contextlib import asynccontextmanager
-from contextlib import contextmanager, ExitStack
 
 from fastapi import FastAPI
 from ewoksjob.client.local import pool_context
+from celery import current_app as current_celery_app
 
 from .backends import json_backend
 from ..resources import data
 from . import config
+from .routes.execution import socketio
 
 
 @asynccontextmanager
-async def fastapi_lifespan(app: FastAPI):
+async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
     get_api_settings = app.dependency_overrides.get(
         config.get_api_settings, config.get_api_settings
     )
     api_settings = get_api_settings()
+    _configure_socketio(api_settings)
     _copy_default_resources(api_settings)
-    with ExitStack() as stack:
-        ctx = _enable_execution(api_settings)
-        stack.enter_context(ctx)
+    _enable_execution_events(api_settings)
+    with _enable_execution(api_settings):
+        _print_api_settings(api_settings)
         yield
+
+
+def _configure_socketio(app_settings: config.ApiSettings) -> None:
+    socketio.configure_socketio(app_settings)
 
 
 def _copy_default_resources(api_settings: config.ApiSettings) -> None:
@@ -48,10 +57,52 @@ def _copy_default_resources(api_settings: config.ApiSettings) -> None:
                 shutil.copy(src, dest)
 
 
-@contextmanager
-def _enable_execution(api_settings: config.ApiSettings):
-    """Ensure workflows can be executed"""
-    if api_settings.celery is not None:
+def _enable_execution_events(api_settings: config.ApiSettings) -> None:
+    """Set default ewoks event handler when nothing has been configured"""
+    if api_settings.configured:
         return
-    with pool_context():
+    if api_settings.ewoks is None:
+        api_settings.ewoks = dict()
+    if not api_settings.ewoks.get("handlers"):
+        api_settings.ewoks["handlers"] = [
+            {
+                "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
+                "arguments": [
+                    {
+                        "name": "uri",
+                        "value": "file:ewoks_events.db",
+                    }
+                ],
+            }
+        ]
+
+
+@contextmanager
+def _enable_execution(api_settings: config.ApiSettings) -> Generator[None, None, None]:
+    """Ensure workflows can be executed"""
+    if api_settings.celery is None:
+        with pool_context():
+            yield
+    else:
+        current_celery_app.conf.update(api_settings.celery)
         yield
+
+
+def _print_api_settings(api_settings: config.ApiSettings) -> None:
+    """Print summary of all API settings"""
+    resourcedir = api_settings.resource_directory
+    if not resourcedir:
+        resourcedir = "."
+    print(f"\nRESOURCE DIRECTORY:\n {os.path.abspath(resourcedir)}\n")
+
+    adict = api_settings.celery
+    if adict is None:
+        print("\nCELERY:\n Not configured (local workflow execution)\n")
+    else:
+        print(f"\nCELERY:\n {pformat(adict)}\n")
+
+    adict = api_settings.ewoks
+    if adict is None:
+        print("\nEWOKS:\n Not configured\n")
+    else:
+        print(f"\nEWOKS:\n {pformat(adict)}\n")

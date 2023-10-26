@@ -1,0 +1,119 @@
+import asyncio
+import threading
+import traceback
+from datetime import datetime
+from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
+
+import socketio
+from fastapi import FastAPI
+
+from . import events
+from ...config import ApiSettings
+from ... import cors
+
+
+class EwoksEventManager:
+    """Asynchronous manager of a socket.io application."""
+
+    def __init__(self, cors_allowed_origins=None) -> None:
+        self._sio = socketio.AsyncServer(
+            async_mode="asgi", cors_allowed_origins=cors_allowed_origins
+        )
+        self._app = socketio.ASGIApp(self._sio, socketio_path="")
+
+        self._sio.on("connect")(self.connect)
+        self._sio.on("disconnect")(self.disconnect)
+
+        self._stop_event = threading.Event()
+        self._fetch_events_future: Optional[asyncio.Future] = None
+        self._counter = 0
+        self._executor = ThreadPoolExecutor(max_workers=1)
+
+        # TODO: find a better way to make this testable
+        self.testing = False
+        self.events = list()
+
+    def configure(self, api_settings: ApiSettings):
+        self._api_settings = api_settings
+
+    async def connect(self, *_) -> None:
+        self._counter += 1
+        await self._start()
+
+    async def disconnect(self, *_) -> None:
+        self._counter = max(self._counter - 1, 0)
+        if self._counter == 0:
+            await self._stop(timeout=3)
+
+    async def is_running(self) -> bool:
+        return await self._is_running(self._fetch_events_future)
+
+    @staticmethod
+    async def _is_running(future: Optional[asyncio.Future] = None) -> bool:
+        return future is not None and not future.done()
+
+    async def _start(self) -> None:
+        if await self.is_running():
+            return
+
+        self._stop_event.clear()
+        loop = asyncio.get_running_loop()
+        self._fetch_events_future = loop.run_in_executor(
+            self._executor, self._fetch_events_main, loop
+        )
+
+    async def _stop(self, timeout: Optional[float] = None) -> None:
+        future = self._fetch_events_future
+        if not await self._is_running(future):
+            return
+        self._stop_event.set()
+        await asyncio.wait_for(future, timeout=timeout)
+
+    def _fetch_events_main(self, loop) -> None:
+        try:
+            with events.reader_context(self._api_settings) as reader:
+                if reader is None:
+                    return  # TODO: client needs to recieve an error
+                starttime = datetime.now().astimezone()
+                for event in reader.wait_events(
+                    starttime=starttime, stop_event=self._stop_event
+                ):
+                    if self._stop_event.is_set():
+                        break
+                    if self.testing:
+                        # TODO: find a better way to make this testable
+                        self.events.append(event)
+                    else:
+                        coroutine = self._sio.emit("Executing", event)
+                        future = asyncio.run_coroutine_threadsafe(coroutine, loop)
+                        future.result()
+        except Exception:
+            # TODO: client needs to recieve an error
+            traceback.print_exc()
+            raise
+        finally:
+            self._fetch_events_future = None
+
+
+def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
+    """Create the ASGI socket.io application"""
+    global _MANAGER
+    options = cors.get_cors_options(app)
+    if options:
+        cors_allowed_origins = options.get("allow_origins")
+    else:
+        cors_allowed_origins = None
+    if cors_allowed_origins == ["*"]:
+        # TODO: not idea why
+        cors_allowed_origins = "*"
+    _MANAGER = EwoksEventManager(cors_allowed_origins=cors_allowed_origins)
+    return _MANAGER._app
+
+
+def configure_socketio(api_settings: ApiSettings) -> None:
+    global _MANAGER
+    _MANAGER.configure(api_settings)
+
+
+_MANAGER = None

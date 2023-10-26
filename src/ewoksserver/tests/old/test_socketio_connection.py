@@ -1,18 +1,18 @@
 import time
-from ..events.websocket import is_running
+from ...events.websocket import is_running
 
 
-def test_websocket_connection_local(local_exec_client_old):
+def test_socketio_connection_local(local_exec_client_old):
     _, sclient = local_exec_client_old
-    _test_websocket_connection(sclient)
+    _test_socketio_connection(sclient)
 
 
-def test_websocket_connection_celery(celery_exec_client_old):
+def test_socketio_connection_celery(celery_exec_client_old):
     _, sclient = celery_exec_client_old
-    _test_websocket_connection(sclient)
+    _test_socketio_connection(sclient)
 
 
-def _test_websocket_connection(sclient):
+def _test_socketio_connection(sclient):
     assert sclient.is_connected()
     _assert_eventloop_is_running(True)
     sclient.disconnect()

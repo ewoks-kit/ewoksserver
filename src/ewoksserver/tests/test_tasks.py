@@ -2,14 +2,21 @@ def test_single_task(rest_client):
     identifier = "myproject.tasks.Dummy"
 
     response = rest_client.get(f"/task/{identifier}")
+    data = response.json()
+    expected = {
+        "message": "Task 'myproject.tasks.Dummy' is not found.",
+        "type": "task",
+        "identifier": "myproject.tasks.Dummy",
+    }
     assert response.status_code == 404
+    assert data == expected
 
     task1a = {
         "task_identifier": identifier,
         "task_type": "class",
         "required_input_names": ["a"],
     }
-    response = rest_client.post("/tasks/", json=task1a)
+    response = rest_client.post("/tasks", json=task1a)
     data = response.json()
     assert response.status_code == 200, data
     expected = {

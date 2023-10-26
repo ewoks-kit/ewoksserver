@@ -6,17 +6,17 @@ from collections import namedtuple
 import pytest
 from fastapi.testclient import TestClient
 
-from ewoksserver import oldserver
-from ewoksserver import app as newserver
-from ewoksserver.app import config as serverconfig
-
-from ewoksjob.client.local import pool_context
+from ewokscore import events
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 
+from .. import oldserver
+from .. import app as newserver
+from ..app import config as serverconfig
 from .data import resource_filenames
 from ..resources.binary.utils import _load_url
 from ..resources.data import DEFAULT_ROOT
+from .socketio_test import SocketIOTestClient
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def rest_client(tmpdir):
 
     @lru_cache()
     def get_api_settings_for_tests():
-        return serverconfig.ApiSettings(resource_directory=str(tmpdir))
+        return serverconfig.ApiSettings(configured=True, resource_directory=str(tmpdir))
 
     app.dependency_overrides[serverconfig.get_api_settings] = get_api_settings_for_tests
 
@@ -46,12 +46,13 @@ def rest_client(tmpdir):
 @pytest.fixture()
 def ewoks_handlers(tmpdir):
     uri = f"file:{tmpdir / 'ewoks_events.db'}"
-    return [
+    yield [
         {
             "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
             "arguments": [{"name": "uri", "value": uri}],
         }
     ]
+    events.cleanup()
 
 
 @pytest.fixture
@@ -61,15 +62,16 @@ def local_exec_client(tmpdir, ewoks_handlers):
 
     def get_settings_override():
         return serverconfig.ApiSettings(
-            resource_directory=str(tmpdir), ewoks={"handlers": ewoks_handlers}
+            configured=True,
+            resource_directory=str(tmpdir),
+            ewoks={"handlers": ewoks_handlers},
         )
 
     app.dependency_overrides[serverconfig.get_api_settings] = get_settings_override
 
     with TestClient(app) as client:
-        with client.websocket_connect("/events/websocket") as sclient:
-            with pool_context():
-                yield client, sclient
+        with SocketIOTestClient() as sclient:
+            yield client, sclient
 
 
 @pytest.fixture
@@ -79,23 +81,29 @@ def local_exec_client_old(tmpdir, ewoks_handlers):
     app, *_ = oldserver.create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
     socketio = oldserver.add_socket(app)
     with oldserver.run_context(app):
-        with pool_context():
-            with app.test_client() as client:
-                sclient = socketio.test_client(app, flask_test_client=client)
-                yield client, sclient
-                sclient.disconnect()
+        with app.test_client() as client:
+            sclient = socketio.test_client(app, flask_test_client=client)
+            yield client, sclient
+            sclient.disconnect()
 
 
 @pytest.fixture
 def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
     """Client to the REST server and websocket (execution with celery)."""
-    ewoks_config = {"handlers": ewoks_handlers}
-    app = newserver.create_app(
-        resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
-    )
-    client = TestClient(app)
-    with client.websocket_connect("/events/websocket") as sclient:
-        with pool_context():
+    app = newserver.create_app()
+
+    def get_settings_override():
+        return serverconfig.ApiSettings(
+            configured=True,
+            resource_directory=str(tmpdir),
+            celery=dict(),
+            ewoks={"handlers": ewoks_handlers},
+        )
+
+    app.dependency_overrides[serverconfig.get_api_settings] = get_settings_override
+
+    with TestClient(app) as client:
+        with SocketIOTestClient() as sclient:
             yield client, sclient
 
 
@@ -153,6 +161,28 @@ def default_task_identifiers() -> List[Path]:
 
 @pytest.fixture
 def mocked_local_submit(mocker) -> str:
+    submit_local_mock = mocker.patch(
+        "ewoksserver.app.routes.execution.router.submit_local"
+    )
+
+    MockFuture = namedtuple("Future", ["task_id"])
+
+    arguments = dict()
+    task_id = 0
+
+    def mocked_submit(*args, **kwargs):
+        nonlocal task_id
+        arguments["args"] = args
+        arguments["kwargs"] = kwargs
+        task_id += 1
+        return MockFuture(task_id=task_id)
+
+    submit_local_mock.side_effect = mocked_submit
+    return arguments
+
+
+@pytest.fixture
+def mocked_local_submit_old(mocker) -> str:
     submit_local_mock = mocker.patch(
         "ewoksserver.resources.json.workflows.submit_local"
     )

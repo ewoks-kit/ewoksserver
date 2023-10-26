@@ -184,7 +184,9 @@ def update_workflow(
 
     try:
         json_backend.save_resource(
-            settings.resource_directory / "workflows", identifier, workflow.model_dump()
+            settings.resource_directory / "workflows",
+            identifier,
+            workflow.model_dump(exclude_none=True),
         )
     except PermissionError:
         return JSONResponse(
@@ -240,7 +242,7 @@ def create_workflow(
         json_backend.save_resource(
             settings.resource_directory / "workflows",
             ridentifier,
-            workflow.model_dump(),
+            workflow.model_dump(exclude_none=True),
         )
     except PermissionError:
         return JSONResponse(
