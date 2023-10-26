@@ -12,7 +12,7 @@ def save(argv=None):
     parser = argparse.ArgumentParser(description="Save Redoc specs for EwoksServer")
     parser.add_argument(
         "filename",
-        help="JSON filename in which to save tbe specs",
+        help="JSON filename in which to save the specs",
     )
     args = parser.parse_args(argv[1:])
 
