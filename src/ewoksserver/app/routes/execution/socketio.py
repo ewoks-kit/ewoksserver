@@ -34,10 +34,6 @@ class EwoksEventManager:
         self._counter = 0
         self._executor = ThreadPoolExecutor(max_workers=1)
 
-        # TODO: find a better way to make this testable
-        self.testing = False
-        self.events = list()
-
     def configure(self, api_settings: ApiSettings):
         self._api_settings = api_settings
 
@@ -89,19 +85,18 @@ class EwoksEventManager:
                 ):
                     if self._stop_event.is_set():
                         break
-                    if self.testing:
-                        # TODO: find a better way to make this testable
-                        self.events.append(event)
-                    else:
-                        coroutine = self._sio.emit("Executing", event)
-                        future = asyncio.run_coroutine_threadsafe(coroutine, loop)
-                        future.result()
+                    self._emit(loop, event)
         except Exception as e:
             # TODO: client needs to recieve an error
             logger.exception(str(e))
             raise
         finally:
             self._fetch_events_future = None
+
+    def _emit(self, loop, event) -> None:
+        coroutine = self._sio.emit("Executing", event)
+        future = asyncio.run_coroutine_threadsafe(coroutine, loop)
+        future.result()
 
 
 def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
