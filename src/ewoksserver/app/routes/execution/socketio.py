@@ -34,7 +34,7 @@ class EwoksEventManager:
         self._counter = 0
         self._executor = ThreadPoolExecutor(max_workers=1)
 
-    def configure(self, api_settings: ApiSettings):
+    def configure(self, api_settings: ApiSettings) -> None:
         self._api_settings = api_settings
 
     async def connect(self, *_) -> None:
@@ -100,8 +100,10 @@ class EwoksEventManager:
 
 
 def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
-    """Create the ASGI socket.io application"""
+    """Create the ASGI socket.io application when needed"""
     global _MANAGER
+    if _MANAGER is not None:
+        return _MANAGER._app
     options = cors.get_cors_options(app)
     if options:
         cors_allowed_origins = options.get("allow_origins")
