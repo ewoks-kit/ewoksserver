@@ -109,7 +109,7 @@ def execute_workflow(
 
 @router.get(
     "/execution/events",
-    summary="Execute workflow",
+    summary="Get workflow events",
     response_model=models.EwoksEventList,
     response_description="Workflow execution jobs grouped per job ID",
     status_code=200,
