@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 from pprint import pformat
 from typing import Generator
 from contextlib import contextmanager
@@ -14,6 +15,9 @@ from ..resources import data
 from . import config
 from .routes.execution import socketio
 from .routes.tasks.discovery import discover_tasks
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -60,6 +64,8 @@ def _copy_default_resources(api_settings: config.ApiSettings) -> None:
 
 
 def _rediscover_tasks(api_settings: config.ApiSettings) -> None:
+    if not api_settings.discover_tasks:
+        return
     tasks = discover_tasks(api_settings)
     root_url = json_backend.root_url(api_settings.resource_directory, "tasks")
     for resource in tasks:
@@ -99,19 +105,24 @@ def _enable_execution(api_settings: config.ApiSettings) -> Generator[None, None,
 
 def _print_api_settings(api_settings: config.ApiSettings) -> None:
     """Print summary of all API settings"""
+    lines = list()
     resourcedir = api_settings.resource_directory
     if not resourcedir:
         resourcedir = "."
-    print(f"\nRESOURCE DIRECTORY:\n {os.path.abspath(resourcedir)}\n")
+    lines += ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
 
     adict = api_settings.celery
     if adict is None:
-        print("\nCELERY:\n Not configured (local workflow execution)\n")
+        lines += ["", "CELERY:", "Not configured (local workflow execution)"]
     else:
-        print(f"\nCELERY:\n {pformat(adict)}\n")
+        lines += ["", "CELERY:", pformat(adict)]
 
     adict = api_settings.ewoks
     if adict is None:
-        print("\nEWOKS:\n Not configured\n")
+        lines += ["", "EWOKS:", "Not configured (local workflow execution)"]
     else:
-        print(f"\nEWOKS:\n {pformat(adict)}\n")
+        lines += ["", "EWOKS:", pformat(adict)]
+
+    lines += [""]
+
+    logger.info("\n".join(lines))

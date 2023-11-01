@@ -1,16 +1,19 @@
+import logging
 import asyncio
 import threading
-import traceback
 from datetime import datetime
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 
 import socketio
+from socketio.exceptions import ConnectionRefusedError
 from fastapi import FastAPI
 
 from . import events
 from ...config import ApiSettings
 from ... import cors
+
+logger = logging.getLogger(__name__)
 
 
 class EwoksEventManager:
@@ -25,6 +28,7 @@ class EwoksEventManager:
         self._sio.on("connect")(self.connect)
         self._sio.on("disconnect")(self.disconnect)
 
+        self._api_settings = None
         self._stop_event = threading.Event()
         self._fetch_events_future: Optional[asyncio.Future] = None
         self._counter = 0
@@ -38,10 +42,14 @@ class EwoksEventManager:
         self._api_settings = api_settings
 
     async def connect(self, *_) -> None:
+        if self._api_settings.without_events:
+            raise ConnectionRefusedError("Socket.IO has been disabled")
         self._counter += 1
         await self._start()
 
     async def disconnect(self, *_) -> None:
+        if self._api_settings.without_events:
+            return
         self._counter = max(self._counter - 1, 0)
         if self._counter == 0:
             await self._stop(timeout=3)
@@ -74,7 +82,7 @@ class EwoksEventManager:
         try:
             with events.reader_context(self._api_settings) as reader:
                 if reader is None:
-                    return  # TODO: client needs to recieve an error
+                    raise RuntimeError("Ewoks event handlers not configured")
                 starttime = datetime.now().astimezone()
                 for event in reader.wait_events(
                     starttime=starttime, stop_event=self._stop_event
@@ -88,9 +96,9 @@ class EwoksEventManager:
                         coroutine = self._sio.emit("Executing", event)
                         future = asyncio.run_coroutine_threadsafe(coroutine, loop)
                         future.result()
-        except Exception:
+        except Exception as e:
             # TODO: client needs to recieve an error
-            traceback.print_exc()
+            logger.exception(str(e))
             raise
         finally:
             self._fetch_events_future = None

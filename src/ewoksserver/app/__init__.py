@@ -20,6 +20,8 @@ from .routes import execution
 
 logger = logging.getLogger(__name__)
 
+CREATE_CONFIG = {"skip_older_versions": False}
+
 
 def create_app() -> FastAPI:
     """Create the main API instance"""
@@ -71,10 +73,12 @@ def create_app() -> FastAPI:
 
     enable_cors(app)
 
-    versioning.add_routes(app, all_parsed_routes, skip_older_versions=True)
+    versioning.add_routes(
+        app, all_parsed_routes, skip_older_versions=CREATE_CONFIG["skip_older_versions"]
+    )
 
     frontend.add_frontend(app)  # Needs to come last for some reason
 
-    logger.info(f"Routes \n {pformat(app.routes)}")
+    logger.debug(f"Routes \n {pformat(app.routes)}")
 
     return app

@@ -8,7 +8,7 @@ except ImportError:
     get_static_root = None
 
 
-logger = logging.getLogger(__name__)  # TODO: root logger level from CLI
+logger = logging.getLogger(__name__)
 
 
 def add_frontend(app: FastAPI) -> None:
