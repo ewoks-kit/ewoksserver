@@ -13,6 +13,7 @@ from .backends import json_backend
 from ..resources import data
 from . import config
 from .routes.execution import socketio
+from .routes.tasks.discovery import discover_tasks
 
 
 @asynccontextmanager
@@ -25,6 +26,7 @@ async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
     _copy_default_resources(api_settings)
     _enable_execution_events(api_settings)
     with _enable_execution(api_settings):
+        _rediscover_tasks(api_settings)
         _print_api_settings(api_settings)
         yield
 
@@ -55,6 +57,13 @@ def _copy_default_resources(api_settings: config.ApiSettings) -> None:
             dest = root_url / filename
             if not os.path.exists(dest):
                 shutil.copy(src, dest)
+
+
+def _rediscover_tasks(api_settings: config.ApiSettings) -> None:
+    tasks = discover_tasks(api_settings)
+    root_url = json_backend.root_url(api_settings.resource_directory, "tasks")
+    for resource in tasks:
+        json_backend.save_resource(root_url, resource["task_identifier"], resource)
 
 
 def _enable_execution_events(api_settings: config.ApiSettings) -> None:
