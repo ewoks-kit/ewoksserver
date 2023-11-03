@@ -27,10 +27,10 @@ def test_get_execution_events(local_exec_client):
     job_id1 = data["job_id"]
     nevents += nevents_per_exec
 
-    # Wait until all events have been received over the websocket
+    # Wait until all events have been received over the Socket.IO connection
     events1 = get_events(sclient, nevents)
 
-    # Query should return the same a what was recieved over the websocket
+    # Query should return the same a what was recieved over the Socket.IO connection
     response = client.get("/execution/events")
     assert response.status_code == 200
     events = response.json()["jobs"]
@@ -58,7 +58,7 @@ def test_get_execution_events(local_exec_client):
     job_id2 = data["job_id"]
     nevents += nevents_per_exec
 
-    # Wait until all events have been received over the websocket
+    # Wait until all events have been received over the Socket.IO connection
     events2 = get_events(sclient, nevents_per_exec)
 
     response = client.get("/execution/events")
@@ -121,13 +121,13 @@ def test_get_execution_events_parallel(local_exec_client):
         assert response.status_code == 200, data
         nevents += nevents_per_exec
 
-    # Get events from websocket and REST API
-    events_websocket = get_events(sclient, nevents)
+    # Get events from Socket.IO and REST API
+    events_socketio = get_events(sclient, nevents)
     events_get = client.get("/execution/events").json()["jobs"]
 
-    # Check that we have all events from the websocket
+    # Check that we have all events from the Socket.IO connection
     nevents = Counter()
-    for event in events_websocket:
+    for event in events_socketio:
         nevents[event["job_id"]] += 1
     assert set(nevents.values()) == {nevents_per_exec}
 

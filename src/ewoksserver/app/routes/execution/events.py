@@ -5,14 +5,14 @@ from typing import Generator, Optional
 from ewoksjob.events.readers import EwoksEventReader
 from ewoksjob.events.readers import instantiate_reader
 
-from ...config import ApiSettingsType
+from ...config import EwoksSettingsType
 
 logger = logging.getLogger(__name__)
 
 
 @contextmanager
 def reader_context(
-    api_settings: ApiSettingsType,
+    api_settings: EwoksSettingsType,
 ) -> Generator[Optional[EwoksEventReader], None, None]:
     r = _reader(api_settings)
     try:
@@ -22,7 +22,7 @@ def reader_context(
             r.close()
 
 
-def _reader(api_settings: ApiSettingsType) -> Optional[EwoksEventReader]:
+def _reader(api_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
     cfg = api_settings.ewoks
     if cfg:
         handlers = cfg.get("handlers", list())

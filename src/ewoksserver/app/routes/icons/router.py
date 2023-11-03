@@ -9,7 +9,7 @@ from fastapi import status
 
 
 from ...backends import binary_backend
-from ...config import ApiSettingsType
+from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 
@@ -42,7 +42,7 @@ def get_icon(
             description="Unique identifier in the icon database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> binary_backend.ResourceContentType:
     try:
         return binary_backend.load_resource(
@@ -75,7 +75,7 @@ def get_icon(
     response_description="Ewoks icon identifiers",
     status_code=200,
 )
-def get_icon_identifiers(settings: ApiSettingsType) -> Dict[str, List[str]]:
+def get_icon_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
     return {
         "identifiers": list(
             binary_backend.resource_identifiers(settings.resource_directory / "icons")
@@ -110,7 +110,7 @@ def update_icon(
         ),
     ],
     icon: Annotated[models.EwoksIcon, Body(title="Ewoks icon")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksIcon:
     exists = binary_backend.resource_exists(
         settings.resource_directory / "icons", identifier
@@ -169,7 +169,7 @@ def create_icon(
         ),
     ],
     icon: Annotated[models.EwoksIcon, Body(title="Ewoks icon")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksIcon:
     exists = binary_backend.resource_exists(
         settings.resource_directory / "icons", identifier
@@ -226,7 +226,7 @@ def delete_icon(
             description="Unique identifier in the icon database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> Dict[str, str]:
     try:
         binary_backend.delete_resource(

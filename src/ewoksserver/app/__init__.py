@@ -1,4 +1,4 @@
-"""Start ewoks server from the command line
+"""Start ewoks server from the command line (does not support configuration)
 
 ..code: bash
 
@@ -7,8 +7,10 @@
 
 import logging
 from pprint import pformat
+
 from fastapi import FastAPI
 
+from .config import get_app_settings
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
 from .routes import versioning
@@ -20,11 +22,11 @@ from .routes import execution
 
 logger = logging.getLogger(__name__)
 
-CREATE_CONFIG = {"skip_older_versions": False}
-
 
 def create_app() -> FastAPI:
     """Create the main API instance"""
+    settings = get_app_settings()
+
     versioning.assert_route_versions(
         tasks.routers,
         workflows.routers,
@@ -74,7 +76,9 @@ def create_app() -> FastAPI:
     enable_cors(app)
 
     versioning.add_routes(
-        app, all_parsed_routes, skip_older_versions=CREATE_CONFIG["skip_older_versions"]
+        app,
+        all_parsed_routes,
+        skip_older_versions=settings.skip_older_versions,
     )
 
     frontend.add_frontend(app)  # Needs to come last for some reason

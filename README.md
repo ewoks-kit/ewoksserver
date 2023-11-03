@@ -2,7 +2,7 @@
 
 ewoksserver is a REST server to manage and execute [ewoks](https://ewoks.readthedocs.io/) workflows.
 
-It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emits ewoks execution events over websocket.
+It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emits ewoks execution events over Socket.IO.
 
 ## Development
 

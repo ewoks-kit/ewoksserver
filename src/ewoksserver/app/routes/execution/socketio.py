@@ -10,14 +10,14 @@ from socketio.exceptions import ConnectionRefusedError
 from fastapi import FastAPI
 
 from . import events
-from ...config import ApiSettings
+from ...config import EwoksSettings
 from ... import cors
 
 logger = logging.getLogger(__name__)
 
 
 class EwoksEventManager:
-    """Asynchronous manager of a socket.io application."""
+    """Asynchronous manager of a Socket.IO application."""
 
     def __init__(self, cors_allowed_origins=None) -> None:
         self._sio = socketio.AsyncServer(
@@ -34,7 +34,7 @@ class EwoksEventManager:
         self._counter = 0
         self._executor = ThreadPoolExecutor(max_workers=1)
 
-    def configure(self, api_settings: ApiSettings) -> None:
+    def configure(self, api_settings: EwoksSettings) -> None:
         self._api_settings = api_settings
 
     async def connect(self, *_) -> None:
@@ -100,7 +100,7 @@ class EwoksEventManager:
 
 
 def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
-    """Create the ASGI socket.io application when needed"""
+    """Create the ASGI Socket.IO application when needed"""
     global _MANAGER
     if _MANAGER is not None:
         return _MANAGER._app
@@ -116,7 +116,7 @@ def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
     return _MANAGER._app
 
 
-def configure_socketio(api_settings: ApiSettings) -> None:
+def configure_socketio(api_settings: EwoksSettings) -> None:
     global _MANAGER
     _MANAGER.configure(api_settings)
 

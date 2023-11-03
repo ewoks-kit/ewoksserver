@@ -15,7 +15,7 @@ from ewoksjob.client import submit
 from ewoksjob.client.local import submit as submit_local
 
 from ...backends import json_backend
-from ...config import ApiSettingsType
+from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 from . import events
@@ -41,7 +41,7 @@ router = APIRouter()
     },
 )
 def execute_workflow(
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
     identifier: Annotated[
         str,
         Path(
@@ -121,7 +121,7 @@ def execute_workflow(
     },
 )
 def execute_events(
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
     ],  # pydantic model as query parameters

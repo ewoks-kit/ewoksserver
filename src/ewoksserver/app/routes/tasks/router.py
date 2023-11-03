@@ -9,7 +9,7 @@ from fastapi import status
 
 
 from ...backends import json_backend
-from ...config import ApiSettingsType
+from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 from . import discovery
@@ -43,7 +43,7 @@ def get_task(
             description="Unique identifier in the task database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> json_backend.ResourceContentType:
     try:
         return json_backend.load_resource(
@@ -76,7 +76,7 @@ def get_task(
     response_description="Ewoks task identifiers",
     status_code=200,
 )
-def get_task_identifiers(settings: ApiSettingsType) -> Dict[str, List[str]]:
+def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
     return {
         "identifiers": list(
             json_backend.resource_identifiers(settings.resource_directory / "tasks")
@@ -91,7 +91,7 @@ def get_task_identifiers(settings: ApiSettingsType) -> Dict[str, List[str]]:
     response_description="Ewoks task descriptions",
     status_code=200,
 )
-def get_tasks(settings: ApiSettingsType) -> Dict[str, List[str]]:
+def get_tasks(settings: EwoksSettingsType) -> Dict[str, List[str]]:
     return {
         "items": list(json_backend.resources(settings.resource_directory / "tasks"))
     }
@@ -128,7 +128,7 @@ def update_task(
         ),
     ],
     task: Annotated[models.EwoksTaskDescription, Body(title="Ewoks task description")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksTaskDescription:
     ridentifier = task.task_identifier
     if identifier != ridentifier:
@@ -191,7 +191,7 @@ def update_task(
 )
 def create_task(
     task: Annotated[models.EwoksTaskDescription, Body(title="Ewoks task description")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksTaskDescription:
     ridentifier = task.task_identifier
 
@@ -243,7 +243,7 @@ def create_task(
     },
 )
 def discover_tasks(
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
     options: Annotated[
         models.EwoksTaskDiscovery, Body(title="Ewoks task discovery options")
     ] = None,
@@ -307,7 +307,7 @@ def delete_task(
             description="Unique identifier in the task database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> Dict[str, str]:
     try:
         json_backend.delete_resource(settings.resource_directory / "tasks", identifier)

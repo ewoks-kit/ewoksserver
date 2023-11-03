@@ -15,7 +15,7 @@ except ImportError:
     get_test_config = None
 
 
-class ApiSettings(BaseSettings):
+class EwoksSettings(BaseSettings):
     configured: Annotated[
         bool, Field(default=False, title="Any of the settings has been defined")
     ]
@@ -30,17 +30,28 @@ class ApiSettings(BaseSettings):
     ]
 
 
-_SETTINGS = None
+class AppSettings(BaseSettings):
+    skip_older_versions: Annotated[
+        bool,
+        Field(
+            default=False, title="Do not create the end points for older API versions"
+        ),
+    ]
 
 
-def create_api_settings(
+_APP_SETTINGS = None
+
+_EWOKS_SETTINGS = None
+
+
+def create_ewoks_settings(
     config: Optional[str] = None,
     dir: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
     rediscover_tasks: bool = False,
-) -> ApiSettings:
-    global _SETTINGS
+) -> EwoksSettings:
+    global _EWOKS_SETTINGS
 
     # Get configuration file
     filename = os.environ.get("EWOKSSERVER_SETTINGS")
@@ -72,7 +83,7 @@ def create_api_settings(
 
     configured = bool(filename) or bool(dir)
 
-    _SETTINGS = ApiSettings(
+    _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
         resource_directory=resource_directory,
         ewoks=ewoks,
@@ -80,13 +91,27 @@ def create_api_settings(
         without_events=without_events,
         discover_tasks=rediscover_tasks,
     )
+    return _EWOKS_SETTINGS
 
 
-def get_api_settings():
-    global _SETTINGS
-    if _SETTINGS is not None:
-        return _SETTINGS
-    return create_api_settings()
+def create_app_settings(skip_older_versions: bool = False) -> None:
+    global _APP_SETTINGS
+    _APP_SETTINGS = AppSettings(skip_older_versions=skip_older_versions)
+    return _APP_SETTINGS
 
 
-ApiSettingsType = Annotated[ApiSettings, Depends(get_api_settings)]
+def get_ewoks_settings():
+    global _EWOKS_SETTINGS
+    if _EWOKS_SETTINGS is not None:
+        return _EWOKS_SETTINGS
+    return create_ewoks_settings()
+
+
+def get_app_settings():
+    global _APP_SETTINGS
+    if _APP_SETTINGS is not None:
+        return _APP_SETTINGS
+    return create_app_settings()
+
+
+EwoksSettingsType = Annotated[EwoksSettings, Depends(get_ewoks_settings)]

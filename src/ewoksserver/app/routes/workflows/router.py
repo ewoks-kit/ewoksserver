@@ -11,7 +11,7 @@ from fastapi import status
 
 
 from ...backends import json_backend
-from ...config import ApiSettingsType
+from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 
@@ -44,7 +44,7 @@ def get_workflow(
             description="Unique identifier in the workflow database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> json_backend.ResourceContentType:
     try:
         return json_backend.load_resource(
@@ -78,7 +78,7 @@ def get_workflow(
     status_code=200,
 )
 def get_workflow_identifiers(
-    settings: ApiSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
+    settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
 ) -> Dict[str, List[str]]:
     keywords = _compile_keywords(kw)
     return {
@@ -113,7 +113,7 @@ def _compile_keywords(kw: Optional[List[str]]) -> Optional[dict]:
     status_code=200,
 )
 def get_workflows(
-    settings: ApiSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
+    settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
 ) -> Dict[str, List[str]]:
     keywords = _compile_keywords(kw)
     return {
@@ -156,7 +156,7 @@ def update_workflow(
         ),
     ],
     workflow: Annotated[models.EwoksWorkflow, Body(title="Ewoks workflow")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksWorkflow:
     ridentifier = workflow.graph["id"]
     if identifier != ridentifier:
@@ -221,7 +221,7 @@ def update_workflow(
 )
 def create_workflow(
     workflow: Annotated[models.EwoksWorkflow, Body(title="Ewoks workflow")],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> models.EwoksWorkflow:
     ridentifier = workflow.graph["id"]
 
@@ -282,7 +282,7 @@ def delete_workflow(
             description="Unique identifier in the workflow database",
         ),
     ],
-    settings: ApiSettingsType,
+    settings: EwoksSettingsType,
 ) -> Dict[str, str]:
     try:
         json_backend.delete_resource(

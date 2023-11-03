@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
-    get_api_settings = app.dependency_overrides.get(
-        config.get_api_settings, config.get_api_settings
+    get_ewoks_settings = app.dependency_overrides.get(
+        config.get_ewoks_settings, config.get_ewoks_settings
     )
-    api_settings = get_api_settings()
+    api_settings = get_ewoks_settings()
     _configure_socketio(api_settings)
     _copy_default_resources(api_settings)
     _enable_execution_events(api_settings)
@@ -35,11 +35,11 @@ async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
         yield
 
 
-def _configure_socketio(app_settings: config.ApiSettings) -> None:
+def _configure_socketio(app_settings: config.EwoksSettings) -> None:
     socketio.configure_socketio(app_settings)
 
 
-def _copy_default_resources(api_settings: config.ApiSettings) -> None:
+def _copy_default_resources(api_settings: config.EwoksSettings) -> None:
     """Copy the default resources (tasks, workflows and icon) from the
     python package to the resource directory."""
     for resource, resource_ext in {
@@ -63,7 +63,7 @@ def _copy_default_resources(api_settings: config.ApiSettings) -> None:
                 shutil.copy(src, dest)
 
 
-def _rediscover_tasks(api_settings: config.ApiSettings) -> None:
+def _rediscover_tasks(api_settings: config.EwoksSettings) -> None:
     if not api_settings.discover_tasks:
         return
     tasks = discover_tasks(api_settings)
@@ -72,7 +72,7 @@ def _rediscover_tasks(api_settings: config.ApiSettings) -> None:
         json_backend.save_resource(root_url, resource["task_identifier"], resource)
 
 
-def _enable_execution_events(api_settings: config.ApiSettings) -> None:
+def _enable_execution_events(api_settings: config.EwoksSettings) -> None:
     """Set default ewoks event handler when nothing has been configured"""
     if api_settings.configured:
         return
@@ -93,7 +93,9 @@ def _enable_execution_events(api_settings: config.ApiSettings) -> None:
 
 
 @contextmanager
-def _enable_execution(api_settings: config.ApiSettings) -> Generator[None, None, None]:
+def _enable_execution(
+    api_settings: config.EwoksSettings,
+) -> Generator[None, None, None]:
     """Ensure workflows can be executed"""
     if api_settings.celery is None:
         with pool_context():
@@ -103,7 +105,7 @@ def _enable_execution(api_settings: config.ApiSettings) -> Generator[None, None,
         yield
 
 
-def _print_api_settings(api_settings: config.ApiSettings) -> None:
+def _print_api_settings(api_settings: config.EwoksSettings) -> None:
     """Print summary of all API settings"""
     lines = list()
     resourcedir = api_settings.resource_directory

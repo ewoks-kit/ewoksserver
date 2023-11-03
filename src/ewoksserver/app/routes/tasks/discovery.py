@@ -6,11 +6,11 @@ from ewoksjob.client.local import (
     discover_tasks_from_modules as discover_tasks_from_modules_local,
 )
 
-from ...config import ApiSettings
+from ...config import EwoksSettings
 
 
 def discover_tasks(
-    settings: ApiSettings,
+    settings: EwoksSettings,
     modules: Optional[List[str]] = None,
     reload: Optional[bool] = None,
     worker_options: Optional[Dict] = None,

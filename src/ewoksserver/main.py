@@ -1,4 +1,4 @@
-"""Start ewoks server from the command line
+"""Start ewoks server from the command line (does not support configuration)
 
 ..code: bash
 

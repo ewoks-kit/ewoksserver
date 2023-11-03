@@ -1,4 +1,4 @@
-"""Start ewoks server from the command line
+"""Start ewoks server from the command line (supports configuration)
 
 ..code: bash
 
@@ -12,8 +12,8 @@ from typing import Optional, List
 import click
 from uvicorn.main import main as uvicorn_cmd
 
-from .app.config import create_api_settings
-from . import app
+from .app.config import create_ewoks_settings
+from .app.config import create_app_settings
 
 
 uvicorn_cmd = click.option(
@@ -33,7 +33,7 @@ uvicorn_cmd = click.option(
 uvicorn_cmd = click.option(
     "--without-events",
     is_flag=True,
-    help="Disable socket.io app for event stream",
+    help="Disable Socket.IO app for event stream",
 )(uvicorn_cmd)
 
 uvicorn_cmd = click.option(
@@ -56,12 +56,12 @@ uvicorn_cmd = click.option(
 
 
 def ewoks_main(
-    config: Optional[str] = None,
-    dir: Optional[str] = None,
-    without_events: bool = False,
-    frontend_tests: bool = False,
-    rediscover_tasks: bool = False,
-    skip_older_versions: bool = False,
+    config: Optional[str] = None,  # ewoks parameter
+    dir: Optional[str] = None,  # ewoks parameter
+    without_events: bool = False,  # ewoks parameter
+    frontend_tests: bool = False,  # ewoks parameter
+    rediscover_tasks: bool = False,  # ewoks parameter
+    skip_older_versions: bool = False,  # app parameter
     log_level: Optional[str] = None,  # uvicorn parameter
     **kw
 ):
@@ -72,8 +72,8 @@ def ewoks_main(
         logging.basicConfig(
             level=level, format="%(levelname)8s(BACKEND %(asctime)s): %(message)s"
         )
-    app.CREATE_CONFIG["skip_older_versions"] = skip_older_versions
-    create_api_settings(
+    create_app_settings(skip_older_versions=skip_older_versions)
+    create_ewoks_settings(
         config=config,
         dir=dir,
         without_events=without_events,
