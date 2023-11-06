@@ -10,22 +10,13 @@ from ewokscore import events
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 
-from .. import oldserver
+
 from .. import app as newserver
 from ..app import config as serverconfig
 from .data import resource_filenames
 from ..resources.binary.utils import _load_url
 from ..resources.data import DEFAULT_ROOT
 from .socketio_test import SocketIOTestClient
-
-
-@pytest.fixture
-def rest_client_old(tmpdir):
-    """Client to the REST server (no execution)."""
-    app, *_ = oldserver.create_app(resource_directory=str(tmpdir))
-    with oldserver.run_context(app):
-        with app.test_client() as client:
-            yield client
 
 
 @pytest.fixture
@@ -79,19 +70,6 @@ def local_exec_client(tmpdir, ewoks_handlers):
 
 
 @pytest.fixture
-def local_exec_client_old(tmpdir, ewoks_handlers):
-    """Client to the REST server and Socket.IO (execution with process pool)."""
-    ewoks_config = {"handlers": ewoks_handlers}
-    app, *_ = oldserver.create_app(resource_directory=str(tmpdir), ewoks=ewoks_config)
-    socketio = oldserver.add_socket(app)
-    with oldserver.run_context(app):
-        with app.test_client() as client:
-            sclient = socketio.test_client(app, flask_test_client=client)
-            yield client, sclient
-            sclient.disconnect()
-
-
-@pytest.fixture
 def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
     """Client to the REST server and Socket.IO (execution with celery)."""
     app = newserver.create_app()
@@ -109,21 +87,6 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
     with TestClient(app) as client:
         with SocketIOTestClient() as sclient:
             yield client, sclient
-
-
-@pytest.fixture
-def celery_exec_client_old(tmpdir, celery_session_worker, ewoks_handlers):
-    """Client to the REST server and Socket.IO (execution with celery)."""
-    ewoks_config = {"handlers": ewoks_handlers}
-    app, *_ = oldserver.create_app(
-        resource_directory=str(tmpdir), celery=dict(), ewoks=ewoks_config
-    )
-    socketio = oldserver.add_socket(app)
-    with oldserver.run_context(app):
-        with app.test_client() as client:
-            sclient = socketio.test_client(app, flask_test_client=client)
-            yield client, sclient
-            sclient.disconnect()
 
 
 @pytest.fixture
@@ -167,28 +130,6 @@ def default_task_identifiers() -> List[Path]:
 def mocked_local_submit(mocker) -> str:
     submit_local_mock = mocker.patch(
         "ewoksserver.app.routes.execution.router.submit_local"
-    )
-
-    MockFuture = namedtuple("Future", ["task_id"])
-
-    arguments = dict()
-    task_id = 0
-
-    def mocked_submit(*args, **kwargs):
-        nonlocal task_id
-        arguments["args"] = args
-        arguments["kwargs"] = kwargs
-        task_id += 1
-        return MockFuture(task_id=task_id)
-
-    submit_local_mock.side_effect = mocked_submit
-    return arguments
-
-
-@pytest.fixture
-def mocked_local_submit_old(mocker) -> str:
-    submit_local_mock = mocker.patch(
-        "ewoksserver.resources.json.workflows.submit_local"
     )
 
     MockFuture = namedtuple("Future", ["task_id"])
