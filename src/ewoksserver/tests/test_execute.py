@@ -1,25 +1,33 @@
 import time
+
+import pytest
 from ewokscore.tests.examples.graphs import get_graph
 
-
-def test_execute_with_celery(celery_exec_client):
-    _test_execute(*celery_exec_client)
+from .api_versions import ROOT_V1_0_0
 
 
-def test_execute_without_celery(local_exec_client):
-    _test_execute(*local_exec_client)
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_execute_with_celery(celery_exec_client, root):
+    _test_execute(root, *celery_exec_client)
 
 
-def test_new_client_new_events(local_exec_client):
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_execute_without_celery(local_exec_client, root):
+    _test_execute(root, *local_exec_client)
+
+
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_new_client_new_events(local_exec_client, root):
     client, sclient = local_exec_client
-    _test_execute(client, sclient)
+    _test_execute(root, client, sclient)
     sclient.disconnect()
     sclient.connect()
     time.sleep(1)
     assert not sclient.get_events()
 
 
-def test_execute_options(rest_client, mocked_local_submit):
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_execute_options(rest_client, mocked_local_submit, root):
     workflow = {
         "graph": {
             "id": "myworkflow",
@@ -36,13 +44,13 @@ def test_execute_options(rest_client, mocked_local_submit):
         },
         "nodes": [{"id": "task1"}],
     }
-    response = rest_client.post("/workflows", json=workflow)
+    response = rest_client.post(f"{root}/workflows", json=workflow)
     data = response.json()
     assert response.status_code == 200, data
 
     # Check that the backend uses execute_arguments and worker_options
     # from the workflow definition
-    response = rest_client.post("/execute/myworkflow")
+    response = rest_client.post(f"{root}/execute/myworkflow")
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
@@ -72,7 +80,7 @@ def test_execute_options(rest_client, mocked_local_submit):
         "worker_options": {"queue": "id00", "time_limit": 30},
     }
 
-    response = rest_client.post("/execute/myworkflow", json=data)
+    response = rest_client.post(f"{root}/execute/myworkflow", json=data)
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
@@ -91,9 +99,9 @@ def test_execute_options(rest_client, mocked_local_submit):
     assert mocked_local_submit == expected_submit_arguments
 
 
-def _test_execute(client, sclient):
-    graph_name, expected = upload_graph(client)
-    response = client.post(f"/execute/{graph_name}")
+def _test_execute(root, client, sclient):
+    graph_name, expected = upload_graph(root, client)
+    response = client.post(f"{root}/execute/{graph_name}")
     assert response.status_code == 200, response.json()
 
     n = 2 * (len(expected) + 2)
@@ -102,10 +110,10 @@ def _test_execute(client, sclient):
     return n
 
 
-def upload_graph(client):
+def upload_graph(root, client):
     graph_name = "acyclic1"
     graph, expected = get_graph(graph_name)
-    response = client.post("/workflows", json=graph)
+    response = client.post(f"{root}/workflows", json=graph)
     assert response.status_code == 200, response.json()
     return graph_name, expected
 
