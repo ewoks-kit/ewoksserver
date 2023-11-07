@@ -13,7 +13,8 @@ from fastapi import FastAPI
 from .config import get_app_settings
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
-from .routes import versioning
+from . import routes
+from .routes import backend
 from .routes import frontend
 from .routes import tasks
 from .routes import workflows
@@ -27,7 +28,7 @@ def create_app() -> FastAPI:
     """Create the main API instance"""
     settings = get_app_settings()
 
-    versioning.assert_route_versions(
+    backend.assert_route_versions(
         tasks.routers,
         workflows.routers,
         icons.routers,
@@ -35,16 +36,14 @@ def create_app() -> FastAPI:
         execution.app_creators,
     )
     all_parsed_routes = (
-        versioning.parse_routes("tasks", tasks.routers),
-        versioning.parse_routes("workflows", workflows.routers),
-        versioning.parse_routes("icons", icons.routers),
-        versioning.parse_routes("execution", execution.routers),
-        versioning.parse_routes(
-            "execution", execution.app_creators, prefix="socket.io"
-        ),
+        backend.parse_routes("tasks", tasks.routers),
+        backend.parse_routes("workflows", workflows.routers),
+        backend.parse_routes("icons", icons.routers),
+        backend.parse_routes("execution", execution.routers),
+        backend.parse_routes("execution", execution.app_creators, prefix="socket.io"),
     )
-    version_tags = versioning.extract_version_tags(all_parsed_routes)
-    major, minor, patch = versioning.extract_lastest_version(all_parsed_routes)
+    version_tags = backend.extract_version_tags(all_parsed_routes)
+    major, minor, patch = backend.extract_lastest_version(all_parsed_routes)
 
     tags_metadata = [
         {"name": "tasks", "description": "Ewoks workflow tasks"},
@@ -71,11 +70,15 @@ def create_app() -> FastAPI:
         },
         openapi_tags=tags_metadata,
         lifespan=fastapi_lifespan,
+        openapi_url=f"{routes.BACKEND_PREFIX}/openapi.json",
+        docs_url=f"{routes.BACKEND_PREFIX}/docs",
+        swagger_ui_oauth2_redirect_url=f"{routes.BACKEND_PREFIX}/docs/oauth2-redirect",
+        redoc_url=f"{routes.BACKEND_PREFIX}/redoc",
     )
 
     enable_cors(app)
 
-    versioning.add_routes(
+    backend.add_routes(
         app,
         all_parsed_routes,
         skip_older_versions=settings.skip_older_versions,

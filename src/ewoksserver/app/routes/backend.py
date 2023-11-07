@@ -5,6 +5,8 @@ from fastapi import APIRouter
 from fastapi import FastAPI
 from starlette.types import ASGIApp
 
+from . import BACKEND_PREFIX
+
 AppGenerator = Callable[[FastAPI], ASGIApp]
 RouteType = Union[APIRouter, AppGenerator]
 
@@ -41,7 +43,9 @@ def parse_routes(
         parsed_routes[kversion] = _ParsedRoute(
             pversion=pversion,
             route=route,
-            prefix=f"/{pversion}/{prefix}" if prefix else f"/{pversion}",
+            prefix=f"{BACKEND_PREFIX}/{pversion}/{prefix}"
+            if prefix
+            else f"{BACKEND_PREFIX}/{pversion}",
             tag=sversion,
         )
         mversion = version[0]
@@ -58,7 +62,9 @@ def parse_routes(
         parsed_routes[kversion] = _ParsedRoute(
             pversion=pversion,
             route=route,
-            prefix=f"/{pversion}/{prefix}" if prefix else f"/{pversion}",
+            prefix=f"{BACKEND_PREFIX}/{pversion}/{prefix}"
+            if prefix
+            else f"{BACKEND_PREFIX}/{pversion}",
             tag=sversion,
         )
 
@@ -67,7 +73,10 @@ def parse_routes(
     major, minor, patch = major_versions[mversion]
     kversion = major, minor, patch, 2
     parsed_routes[kversion] = _ParsedRoute(
-        pversion="", route=route, prefix=f"/{prefix}" if prefix else "", tag=tag
+        pversion="",
+        route=route,
+        prefix=f"{BACKEND_PREFIX}/{prefix}" if prefix else f"{BACKEND_PREFIX}",
+        tag=tag,
     )
     return parsed_routes
 

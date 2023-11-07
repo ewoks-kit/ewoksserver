@@ -9,6 +9,8 @@ try:
 except ImportError:
     get_static_root = None
 
+from . import FRONTEND_PREFIX
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,4 +28,4 @@ def add_frontend(app: FastAPI) -> None:
         logger.info("No frontend available to serve (pip install ewoksweb)")
     else:
         files = _StaticFiles(directory=get_static_root(), html=True)
-        app.mount("/", app=files, name="ewoksweb")
+        app.mount(f"{FRONTEND_PREFIX}", app=files, name="ewoksweb")
