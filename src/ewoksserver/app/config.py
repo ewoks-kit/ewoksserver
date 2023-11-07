@@ -6,7 +6,7 @@ from typing import Optional
 from typing_extensions import Annotated
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel
 from fastapi import Depends
 
 try:
@@ -15,7 +15,7 @@ except ImportError:
     get_test_config = None
 
 
-class EwoksSettings(BaseSettings):
+class EwoksSettings(BaseModel):
     configured: Annotated[
         bool, Field(default=False, title="Any of the settings has been defined")
     ]
@@ -30,7 +30,7 @@ class EwoksSettings(BaseSettings):
     ]
 
 
-class AppSettings(BaseSettings):
+class AppSettings(BaseModel):
     skip_older_versions: Annotated[
         bool,
         Field(
