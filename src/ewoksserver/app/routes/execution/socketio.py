@@ -110,7 +110,11 @@ def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
     else:
         cors_allowed_origins = None
     if cors_allowed_origins == ["*"]:
-        # TODO: not idea why
+        # Different convention to allow all origins:
+        #   starlette.middleware.cors.CORSMiddleware:
+        #     https://www.starlette.io/middleware/#corsmiddleware
+        #   engineio.server.Server:
+        #     https://python-engineio.readthedocs.io/en/latest/server.html#cross-origin-controls
         cors_allowed_origins = "*"
     _MANAGER = EwoksEventManager(cors_allowed_origins=cors_allowed_origins)
     return _MANAGER._app
