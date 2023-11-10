@@ -158,7 +158,10 @@ def update_workflow(
     workflow: Annotated[models.EwoksWorkflow, Body(title="Ewoks workflow")],
     settings: EwoksSettingsType,
 ) -> models.EwoksWorkflow:
-    ridentifier = workflow.graph["id"]
+    if workflow.graph:
+        ridentifier = workflow.graph.get("id", identifier)
+    else:
+        ridentifier = None
     if identifier != ridentifier:
         return JSONResponse(
             {
@@ -209,6 +212,10 @@ def update_workflow(
     response_description="Ewoks workflow",
     status_code=200,
     responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "Workflow identifier missing",
+            "model": common_models.ResourceIdentifierError,
+        },
         status.HTTP_409_CONFLICT: {
             "description": "Workflow already exists",
             "model": common_models.ResourceIdentifierError,
@@ -223,7 +230,18 @@ def create_workflow(
     workflow: Annotated[models.EwoksWorkflow, Body(title="Ewoks workflow")],
     settings: EwoksSettingsType,
 ) -> models.EwoksWorkflow:
-    ridentifier = workflow.graph["id"]
+    if workflow.graph:
+        ridentifier = workflow.graph.get("id")
+    else:
+        ridentifier = None
+    if ridentifier is None:
+        return JSONResponse(
+            {
+                "message": "Workflow identifier missing",
+                "type": "workflow",
+            },
+            status_code=status.HTTP_400_CONFLICT,
+        )
 
     exists = json_backend.resource_exists(
         settings.resource_directory / "workflows", ridentifier
