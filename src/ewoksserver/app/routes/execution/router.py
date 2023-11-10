@@ -126,7 +126,7 @@ def execute_events(
     settings: EwoksSettingsType,
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
-    ],  # pydantic model as query parameters
+    ],  # pydantic model to parse query parameters
 ) -> Dict[str, List[List[Dict]]]:
     jobs = OrderedDict()
     with events.reader_context(settings) as reader:
