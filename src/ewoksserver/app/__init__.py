@@ -1,10 +1,3 @@
-"""Start ewoks server from the command line (does not support configuration)
-
-..code: bash
-
-    uvicorn --factory ewoksserver.app:create_app --reload
-"""
-
 import logging
 from pprint import pformat
 

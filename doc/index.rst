@@ -45,5 +45,6 @@ Documentation
     :maxdepth: 2
 
     configuration
+    dev
     restapi
     api
