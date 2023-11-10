@@ -7,9 +7,7 @@ from pydantic import Field
 class EwoksTaskDescription(BaseModel):
     task_type: Annotated[str, Field(title="One of the Ewoks task types")]
     task_identifier: Annotated[str, Field(title="Task identifier unique to the server")]
-    category: Annotated[
-        Optional[str], Field(title="Task category unique to the server", default=None)
-    ]
+    category: Annotated[Optional[str], Field(title="Task category", default=None)]
     icon: Annotated[
         Optional[str],
         Field(title="Task icon identifier unique to the server", default=None),

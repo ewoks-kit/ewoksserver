@@ -20,7 +20,7 @@ class EwoksWorkflowDescription(BaseModel):
     ]
     category: Annotated[
         Optional[str],
-        Field(title="Workflow category unique to the server", default=None),
+        Field(title="Workflow category", default=None),
     ]
     keywords: Annotated[
         Optional[Dict], Field(title="Workflow search keywords", default=None)
