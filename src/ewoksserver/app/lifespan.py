@@ -11,7 +11,7 @@ from ewoksjob.client.local import pool_context
 from celery import current_app as current_celery_app
 
 from .backends import json_backend
-from ..resources import data
+from .. import resources
 from . import config
 from .routes.execution import socketio
 from .routes.tasks.discovery import discover_tasks
@@ -49,12 +49,12 @@ def _copy_default_resources(ewoks_settings: config.EwoksSettings) -> None:
     }.items():
         root_url = json_backend.root_url(ewoks_settings.resource_directory, resource)
         os.makedirs(root_url, exist_ok=True)
-        for filename in os.listdir(data.DEFAULT_ROOT / resource):
+        for filename in os.listdir(resources.DEFAULT_ROOT / resource):
             _, ext = os.path.splitext(filename)
             if ext not in resource_ext:
                 continue
 
-            src = data.DEFAULT_ROOT / resource / filename
+            src = resources.DEFAULT_ROOT / resource / filename
             if not os.path.isfile(src):
                 continue
 

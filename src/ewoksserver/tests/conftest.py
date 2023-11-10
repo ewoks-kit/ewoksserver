@@ -10,12 +10,12 @@ from ewokscore import events
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 
-
 from .. import app as newserver
 from ..app import config as serverconfig
+from ..app.backends.binary_backend import _load_url
+from ..resources import DEFAULT_ROOT
+
 from .data import resource_filenames
-from ..resources.binary.utils import _load_url
-from ..resources.data import DEFAULT_ROOT
 from .socketio_test import SocketIOTestClient
 
 
