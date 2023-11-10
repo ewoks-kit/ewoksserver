@@ -25,13 +25,13 @@ async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
     get_ewoks_settings = app.dependency_overrides.get(
         config.get_ewoks_settings, config.get_ewoks_settings
     )
-    api_settings = get_ewoks_settings()
-    _configure_socketio(api_settings)
-    _copy_default_resources(api_settings)
-    _enable_execution_events(api_settings)
-    with _enable_execution(api_settings):
-        _rediscover_tasks(api_settings)
-        _print_api_settings(api_settings)
+    ewoks_settings = get_ewoks_settings()
+    _configure_socketio(ewoks_settings)
+    _copy_default_resources(ewoks_settings)
+    _enable_execution_events(ewoks_settings)
+    with _enable_execution(ewoks_settings):
+        _rediscover_tasks(ewoks_settings)
+        _print_ewoks_settings(ewoks_settings)
         yield
 
 
@@ -39,7 +39,7 @@ def _configure_socketio(app_settings: config.EwoksSettings) -> None:
     socketio.configure_socketio(app_settings)
 
 
-def _copy_default_resources(api_settings: config.EwoksSettings) -> None:
+def _copy_default_resources(ewoks_settings: config.EwoksSettings) -> None:
     """Copy the default resources (tasks, workflows and icon) from the
     python package to the resource directory."""
     for resource, resource_ext in {
@@ -47,7 +47,7 @@ def _copy_default_resources(api_settings: config.EwoksSettings) -> None:
         "icons": [".png", ".svg"],
         "workflows": [".json"],
     }.items():
-        root_url = json_backend.root_url(api_settings.resource_directory, resource)
+        root_url = json_backend.root_url(ewoks_settings.resource_directory, resource)
         os.makedirs(root_url, exist_ok=True)
         for filename in os.listdir(data.DEFAULT_ROOT / resource):
             _, ext = os.path.splitext(filename)
@@ -63,23 +63,23 @@ def _copy_default_resources(api_settings: config.EwoksSettings) -> None:
                 shutil.copy(src, dest)
 
 
-def _rediscover_tasks(api_settings: config.EwoksSettings) -> None:
-    if not api_settings.discover_tasks:
+def _rediscover_tasks(ewoks_settings: config.EwoksSettings) -> None:
+    if not ewoks_settings.discover_tasks:
         return
-    tasks = discover_tasks(api_settings)
-    root_url = json_backend.root_url(api_settings.resource_directory, "tasks")
+    tasks = discover_tasks(ewoks_settings)
+    root_url = json_backend.root_url(ewoks_settings.resource_directory, "tasks")
     for resource in tasks:
         json_backend.save_resource(root_url, resource["task_identifier"], resource)
 
 
-def _enable_execution_events(api_settings: config.EwoksSettings) -> None:
+def _enable_execution_events(ewoks_settings: config.EwoksSettings) -> None:
     """Set default ewoks event handler when nothing has been configured"""
-    if api_settings.configured:
+    if ewoks_settings.configured:
         return
-    if api_settings.ewoks is None:
-        api_settings.ewoks = dict()
-    if not api_settings.ewoks.get("handlers"):
-        api_settings.ewoks["handlers"] = [
+    if ewoks_settings.ewoks is None:
+        ewoks_settings.ewoks = dict()
+    if not ewoks_settings.ewoks.get("handlers"):
+        ewoks_settings.ewoks["handlers"] = [
             {
                 "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
                 "arguments": [
@@ -94,32 +94,32 @@ def _enable_execution_events(api_settings: config.EwoksSettings) -> None:
 
 @contextmanager
 def _enable_execution(
-    api_settings: config.EwoksSettings,
+    ewoks_settings: config.EwoksSettings,
 ) -> Generator[None, None, None]:
     """Ensure workflows can be executed"""
-    if api_settings.celery is None:
+    if ewoks_settings.celery is None:
         with pool_context():
             yield
     else:
-        current_celery_app.conf.update(api_settings.celery)
+        current_celery_app.conf.update(ewoks_settings.celery)
         yield
 
 
-def _print_api_settings(api_settings: config.EwoksSettings) -> None:
-    """Print summary of all API settings"""
+def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
+    """Print summary of all Ewoks settings"""
     lines = list()
-    resourcedir = api_settings.resource_directory
+    resourcedir = ewoks_settings.resource_directory
     if not resourcedir:
         resourcedir = "."
     lines += ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
 
-    adict = api_settings.celery
+    adict = ewoks_settings.celery
     if adict is None:
         lines += ["", "CELERY:", "Not configured (local workflow execution)"]
     else:
         lines += ["", "CELERY:", pformat(adict)]
 
-    adict = api_settings.ewoks
+    adict = ewoks_settings.ewoks
     if adict is None:
         lines += ["", "EWOKS:", "Not configured (local workflow execution)"]
     else:
