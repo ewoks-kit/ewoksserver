@@ -20,12 +20,13 @@ def discover_tasks(
     else:
         kwargs = dict(worker_options)
 
-    discover_kwargs = dict()
+    # Task discovery: position arguments
     if modules:
         kwargs["args"] = modules
+    # Task discovery: named arguments
+    kwargs["kwargs"] = dict()
     if reload is not None:
-        discover_kwargs["reload"] = reload
-    kwargs["kwargs"] = discover_kwargs
+        kwargs["kwargs"]["reload"] = reload
 
     if settings.celery is None:
         if modules:
@@ -41,11 +42,11 @@ def discover_tasks(
         tasks = future.get()
 
     for task in tasks:
-        _default_task_properties(task)
+        _set_default_task_properties(task)
     return tasks
 
 
-def _default_task_properties(task: dict) -> None:
+def _set_default_task_properties(task: dict) -> None:
     if not task.get("icon"):
         task["icon"] = "default.png"
     if not task.get("label"):

@@ -205,7 +205,7 @@ def create_icon(
     "/icon/{identifier}",
     summary="Delete ewoks icon",
     response_model=common_models.ResourceInfo,
-    response_description="Deleted ewoks icon",
+    response_description="Deleted ewoks icon identifier",
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {

@@ -89,7 +89,9 @@ def execute_workflow(
         graph["graph"].get("worker_options"), worker_options
     )
 
+    # Workflow execution: position arguments
     submit_kwargs["args"] = (graph,)
+    # Workflow execution: named arguments
     submit_kwargs["kwargs"] = execute_arguments
 
     ewoks_config = settings.ewoks
@@ -125,7 +127,7 @@ def execute_events(
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
     ],  # pydantic model as query parameters
-) -> List[List[dict]]:
+) -> Dict[str, List[List[Dict]]]:
     jobs = OrderedDict()
     with events.reader_context(settings) as reader:
         if reader is None:

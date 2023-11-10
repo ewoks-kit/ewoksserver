@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from typing_extensions import Annotated
 from pydantic import BaseModel
 from pydantic import Field
@@ -15,10 +15,10 @@ class EwoksTaskDescription(BaseModel):
         Field(title="Task icon identifier unique to the server", default=None),
     ]
     required_input_names: Annotated[
-        Optional[List[str]], Field(title="Required task input names", default=None)
+        Optional[List[str]], Field(title="Task required input names", default=None)
     ]
     optional_input_names: Annotated[
-        Optional[List[str]], Field(title="Optional task input names", default=None)
+        Optional[List[str]], Field(title="Task optional input names", default=None)
     ]
     output_names: Annotated[
         Optional[List[str]], Field(title="Task output names", default=None)
@@ -38,5 +38,5 @@ class EwoksTaskDiscovery(BaseModel):
         Optional[List[str]], Field(title="Ewoks task description", default=None)
     ]
     worker_options: Annotated[
-        Optional[dict], Field(title="Worker options", default=None)
+        Optional[Dict], Field(title="Worker options", default=None)
     ]

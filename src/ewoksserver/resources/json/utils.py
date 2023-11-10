@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, Union, Optional, Mapping
+from typing import Iterator, Union, Optional, Mapping, Dict
 
 
 ResourceIdentifierType = str
@@ -29,7 +29,7 @@ def root_url(root_url: Union[str, Path, None], category: str) -> ResourceUrlType
 
 
 def resource_identifiers(
-    root: ResourceUrlType, keywords: Optional[dict] = None
+    root: ResourceUrlType, keywords: Optional[Dict] = None
 ) -> Iterator[ResourceIdentifierType]:
     if keywords:
         for description in resource_descriptions(root, keywords):
@@ -45,7 +45,7 @@ def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
 
 
 def resource_descriptions(
-    root: ResourceUrlType, keywords: Optional[dict] = None
+    root: ResourceUrlType, keywords: Optional[Dict] = None
 ) -> Iterator[ResourceDescriptionType]:
     for res in resources(root):
         description = res["graph"]
@@ -58,7 +58,7 @@ def resource_descriptions(
         }
 
 
-def _include_resource(res_keywords: dict, keywords: Optional[dict] = None) -> bool:
+def _include_resource(res_keywords: dict, keywords: Optional[Dict] = None) -> bool:
     if keywords is None:
         return True
     return all(res_keywords.get(key) == value for key, value in keywords.items())

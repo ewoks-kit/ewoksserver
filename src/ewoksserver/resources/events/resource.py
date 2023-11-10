@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List
+from typing import List, Dict
 
 from ewoksutils import event_utils
 
@@ -10,7 +10,7 @@ from ...events.ewoks_events import reader_context
 
 class ExecutionEvents(Resource):
     @api.get_ewoks_events()
-    def get(self, **filters) -> List[List[dict]]:
+    def get(self, **filters) -> List[List[Dict]]:
         jobs = OrderedDict()
         with reader_context() as reader:
             if reader is None:

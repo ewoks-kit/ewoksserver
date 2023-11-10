@@ -90,7 +90,7 @@ def get_workflow_identifiers(
     }
 
 
-def _compile_keywords(kw: Optional[List[str]]) -> Optional[dict]:
+def _compile_keywords(kw: Optional[List[str]]) -> Optional[Dict]:
     if not kw:
         return
     keywords = dict()
@@ -106,10 +106,10 @@ def _compile_keywords(kw: Optional[List[str]]) -> Optional[dict]:
 
 @router.get(
     "/workflows/descriptions",
-    summary="Get all ewoks workflows",
+    summary="Get all ewoks workflow descriptions",
     response_model=models.EwoksWorkflowDescriptions,
     response_model_exclude_none=True,
-    response_description="Ewoks workflows",
+    response_description="Ewoks workflow description",
     status_code=200,
 )
 def get_workflows(

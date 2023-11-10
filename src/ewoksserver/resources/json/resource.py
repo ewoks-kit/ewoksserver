@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 from flask import current_app
 from ..utils import Resource
@@ -126,7 +126,7 @@ class JsonResource(Resource):
         return self.make_response(200, identifier=identifier)
 
     def list_resource_identifiers(
-        self, keywords: Optional[dict] = None
+        self, keywords: Optional[Dict] = None
     ) -> ResponseType:
         """
         200: OK
@@ -146,7 +146,7 @@ class JsonResource(Resource):
         return body, 200
 
     def list_resource_descriptions(
-        self, keywords: Optional[dict] = None
+        self, keywords: Optional[Dict] = None
     ) -> ResponseType:
         """
         200: OK

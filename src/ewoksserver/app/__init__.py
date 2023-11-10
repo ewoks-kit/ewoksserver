@@ -43,7 +43,7 @@ def create_app() -> FastAPI:
         backend.parse_routes("execution", execution.app_creators, prefix="socket.io"),
     )
     version_tags = backend.extract_version_tags(all_parsed_routes)
-    major, minor, patch = backend.extract_lastest_version(all_parsed_routes)
+    major, minor, patch = backend.extract_latest_version(all_parsed_routes)
 
     tags_metadata = [
         {"name": "tasks", "description": "Ewoks workflow tasks"},

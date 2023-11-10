@@ -1,4 +1,4 @@
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Dict
 from typing_extensions import Annotated
 from pydantic import BaseModel
 from pydantic import Field
@@ -6,10 +6,10 @@ from pydantic import Field
 
 class EwoksExecuteOptions(BaseModel):
     execute_arguments: Annotated[
-        Optional[dict], Field(title="Workflow execution options", default=None)
+        Optional[Dict], Field(title="Workflow execution options", default=None)
     ]
     worker_options: Annotated[
-        Optional[dict], Field(title="Worker options", default=None)
+        Optional[Dict], Field(title="Worker options", default=None)
     ]
 
 
@@ -53,10 +53,10 @@ class EwoksEvent(BaseModel):
         Optional[str], Field(title="Workflow task output URI", default=None)
     ]
     input_uris: Annotated[
-        Optional[List[dict]], Field(title="Workflow task input URIs", default=None)
+        Optional[List[Dict]], Field(title="Workflow task input URIs", default=None)
     ]
     output_uris: Annotated[
-        Optional[List[dict]], Field(title="Workflow task output URIs", default=None)
+        Optional[List[Dict]], Field(title="Workflow task output URIs", default=None)
     ]
 
 

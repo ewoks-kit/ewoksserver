@@ -75,7 +75,7 @@ def ewoks_main(
     create_app_settings(skip_older_versions=skip_older_versions)
     create_ewoks_settings(
         config=config,
-        dir=dir,
+        directory=dir,
         without_events=without_events,
         frontend_tests=frontend_tests,
         rediscover_tasks=rediscover_tasks,

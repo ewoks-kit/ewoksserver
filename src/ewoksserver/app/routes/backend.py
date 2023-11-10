@@ -93,7 +93,7 @@ def extract_version_tags(
     return tags
 
 
-def extract_lastest_version(
+def extract_latest_version(
     all_parsed_routes: List[Dict[Tuple[int], _ParsedRoute]]
 ) -> Tuple[int]:
     """Extract the latest version"""

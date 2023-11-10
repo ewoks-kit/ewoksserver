@@ -1,13 +1,13 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from typing_extensions import Annotated
 from pydantic import BaseModel
 from pydantic import Field
 
 
 class EwoksWorkflow(BaseModel):
-    graph: Annotated[Optional[dict], Field(title="Workflow attributes", default=None)]
-    nodes: Annotated[Optional[List[dict]], Field(title="Node attributes", default=None)]
-    links: Annotated[Optional[List[dict]], Field(title="Link attributes", default=None)]
+    graph: Annotated[Optional[Dict], Field(title="Workflow attributes", default=None)]
+    nodes: Annotated[Optional[List[Dict]], Field(title="Node attributes", default=None)]
+    links: Annotated[Optional[List[Dict]], Field(title="Link attributes", default=None)]
 
 
 class EwoksWorkflowDescription(BaseModel):
@@ -23,14 +23,14 @@ class EwoksWorkflowDescription(BaseModel):
         Field(title="Workflow category unique to the server", default=None),
     ]
     keywords: Annotated[
-        Optional[dict], Field(title="Workflow search keywords", default=None)
+        Optional[Dict], Field(title="Workflow search keywords", default=None)
     ]
     input_schema: Annotated[
-        Optional[dict],
+        Optional[Dict],
         Field(title="Workflow execute input schema for the frontend", default=None),
     ]
     ui_schema: Annotated[
-        Optional[dict],
+        Optional[Dict],
         Field(title="Workflow execute UI schema for the frontend", default=None),
     ]
 

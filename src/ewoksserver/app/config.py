@@ -2,7 +2,7 @@ import os
 import sys
 import importlib.util
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 from typing_extensions import Annotated
 
 from pydantic import Field
@@ -17,16 +17,17 @@ except ImportError:
 
 class EwoksSettings(BaseModel):
     configured: Annotated[
-        bool, Field(default=False, title="Any of the settings has been defined")
+        bool,
+        Field(default=False, title="Config or resource directory have been defined"),
     ]
     resource_directory: Annotated[
         Path, Field(default=Path("."), title="Backend file resource directory")
     ]
-    ewoks: Annotated[Optional[dict], Field(default=None, title="Ewoks configuration")]
-    celery: Annotated[Optional[dict], Field(default=None, title="Celery configuration")]
+    ewoks: Annotated[Optional[Dict], Field(default=None, title="Ewoks configuration")]
+    celery: Annotated[Optional[Dict], Field(default=None, title="Celery configuration")]
     without_events: Annotated[bool, Field(default=False, title="Enable ewoks events")]
     discover_tasks: Annotated[
-        bool, Field(default=False, title="Descover ewoks tasks on startup")
+        bool, Field(default=False, title="Discover ewoks tasks on startup")
     ]
 
 
@@ -46,7 +47,7 @@ _EWOKS_SETTINGS = None
 
 def create_ewoks_settings(
     config: Optional[str] = None,
-    dir: Optional[str] = None,
+    directory: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
     rediscover_tasks: bool = False,
@@ -62,7 +63,7 @@ def create_ewoks_settings(
             raise RuntimeError("ewoksweb is not installed")
         filename = get_test_config()
 
-    # Extract settings from configurations file
+    # Extract settings from configuration file
     resource_directory = None
     ewoks = None
     celery = None
@@ -76,12 +77,12 @@ def create_ewoks_settings(
         celery = getattr(mod, "CELERY", celery)
 
     # Overwrite resource directory
-    if dir:
-        resource_directory = dir
-    elif not resource_directory:
+    if directory:
+        resource_directory = directory
+    if not resource_directory:
         resource_directory = "."
 
-    configured = bool(filename) or bool(dir)
+    configured = bool(filename) or bool(directory)
 
     _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
