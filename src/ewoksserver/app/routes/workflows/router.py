@@ -14,6 +14,7 @@ from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
+from . import descriptions
 
 router = APIRouter()
 
@@ -81,13 +82,15 @@ def get_workflow_identifiers(
     settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
 ) -> Dict[str, List[str]]:
     keywords = _compile_keywords(kw)
-    return {
-        "identifiers": list(
-            json_backend.resource_identifiers(
-                settings.resource_directory / "workflows", keywords=keywords
-            )
-        )
-    }
+    root = settings.resource_directory / "workflows"
+    if keywords:
+        identifiers = [
+            desc["id"]
+            for desc in descriptions.workflow_descriptions(root, keywords=keywords)
+        ]
+    else:
+        identifiers = list(json_backend.resource_identifiers(root))
+    return {"identifiers": identifiers}
 
 
 def _compile_keywords(kw: Optional[List[str]]) -> Optional[Dict]:
@@ -109,16 +112,16 @@ def _compile_keywords(kw: Optional[List[str]]) -> Optional[Dict]:
     summary="Get all ewoks workflow descriptions",
     response_model=models.EwoksWorkflowDescriptions,
     response_model_exclude_none=True,
-    response_description="Ewoks workflow description",
+    response_description="Ewoks workflow descriptions",
     status_code=200,
 )
 def get_workflows(
     settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
-) -> Dict[str, List[str]]:
+) -> Dict[str, List[Dict]]:
     keywords = _compile_keywords(kw)
     return {
         "items": list(
-            json_backend.resource_descriptions(
+            descriptions.workflow_descriptions(
                 settings.resource_directory / "workflows", keywords=keywords
             )
         )
