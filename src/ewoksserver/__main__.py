@@ -49,7 +49,7 @@ uvicorn_cmd = click.option(
 )(uvicorn_cmd)
 
 uvicorn_cmd = click.option(
-    "--skip-older-versions",
+    "--no-older-versions",
     is_flag=True,
     help="Do not provide end-points for older versions of the Ewoks API",
 )(uvicorn_cmd)
@@ -61,7 +61,7 @@ def ewoks_main(
     without_events: bool = False,  # ewoks parameter
     frontend_tests: bool = False,  # ewoks parameter
     rediscover_tasks: bool = False,  # ewoks parameter
-    skip_older_versions: bool = False,  # app parameter
+    no_older_versions: bool = False,  # app parameter
     log_level: Optional[str] = None,  # uvicorn parameter
     **kw
 ):
@@ -72,7 +72,7 @@ def ewoks_main(
         logging.basicConfig(
             level=level, format="%(levelname)8s(BACKEND %(asctime)s): %(message)s"
         )
-    create_app_settings(skip_older_versions=skip_older_versions)
+    create_app_settings(no_older_versions=no_older_versions)
     create_ewoks_settings(
         config=config,
         directory=dir,

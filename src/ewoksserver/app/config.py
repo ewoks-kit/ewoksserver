@@ -32,11 +32,9 @@ class EwoksSettings(BaseModel):
 
 
 class AppSettings(BaseModel):
-    skip_older_versions: Annotated[
+    no_older_versions: Annotated[
         bool,
-        Field(
-            default=False, title="Do not create the end points for older API versions"
-        ),
+        Field(default=False, title="Do not create end points for older API versions"),
     ]
 
 
@@ -95,9 +93,9 @@ def create_ewoks_settings(
     return _EWOKS_SETTINGS
 
 
-def create_app_settings(skip_older_versions: bool = False) -> None:
+def create_app_settings(no_older_versions: bool = False) -> None:
     global _APP_SETTINGS
-    _APP_SETTINGS = AppSettings(skip_older_versions=skip_older_versions)
+    _APP_SETTINGS = AppSettings(no_older_versions=no_older_versions)
     return _APP_SETTINGS
 
 

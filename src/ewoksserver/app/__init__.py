@@ -35,15 +35,15 @@ def create_app() -> FastAPI:
         execution.routers,
         execution.app_creators,
     )
-    all_parsed_routes = (
-        backend.parse_routes("tasks", tasks.routers),
-        backend.parse_routes("workflows", workflows.routers),
-        backend.parse_routes("icons", icons.routers),
-        backend.parse_routes("execution", execution.routers),
-        backend.parse_routes("execution", execution.app_creators, prefix="socket.io"),
+    all_routes = (
+        backend.get_routes("tasks", tasks.routers),
+        backend.get_routes("workflows", workflows.routers),
+        backend.get_routes("icons", icons.routers),
+        backend.get_routes("execution", execution.routers),
+        backend.get_routes("execution", execution.app_creators, suffix="socket.io"),
     )
-    version_tags = backend.extract_version_tags(all_parsed_routes)
-    major, minor, patch = backend.extract_latest_version(all_parsed_routes)
+    version_tags = backend.extract_version_tags(all_routes)
+    major, minor, patch = backend.extract_latest_version(all_routes)
 
     tags_metadata = [
         {"name": "tasks", "description": "Ewoks workflow tasks"},
@@ -80,8 +80,8 @@ def create_app() -> FastAPI:
 
     backend.add_routes(
         app,
-        all_parsed_routes,
-        skip_older_versions=settings.skip_older_versions,
+        all_routes,
+        no_older_versions=settings.no_older_versions,
     )
 
     frontend.add_frontend(app)  # Needs to come last for some reason

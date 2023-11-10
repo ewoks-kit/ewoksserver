@@ -8,122 +8,113 @@ from starlette.types import ASGIApp
 from . import BACKEND_PREFIX
 
 AppGenerator = Callable[[FastAPI], ASGIApp]
-RouteType = Union[APIRouter, AppGenerator]
+RouterType = Union[APIRouter, AppGenerator]
 
 
-def assert_route_versions(*all_routes: Dict[Tuple[int], RouteType]) -> None:
+@dataclass
+class Route:
+    router: RouterType
+    prefix: str
+    tag: str
+    versioned: bool
+
+
+def get_routes(
+    tag: str, routers: Dict[Tuple[int], RouterType], suffix: str = ""
+) -> Dict[Tuple[int], Route]:
+    """Generate routes with versioned paths for all strict and major versions.
+    In addition add a route with non-versioned path for the latest version."""
+    routes = dict()
+
+    major_routes = dict()
+    major_versions = dict()
+    for full_version, router in reversed(sorted(routers.items())):
+        assert len(full_version) == 3, full_version
+        major, minor, patch = full_version
+        route_key = major, minor, patch, 0
+        path_version = "v" + "_".join(map(str, full_version))
+        route_tag = "v" + ".".join(map(str, full_version))
+        if suffix:
+            prefix = f"{BACKEND_PREFIX}/{path_version}/{suffix}"
+        else:
+            prefix = f"{BACKEND_PREFIX}/{path_version}"
+        routes[route_key] = Route(
+            router=router, prefix=prefix, tag=route_tag, versioned=True
+        )
+        if full_version > major_versions.get(major, (0, 0, 0)):
+            major_versions[major] = full_version
+            major_routes[major] = router
+
+    for major, router in major_routes.items():
+        path_version = route_tag = f"v{major}"
+        full_version = major_versions[major]
+        _, minor, patch = full_version
+        route_key = major, minor, patch, 1
+        if suffix:
+            prefix = f"{BACKEND_PREFIX}/{path_version}/{suffix}"
+        else:
+            prefix = f"{BACKEND_PREFIX}/{path_version}"
+        routes[route_key] = Route(
+            router=router, prefix=prefix, tag=route_tag, versioned=True
+        )
+
+    last_major_version = sorted(major_routes)[-1]
+    router = major_routes[last_major_version]
+    major, minor, patch = major_versions[last_major_version]
+    route_key = major, minor, patch, 2
+    if suffix:
+        prefix = f"{BACKEND_PREFIX}/{suffix}"
+    else:
+        prefix = f"{BACKEND_PREFIX}"
+    routes[route_key] = Route(router=router, prefix=prefix, tag=tag, versioned=False)
+    return routes
+
+
+def assert_route_versions(*all_routes: Dict[Tuple[int], RouterType]) -> None:
     versions = {tuple(sorted(routes)) for routes in all_routes}
     assert len(versions) == 1, "Not all routes have the same versions"
 
 
-@dataclass
-class _ParsedRoute:
-    pversion: str
-    route: RouteType
-    prefix: str
-    tag: str
-
-
-def parse_routes(
-    tag: str,
-    routes: Dict[Tuple[int], RouteType],
-    prefix: str = "",
-) -> Dict[Tuple[int], _ParsedRoute]:
-    """Parse routes in terms of prefix, tag and version"""
-    parsed_routes = dict()
-
-    major_routes = dict()
-    major_versions = dict()
-    for version, route in reversed(sorted(routes.items())):
-        assert len(version) == 3, version
-        major, minor, patch = version
-        kversion = major, minor, patch, 0
-        pversion = "v" + "_".join(map(str, version))
-        sversion = "v" + ".".join(map(str, version))
-        parsed_routes[kversion] = _ParsedRoute(
-            pversion=pversion,
-            route=route,
-            prefix=f"{BACKEND_PREFIX}/{pversion}/{prefix}"
-            if prefix
-            else f"{BACKEND_PREFIX}/{pversion}",
-            tag=sversion,
-        )
-        mversion = version[0]
-        if version > major_versions.get(mversion, (0, 0, 0)):
-            major_versions[mversion] = version
-            major_routes[mversion] = route
-
-    for mversion, route in major_routes.items():
-        pversion = f"v{mversion}"
-        sversion = pversion
-        version = major_versions[mversion]
-        major, minor, patch = version
-        kversion = major, minor, patch, 1
-        parsed_routes[kversion] = _ParsedRoute(
-            pversion=pversion,
-            route=route,
-            prefix=f"{BACKEND_PREFIX}/{pversion}/{prefix}"
-            if prefix
-            else f"{BACKEND_PREFIX}/{pversion}",
-            tag=sversion,
-        )
-
-    mversion = sorted(major_routes)[-1]
-    route = major_routes[mversion]
-    major, minor, patch = major_versions[mversion]
-    kversion = major, minor, patch, 2
-    parsed_routes[kversion] = _ParsedRoute(
-        pversion="",
-        route=route,
-        prefix=f"{BACKEND_PREFIX}/{prefix}" if prefix else f"{BACKEND_PREFIX}",
-        tag=tag,
-    )
-    return parsed_routes
-
-
-def extract_version_tags(
-    all_parsed_routes: List[Dict[Tuple[int], _ParsedRoute]]
-) -> Set[str]:
+def extract_version_tags(all_routes: List[Dict[Tuple[int], Route]]) -> Set[str]:
     """Extract all version tags"""
     tags = set()
-    for parsed_routes in all_parsed_routes:
-        for parsed_route in parsed_routes.values():
-            if parsed_route.pversion:
-                tags.add(parsed_route.tag)
+    for routes in all_routes:
+        for route in routes.values():
+            if route.versioned:
+                tags.add(route.tag)
     return tags
 
 
-def extract_latest_version(
-    all_parsed_routes: List[Dict[Tuple[int], _ParsedRoute]]
-) -> Tuple[int]:
+def extract_latest_version(all_routes: List[Dict[Tuple[int], Route]]) -> Tuple[int]:
     """Extract the latest version"""
-    return max(sorted(parsed_routes)[-1][:3] for parsed_routes in all_parsed_routes)
+    return max(sorted(routes)[-1][:3] for routes in all_routes)
 
 
 def add_routes(
     app: FastAPI,
-    all_parsed_routes: List[Dict[Tuple[int], _ParsedRoute]],
-    skip_older_versions: bool = False,
+    all_routes: List[Dict[Tuple[int], Route]],
+    no_older_versions: bool = False,
 ) -> None:
-    """Add routes to an API"""
-    kversions = set()
-    for keys in all_parsed_routes:
-        kversions |= set(keys)
+    """Add routes to a fastapi app"""
+    route_keys = set()
+    for keys in all_routes:
+        route_keys |= set(keys)
 
-    for kversion in reversed(sorted(kversions)):
-        for parsed_routes in all_parsed_routes:
-            parsed_route = parsed_routes.get(kversion)
-            if parsed_route is not None:
-                if skip_older_versions and parsed_route.pversion:
-                    continue
-                if isinstance(parsed_route.route, APIRouter):
-                    app.include_router(
-                        parsed_route.route,
-                        prefix=parsed_route.prefix,
-                        tags=[parsed_route.tag],
-                    )
-                elif isinstance(parsed_route.route, Callable):
-                    subapp = parsed_route.route(app)
-                    app.mount(parsed_route.prefix, subapp)
-                else:
-                    raise TypeError(str(type(parsed_route)))
+    for route_key in reversed(sorted(route_keys)):
+        for routes in all_routes:
+            route = routes.get(route_key)
+            if route is None:
+                continue
+            if no_older_versions and route.versioned:
+                continue
+            if isinstance(route.router, APIRouter):
+                app.include_router(
+                    route.router,
+                    prefix=route.prefix,
+                    tags=[route.tag],
+                )
+            elif isinstance(route.router, Callable):
+                subapp = route.router(app)
+                app.mount(route.prefix, subapp)
+            else:
+                raise TypeError(str(type(route)))
