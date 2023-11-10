@@ -20,7 +20,7 @@ uvicorn_cmd = click.option(
     "--config",
     type=str,
     default=None,
-    help="Path to a python script (equivalent to the environment variable 'EWOKSSERVER_SETTINGS')",
+    help="Path to the config python script (equivalent to the environment variable 'EWOKSSERVER_SETTINGS')",
 )(uvicorn_cmd)
 
 uvicorn_cmd = click.option(

@@ -44,7 +44,7 @@ By default the server provides versioned end-points for all full and major versi
 
 Non-versioned end-points provide for the latest version.
 
-Versioning applies to all paths (REST and Socket.IO) except for the paths that serve the frontend (`/`, `/edit`, `/monitor`).
+Versioning applies to all paths under the `/api` subpath (REST and Socket.IO). This does not include paths that serve the frontend (`/`, `/edit`, `/monitor`).
 
 When applying changes, increment the version semantically:
 
