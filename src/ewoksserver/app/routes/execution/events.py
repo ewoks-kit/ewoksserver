@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 @contextmanager
 def reader_context(
-    api_settings: EwoksSettingsType,
+    ewoks_settings: EwoksSettingsType,
 ) -> Generator[Optional[EwoksEventReader], None, None]:
-    r = _reader(api_settings)
+    r = _reader(ewoks_settings)
     try:
         yield r
     finally:
@@ -22,8 +22,8 @@ def reader_context(
             r.close()
 
 
-def _reader(api_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
-    cfg = api_settings.ewoks
+def _reader(ewoks_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
+    cfg = ewoks_settings.ewoks
     if cfg:
         handlers = cfg.get("handlers", list())
     else:

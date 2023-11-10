@@ -25,14 +25,14 @@ def rest_client(tmpdir):
     app = newserver.create_app()
 
     @lru_cache()
-    def get_api_settings_for_tests():
+    def get_ewoks_settings_for_tests():
         return serverconfig.EwoksSettings(
             configured=True, resource_directory=str(tmpdir)
         )
 
     app.dependency_overrides[
         serverconfig.get_ewoks_settings
-    ] = get_api_settings_for_tests
+    ] = get_ewoks_settings_for_tests
 
     with TestClient(app) as client:
         yield client

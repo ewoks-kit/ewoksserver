@@ -28,23 +28,23 @@ class EwoksEventManager:
         self._sio.on("connect")(self.connect)
         self._sio.on("disconnect")(self.disconnect)
 
-        self._api_settings = None
+        self._ewoks_settings = None
         self._stop_event = threading.Event()
         self._fetch_events_future: Optional[asyncio.Future] = None
         self._counter = 0
         self._executor = ThreadPoolExecutor(max_workers=1)
 
-    def configure(self, api_settings: EwoksSettings) -> None:
-        self._api_settings = api_settings
+    def configure(self, ewoks_settings: EwoksSettings) -> None:
+        self._ewoks_settings = ewoks_settings
 
     async def connect(self, *_) -> None:
-        if self._api_settings.without_events:
+        if self._ewoks_settings.without_events:
             raise ConnectionRefusedError("Socket.IO has been disabled")
         self._counter += 1
         await self._start()
 
     async def disconnect(self, *_) -> None:
-        if self._api_settings.without_events:
+        if self._ewoks_settings.without_events:
             return
         self._counter = max(self._counter - 1, 0)
         if self._counter == 0:
@@ -76,7 +76,7 @@ class EwoksEventManager:
 
     def _fetch_events_main(self, loop) -> None:
         try:
-            with events.reader_context(self._api_settings) as reader:
+            with events.reader_context(self._ewoks_settings) as reader:
                 if reader is None:
                     raise RuntimeError("Ewoks event handlers not configured")
                 starttime = datetime.now().astimezone()
@@ -120,9 +120,9 @@ def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
     return _MANAGER._app
 
 
-def configure_socketio(api_settings: EwoksSettings) -> None:
+def configure_socketio(ewoks_settings: EwoksSettings) -> None:
     global _MANAGER
-    _MANAGER.configure(api_settings)
+    _MANAGER.configure(ewoks_settings)
 
 
 _MANAGER = None
