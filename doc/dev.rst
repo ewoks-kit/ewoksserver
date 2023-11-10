@@ -24,7 +24,8 @@ server like this
 
     uvicorn <projectname>.main:app
 
-Ewoksserver does not provide this.
+Ewoksserver does not provide this since a global app instance does not allow configuration before
+instantiation and is impractical for unit testing.
 
 API versioning
 --------------
