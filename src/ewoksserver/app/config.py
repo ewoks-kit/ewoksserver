@@ -16,26 +16,22 @@ except ImportError:
 
 
 class EwoksSettings(BaseModel):
-    configured: Annotated[
-        bool,
-        Field(default=False, title="Config or resource directory have been defined"),
-    ]
-    resource_directory: Annotated[
-        Path, Field(default=Path("."), title="Backend file resource directory")
-    ]
-    ewoks: Annotated[Optional[Dict], Field(default=None, title="Ewoks configuration")]
-    celery: Annotated[Optional[Dict], Field(default=None, title="Celery configuration")]
-    without_events: Annotated[bool, Field(default=False, title="Enable ewoks events")]
-    discover_tasks: Annotated[
-        bool, Field(default=False, title="Discover ewoks tasks on startup")
-    ]
+    configured: bool = Field(
+        default=False, title="Config or resource directory have been defined"
+    )
+    resource_directory: Path = Field(
+        default=Path("."), title="Backend file resource directory"
+    )
+    ewoks: Optional[Dict] = Field(default=None, title="Ewoks configuration")
+    celery: Optional[Dict] = Field(default=None, title="Celery configuration")
+    without_events: bool = Field(default=False, title="Enable ewoks events")
+    discover_tasks: bool = Field(default=False, title="Discover ewoks tasks on startup")
 
 
 class AppSettings(BaseModel):
-    no_older_versions: Annotated[
-        bool,
+    no_older_versions: bool = (
         Field(default=False, title="Do not create end points for older API versions"),
-    ]
+    )
 
 
 _APP_SETTINGS = None
