@@ -38,7 +38,7 @@ The environment variable ``EWOKSSERVER_SETTINGS`` can be used instead:
 Ewoks events
 ------------
 
-When executing workflows, ``ewoksserver`` can send ewoks events through a websocket. Events are stored in a database by ``ewoksjob`` which needs further configuration.
+When executing workflows, ``ewoksserver`` can send ewoks events through a Socket.IO connection. Events are stored in a database by ``ewoksjob`` which needs further configuration.
 
 ``ewoksjob`` supports ``redis`` and ``sql`` as databases. So first, one of these must be installed (here we choose ``sql``):
 

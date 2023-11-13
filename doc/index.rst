@@ -3,7 +3,7 @@ ewoksserver |version|
 
 *ewoksserver* is a REST server to manage and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
 
-It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_ and emits execution events over *websocket*.
+It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_ and emits execution events over *Socket.IO*.
 
 *ewoksserver* has been developed by the `Software group <http://www.esrf.eu/Instrumentation/software>`_ of the `European Synchrotron <https://www.esrf.eu/>`_.
 
@@ -45,5 +45,6 @@ Documentation
     :maxdepth: 2
 
     configuration
+    dev
     restapi
     api

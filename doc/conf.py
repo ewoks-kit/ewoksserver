@@ -40,3 +40,5 @@ redoc = [
         },
     },
 ]
+
+redoc_uri = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"

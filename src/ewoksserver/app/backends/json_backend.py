@@ -1,21 +1,13 @@
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, Union, Optional, Mapping
+from typing import Iterator, Union, Optional, Mapping, Dict
 
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
-ResourceContentType = dict
-ResourceDescriptionType = dict
-RESOURCE_DESCRIPTION_KEYS = (
-    "id",
-    "label",
-    "category",
-    "keywords",
-    "input_schema",
-    "ui_schema",
-)
+ResourceContentType = Dict
+
 
 _logger = logging.getLogger(__name__)
 
@@ -28,15 +20,9 @@ def root_url(root_url: Union[str, Path, None], category: str) -> ResourceUrlType
     return root_url / category
 
 
-def resource_identifiers(
-    root: ResourceUrlType, keywords: Optional[dict] = None
-) -> Iterator[ResourceIdentifierType]:
-    if keywords:
-        for description in resource_descriptions(root, keywords):
-            yield description["id"]
-    else:
-        for url in _resource_urls(root):
-            yield _url_to_identifier(url)
+def resource_identifiers(root: ResourceUrlType) -> Iterator[ResourceIdentifierType]:
+    for url in _resource_urls(root):
+        yield _url_to_identifier(url)
 
 
 def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
@@ -44,31 +30,13 @@ def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
         yield _load_url(url)
 
 
-def resource_descriptions(
-    root: ResourceUrlType, keywords: Optional[dict] = None
-) -> Iterator[ResourceDescriptionType]:
-    for res in resources(root):
-        description = res["graph"]
-        if not _include_resource(description.get("keywords", dict()), keywords):
-            continue
-        yield {
-            key: value
-            for key, value in description.items()
-            if key in RESOURCE_DESCRIPTION_KEYS
-        }
-
-
-def _include_resource(res_keywords: dict, keywords: Optional[dict] = None) -> bool:
-    if keywords is None:
-        return True
-    return all(res_keywords.get(key) == value for key, value in keywords.items())
-
-
 def resource_exists(root: ResourceUrlType, identifier: ResourceIdentifierType) -> bool:
     return _identifier_to_url(root, identifier).exists()
 
 
 def _resource_urls(root: ResourceUrlType) -> Iterator[ResourceUrlType]:
+    if not root.exists():
+        return
     for url in root.iterdir():
         if _is_resource(url):
             yield url
