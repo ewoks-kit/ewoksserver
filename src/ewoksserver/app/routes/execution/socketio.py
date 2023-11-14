@@ -7,11 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 import socketio
 from socketio.exceptions import ConnectionRefusedError
-from fastapi import FastAPI
 
 from . import events
 from ...config import EwoksSettings
-from ... import cors
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +17,10 @@ logger = logging.getLogger(__name__)
 class EwoksEventManager:
     """Asynchronous manager of a Socket.IO application."""
 
-    def __init__(self, cors_allowed_origins=None) -> None:
-        self._sio = socketio.AsyncServer(
-            async_mode="asgi", cors_allowed_origins=cors_allowed_origins
-        )
+    def __init__(self) -> None:
+        # Disable Socket.IO CORS since it is managed by the CORS middleware
+        # https://github.com/encode/starlette/issues/1309#issuecomment-953930195
+        self._sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=[])
         self._app = socketio.ASGIApp(self._sio, socketio_path="")
 
         self._sio.on("connect")(self.connect)
@@ -99,24 +97,13 @@ class EwoksEventManager:
         future.result()
 
 
-def create_socketio_app(app: FastAPI) -> socketio.ASGIApp:
+def create_socketio_app() -> socketio.ASGIApp:
     """Create the ASGI Socket.IO application when needed"""
     global _MANAGER
     if _MANAGER is not None:
         return _MANAGER._app
-    options = cors.get_cors_options(app)
-    if options:
-        cors_allowed_origins = options.get("allow_origins")
-    else:
-        cors_allowed_origins = None
-    if cors_allowed_origins == ["*"]:
-        # Different convention to allow all origins:
-        #   starlette.middleware.cors.CORSMiddleware:
-        #     https://www.starlette.io/middleware/#corsmiddleware
-        #   engineio.server.Server:
-        #     https://python-engineio.readthedocs.io/en/latest/server.html#cross-origin-controls
-        cors_allowed_origins = "*"
-    _MANAGER = EwoksEventManager(cors_allowed_origins=cors_allowed_origins)
+
+    _MANAGER = EwoksEventManager()
     return _MANAGER._app
 
 
