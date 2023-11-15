@@ -7,7 +7,7 @@ from starlette.types import ASGIApp
 
 from . import BACKEND_PREFIX
 
-AppGenerator = Callable[[FastAPI], ASGIApp]
+AppGenerator = Callable[[], ASGIApp]
 RouterType = Union[APIRouter, AppGenerator]
 
 
@@ -114,7 +114,7 @@ def add_routes(
                     tags=[route.tag],
                 )
             elif isinstance(route.router, Callable):
-                subapp = route.router(app)
+                subapp = route.router()
                 app.mount(route.prefix, subapp)
             else:
                 raise TypeError(str(type(route)))
