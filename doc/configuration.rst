@@ -20,7 +20,7 @@ Configure ``ewoksserver``
     CELERY = {"broker_url":...}
 
 
-The path to configuration file can then be passed through the ``--config/-c`` command line argument:
+The path to configuration file can then be passed through the ``--config`` command line argument:
 
 .. code:: bash
 
