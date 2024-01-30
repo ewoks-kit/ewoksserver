@@ -3,20 +3,20 @@ import time
 import pytest
 from ewokscore.tests.examples.graphs import get_graph
 
-from .api_versions import ROOT_V1_0_0
+from .api_versions import ROOT_ALL_VERSIONS, ROOT_V1_1_0
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_execute_with_celery(celery_exec_client, root):
     _test_execute(root, *celery_exec_client)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_execute_without_celery(local_exec_client, root):
     _test_execute(root, *local_exec_client)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_new_client_new_events(local_exec_client, root):
     client, sclient = local_exec_client
     _test_execute(root, client, sclient)
@@ -26,7 +26,7 @@ def test_new_client_new_events(local_exec_client, root):
     assert not sclient.get_events()
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_execute_options(rest_client, mocked_local_submit, root):
     workflow = {
         "graph": {
@@ -142,7 +142,7 @@ def _assert_events(response, events, expected):
             assert event["node_id"] in expected
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_V1_1_0)
 def test_get_workers_with_celery(celery_exec_client, root):
     rest_client, _ = celery_exec_client
     response = rest_client.get(f"{root}/execution/workers")
@@ -150,7 +150,7 @@ def test_get_workers_with_celery(celery_exec_client, root):
     assert len(response.json()["workers"]) == 1
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_V1_1_0)
 def test_get_workers_without_celery(rest_client, root):
     response = rest_client.get(f"{root}/execution/workers")
     assert response.status_code == 200, response.json()

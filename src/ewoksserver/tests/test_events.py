@@ -7,10 +7,10 @@ from ewokscore.tests.examples.graphs import get_graph
 
 from .test_execute import upload_graph
 from .test_execute import get_events
-from .api_versions import ROOT_V1_0_0
+from .api_versions import ROOT_ALL_VERSIONS
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_get_execution_events(local_exec_client, root):
     client, sclient = local_exec_client
 
@@ -103,7 +103,7 @@ def test_get_execution_events(local_exec_client, root):
     assert events[0] == events2
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_get_execution_events_parallel(local_exec_client, root):
     client, sclient = local_exec_client
 

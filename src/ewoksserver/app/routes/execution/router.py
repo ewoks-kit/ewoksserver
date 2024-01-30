@@ -20,10 +20,11 @@ from ..common import models as common_models
 from . import models
 from . import events
 
-router = APIRouter()
+v1_0_0_router = APIRouter()
+v1_1_0_router = APIRouter()
 
 
-@router.post(
+@v1_0_0_router.post(
     "/execute/{identifier}",
     summary="Execute workflow",
     response_model=models.EwoksJobInfo,
@@ -109,7 +110,7 @@ def execute_workflow(
     return {"job_id": future.task_id}
 
 
-@router.get(
+@v1_0_0_router.get(
     "/execution/events",
     summary="Get workflow events",
     response_model=models.EwoksEventList,
@@ -145,7 +146,7 @@ def execute_events(
     return {"jobs": list(jobs.values())}
 
 
-@router.get(
+@v1_1_0_router.get(
     "/execution/workers",
     summary="Get workers",
     response_model=models.EwoksWorkerList,
@@ -157,3 +158,6 @@ def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
         return {"workers": None}
 
     return {"workers": get_workers()}
+
+
+v1_1_0_router.include_router(v1_0_0_router)
