@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from ewoksutils import event_utils
-from ewoksjob.client import submit
+from ewoksjob.client import get_workers, submit
 from ewoksjob.client.local import submit as submit_local
 
 from ...backends import json_backend
@@ -143,3 +143,17 @@ def execute_events(
                 event["binding"] = event.pop("engine")
             jobs[job_id].append(event)
     return {"jobs": list(jobs.values())}
+
+
+@router.get(
+    "/execution/workers",
+    summary="Get workers",
+    response_model=models.EwoksWorkerList,
+    response_description="List of available workers",
+    status_code=200,
+)
+def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
+    if settings.celery is None:
+        return {"workers": None}
+
+    return {"workers": get_workers()}
