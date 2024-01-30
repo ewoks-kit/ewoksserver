@@ -66,3 +66,7 @@ class EwoksEventList(BaseModel):
     jobs: List[List[EwoksEvent]] = Field(
         title="Workflow execution jobs grouped per job ID"
     )
+
+
+class EwoksWorkerList(BaseModel):
+    workers: Optional[List[str]] = Field(title="Available workers for execution")

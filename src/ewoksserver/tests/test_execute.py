@@ -140,3 +140,18 @@ def _assert_events(response, events, expected):
         assert event["job_id"] == job_id
         if event["node_id"]:
             assert event["node_id"] in expected
+
+
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_get_workers_with_celery(celery_exec_client, root):
+    rest_client, _ = celery_exec_client
+    response = rest_client.get(f"{root}/execution/workers")
+    assert response.status_code == 200, response.json()
+    assert len(response.json()["workers"]) == 1
+
+
+@pytest.mark.parametrize("root", ROOT_V1_0_0)
+def test_get_workers_without_celery(rest_client, root):
+    response = rest_client.get(f"{root}/execution/workers")
+    assert response.status_code == 200, response.json()
+    assert response.json()["workers"] is None
