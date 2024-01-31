@@ -1,8 +1,8 @@
 import pytest
-from .api_versions import ROOT_V1_0_0
+from .api_versions import ROOT_ALL_VERSIONS
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_single_task(rest_client, root):
     identifier = "myproject.tasks.Dummy"
 
@@ -81,7 +81,7 @@ def test_single_task(rest_client, root):
     assert data == expected
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_tasks(rest_client, default_task_identifiers, root):
     response = rest_client.get(f"{root}/tasks")
     data = response.json()
@@ -134,7 +134,7 @@ def test_multiple_tasks(rest_client, default_task_identifiers, root):
     assert sorted(data["identifiers"]) == sorted(expected)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_discover_tasks(rest_client, default_task_identifiers, root):
     response = rest_client.get(f"{root}/tasks")
     data = response.json()
@@ -178,7 +178,7 @@ def test_discover_tasks(rest_client, default_task_identifiers, root):
     assert data["identifiers"]
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_task_descriptions(rest_client, default_task_identifiers, root):
     response = rest_client.get(f"{root}/tasks/descriptions")
     data = response.json()

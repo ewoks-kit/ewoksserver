@@ -1,26 +1,26 @@
 import pytest
 
-from .api_versions import ROOT_V1_0_0
+from .api_versions import ROOT_ALL_VERSIONS
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_single_icon_png(rest_client, png_icons, root):
     assert_single_icon(rest_client, png_icons, ".png", root)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_single_icon_svg(rest_client, svg_icons, root):
     assert_single_icon(rest_client, svg_icons, ".svg", root)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_icons_png(rest_client, png_icons, default_icon_identifiers, root):
     assert_multiple_icons(
         rest_client, png_icons, ".png", default_icon_identifiers, root
     )
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_icons_svg(rest_client, svg_icons, default_icon_identifiers, root):
     assert_multiple_icons(
         rest_client, svg_icons, ".svg", default_icon_identifiers, root

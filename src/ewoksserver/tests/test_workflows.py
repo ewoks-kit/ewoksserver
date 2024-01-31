@@ -1,8 +1,8 @@
 import pytest
-from .api_versions import ROOT_V1_0_0
+from .api_versions import ROOT_ALL_VERSIONS
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_single_workflow(rest_client, root):
     identifier = "myworkflow"
 
@@ -47,7 +47,7 @@ def test_single_workflow(rest_client, root):
     assert data["message"] == f"Workflow '{identifier}' is not found."
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_workflows(rest_client, default_workflow_identifiers, root):
     response = rest_client.get(f"{root}/workflows")
     data = response.json()
@@ -77,7 +77,7 @@ def test_multiple_workflows(rest_client, default_workflow_identifiers, root):
     assert sorted(data["identifiers"]) == sorted(expected)
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_workflow_descriptions(rest_client, default_workflow_identifiers, root):
     response = rest_client.get(f"{root}/workflows/descriptions")
     data = response.json()
@@ -110,7 +110,7 @@ def test_workflow_descriptions(rest_client, default_workflow_identifiers, root):
     assert data == expected
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_workflow_description_keys(rest_client, default_workflow_identifiers, root):
     desc = {
         "id": "myworkflow1",
@@ -141,7 +141,7 @@ def test_workflow_description_keys(rest_client, default_workflow_identifiers, ro
     assert data == [desc], data
 
 
-@pytest.mark.parametrize("root", ROOT_V1_0_0)
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_workflow_keywords(rest_client, default_workflow_identifiers, root):
     for instrument_name in ("ID00", "ID99"):
         for scan_type in ("ct", "loopscan"):
