@@ -140,7 +140,7 @@ def execute_events(
             if job_id not in jobs:
                 jobs[job_id] = list()
             if "engine" in event_utils.FIELD_TYPES:
-                event["binding"] = event.pop("engine")
+                event["binding"] = event["engine"]
             jobs[job_id].append(event)
     return {"jobs": list(jobs.values())}
 

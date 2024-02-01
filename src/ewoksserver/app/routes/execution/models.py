@@ -19,7 +19,10 @@ class EwoksEvent(BaseModel):
     process_id: int = Field(title="Process ID where the job was executed")
     user_name: str = Field(title="User name under which the job was executed")
     job_id: str = Field(title="Workflow execution job identifier")
-    binding: Optional[str] = Field(title="Workflow execution engine", default=None)
+    binding: Optional[str] = Field(
+        title="DEPRECATED: Workflow execution engine", default=None
+    )
+    engine: Optional[str] = Field(title="Workflow execution engine", default=None)
     context: str = Field(title="Event context (job, workflow, node)")
     workflow_id: Optional[str] = Field(title="Workflow identifier", default=None)
     node_id: Optional[str] = Field(title="Workflow node identifier", default=None)
