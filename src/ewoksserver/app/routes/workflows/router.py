@@ -187,7 +187,9 @@ def update_workflow(
             },
             status_code=status.HTTP_404_NOT_FOUND,
         )
-
+    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(workflow.model_dump(exclude_none=True))
+    print(ewoks_workflow)
+    print("NOT-EWOKS", workflow_props)
     try:
         json_backend.save_resource(
             settings.resource_directory / "workflows",
@@ -258,7 +260,6 @@ def create_workflow(
             },
             status_code=status.HTTP_409_CONFLICT,
         )
-
     try:
         json_backend.save_resource(
             settings.resource_directory / "workflows",
