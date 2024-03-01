@@ -48,9 +48,17 @@ def get_workflow(
     settings: EwoksSettingsType,
 ) -> json_backend.ResourceContentType:
     try:
-        return json_backend.load_resource(
+        ewoks_workflow = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
         )
+        try:
+            workflow_props = json_backend.load_resource(
+                settings.resource_directory / "workflows" / "notewoksprops", identifier
+            )
+
+            return descriptions.merge_workflow_props(ewoks_workflow, workflow_props)
+        except FileNotFoundError:
+            return ewoks_workflow
     except PermissionError:
         return JSONResponse(
             {
@@ -187,14 +195,19 @@ def update_workflow(
             },
             status_code=status.HTTP_404_NOT_FOUND,
         )
-    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(workflow.model_dump(exclude_none=True))
-    print(ewoks_workflow)
-    print("NOT-EWOKS", workflow_props)
+    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(
+        workflow.model_dump(exclude_none=True)
+    )
     try:
         json_backend.save_resource(
             settings.resource_directory / "workflows",
             identifier,
-            workflow.model_dump(exclude_none=True),
+            ewoks_workflow,
+        )
+        json_backend.save_resource(
+            settings.resource_directory / "workflows/notewoksprops",
+            identifier,
+            workflow_props,
         )
     except PermissionError:
         return JSONResponse(
