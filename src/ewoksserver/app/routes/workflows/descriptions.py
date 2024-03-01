@@ -1,7 +1,7 @@
+from pathlib import Path
 from typing import Dict, Optional, Iterator
 
 from ...backends import json_backend
-import json
 
 _WORKFLOW_KEYWORDS = (
     "id",
@@ -12,12 +12,50 @@ _WORKFLOW_KEYWORDS = (
     "ui_schema",
 )
 
+_ALLOWED_IN_GRAPH = ("id", "label", "schema_version", "input_nodes", "output_nodes")
+_ALLOWED_IN_NODES = (
+    "id",
+    "label",
+    "task_type",
+    "task_identifier",
+    "inputs_complete",
+    "task_generator",
+    "default_inputs",
+    "default_error_node",
+    "conditions_else_value",
+    "default_error_attributes",
+)
+_ALLOWED_IN_LINKS = (
+    "source",
+    "sub_source",
+    "target",
+    "sub_target",
+    "sub_target_attributes",
+    "data_mapping",
+    "on_error",
+    "map_all_data",
+    "conditions",
+    "required",
+)
+
 
 def workflow_descriptions(
     root: json_backend.ResourceUrlType, keywords: Optional[Dict] = None
 ) -> Iterator[Dict]:
+    root_path = Path(root)
+
     for res in json_backend.resources(root):
-        description = res["graph"]
+        if res["graph"].get("id", None):
+            exists = json_backend.resource_exists(
+                root_path / "notewoksprops", res["graph"].get("id", None)
+            )
+            description = res["graph"]
+            if exists:
+                workflow_props = json_backend.load_resource(
+                    root_path / "notewoksprops", res["graph"].get("id")
+                )
+                description = merge_workflow_props(res, workflow_props)["graph"]
+
         if not _include_resource(description.get("keywords", dict()), keywords):
             continue
         yield {
@@ -34,31 +72,35 @@ def _include_resource(res_keywords: dict, keywords: Optional[Dict] = None) -> bo
 
 
 def split_ewoks_properties(workflow):
-    allowed_in_graph = ["id"]
-    allowed_in_nodes = ["id", "label", "task_type", "task_identifier", "inputs_complete", "task_generator", "default_inputs", "default_error_node"]
-    allowed_in_links = ["source", "target", "data_mapping", "on_error", "map_all_data"]
-
     ewoks_props = {"graph": {}, "nodes": [], "links": []}
     notEwoks_props = {}
 
     for key, value in workflow.items():
         if key == "graph":
-            ewoks_props["graph"] = {k: v for k, v in value.items() if k in allowed_in_graph}
-            notEwoks_props["graph"] = {k: v for k, v in value.items() if k not in allowed_in_graph}
+            ewoks_props["graph"] = {
+                k: v for k, v in value.items() if k in _ALLOWED_IN_GRAPH
+            }
+            notEwoks_props["graph"] = {
+                k: v for k, v in value.items() if k not in _ALLOWED_IN_GRAPH
+            }
         elif key == "nodes":
             for node in value:
-                ewoks_node = {k: v for k, v in node.items() if k in allowed_in_nodes}
-                properties_node = {k: v for k, v in node.items() if k not in allowed_in_nodes}
-                # Add 'id' to notEwoks_props of nodes for mapping purposes
+                ewoks_node = {k: v for k, v in node.items() if k in _ALLOWED_IN_NODES}
+                properties_node = {
+                    k: v for k, v in node.items() if k not in _ALLOWED_IN_NODES
+                }
+                # Add 'id' to notEwoks_props of nodes to merge them on get
                 properties_node["id"] = node.get("id")
                 ewoks_props["nodes"].append(ewoks_node)
                 if properties_node:
                     notEwoks_props.setdefault("nodes", []).append(properties_node)
         elif key == "links":
             for link in value:
-                ewoks_link = {k: v for k, v in link.items() if k in allowed_in_links}
-                properties_link = {k: v for k, v in link.items() if k not in allowed_in_links}
-                # Add 'source' and 'target' to notEwoks_props of links for mapping purposes
+                ewoks_link = {k: v for k, v in link.items() if k in _ALLOWED_IN_LINKS}
+                properties_link = {
+                    k: v for k, v in link.items() if k not in _ALLOWED_IN_LINKS
+                }
+                # Add 'source' and 'target' to notEwoks_props of links to merge them on get
                 properties_link["source"] = link.get("source")
                 properties_link["target"] = link.get("target")
                 ewoks_props["links"].append(ewoks_link)
@@ -69,3 +111,30 @@ def split_ewoks_properties(workflow):
 
     return ewoks_props, notEwoks_props
 
+
+def merge_workflow_props(ewoks_workflow, not_ewoks_props):
+    graph = {**ewoks_workflow["graph"], **not_ewoks_props["graph"]}
+
+    nodes_props_dict = {node["id"]: node for node in not_ewoks_props["nodes"]}
+
+    nodes = []
+    for ewoks_node in ewoks_workflow["nodes"]:
+        node_id = ewoks_node["id"]
+        merged_node = ewoks_node.copy()
+        if node_id in nodes_props_dict:
+            merged_node.update(nodes_props_dict[node_id])
+        nodes.append(merged_node)
+
+    links_props_dict = {
+        link["source"] + "-" + link["target"]: link for link in not_ewoks_props["links"]
+    }
+
+    links = []
+    for ewoks_link in ewoks_workflow["links"]:
+        link_id = ewoks_link["source"] + "-" + ewoks_link["target"]
+        merged_link = ewoks_link.copy()
+        if link_id in links_props_dict:
+            merged_link.update(links_props_dict[link_id])
+        links.append(merged_link)
+
+    return {"graph": graph, "nodes": nodes, "links": links}
