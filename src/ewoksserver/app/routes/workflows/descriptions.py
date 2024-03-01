@@ -115,26 +115,35 @@ def split_ewoks_properties(workflow):
 def merge_workflow_props(ewoks_workflow, not_ewoks_props):
     graph = {**ewoks_workflow["graph"], **not_ewoks_props["graph"]}
 
-    nodes_props_dict = {node["id"]: node for node in not_ewoks_props["nodes"]}
+    nodes_props_dict = {node["id"]: node for node in not_ewoks_props.get("nodes", [])}
 
     nodes = []
-    for ewoks_node in ewoks_workflow["nodes"]:
-        node_id = ewoks_node["id"]
+    for ewoks_node in ewoks_workflow.get("nodes", []):
+        node_id = ewoks_node.get("id", "")
         merged_node = ewoks_node.copy()
         if node_id in nodes_props_dict:
             merged_node.update(nodes_props_dict[node_id])
         nodes.append(merged_node)
 
     links_props_dict = {
-        link["source"] + "-" + link["target"]: link for link in not_ewoks_props["links"]
+        link["source"] + "-" + link["target"]: link
+        for link in not_ewoks_props.get("links", [])
     }
 
     links = []
-    for ewoks_link in ewoks_workflow["links"]:
-        link_id = ewoks_link["source"] + "-" + ewoks_link["target"]
+    for ewoks_link in ewoks_workflow.get("links", []):
+        link_id = ewoks_link.get("source", "") + "-" + ewoks_link.get("target", "")
         merged_link = ewoks_link.copy()
         if link_id in links_props_dict:
             merged_link.update(links_props_dict[link_id])
         links.append(merged_link)
 
-    return {"graph": graph, "nodes": nodes, "links": links}
+    result = {"graph": graph}
+
+    if nodes:
+        result["nodes"] = nodes
+
+    if links:
+        result["links"] = links
+
+    return result
