@@ -43,26 +43,38 @@ def workflow_descriptions(
     root: json_backend.ResourceUrlType, keywords: Optional[Dict] = None
 ) -> Iterator[Dict]:
     root_path = Path(root)
-
     for res in json_backend.resources(root):
-        if res["graph"].get("id", None):
-            exists = json_backend.resource_exists(
+        if res["graph"].get("id", None): # general validation issue to be abstacted
+            workflow_props = get_not_ewoks_props(
                 root_path / "notewoksprops", res["graph"].get("id", None)
             )
-            description = res["graph"]
-            if exists:
-                workflow_props = json_backend.load_resource(
-                    root_path / "notewoksprops", res["graph"].get("id")
-                )
+            
+            if workflow_props:
                 description = merge_workflow_props(res, workflow_props)["graph"]
+            else:
+                description = res["graph"]
 
-        if not _include_resource(description.get("keywords", dict()), keywords):
-            continue
-        yield {
-            key: value
-            for key, value in description.items()
-            if key in _WORKFLOW_KEYWORDS
-        }
+            if not _include_resource(description.get("keywords", dict()), keywords):
+                continue
+            
+            yield {
+                key: value
+                for key, value in description.items()
+                if key in _WORKFLOW_KEYWORDS
+            }
+
+
+def get_not_ewoks_props( root_path: Path, workflow_id: str):
+    print(root_path, workflow_id)
+    exists = json_backend.resource_exists(
+        root_path / "notewoksprops", workflow_id
+    )
+    if exists:
+        workflow_props = json_backend.load_resource(
+            root_path / "notewoksprops", workflow_id
+        )
+        return workflow_props
+    return None
 
 
 def _include_resource(res_keywords: dict, keywords: Optional[Dict] = None) -> bool:

@@ -51,13 +51,12 @@ def get_workflow(
         ewoks_workflow = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
         )
-        try:
-            workflow_props = json_backend.load_resource(
-                settings.resource_directory / "workflows" / "notewoksprops", identifier
-            )
-
+        workflow_props = descriptions.get_not_ewoks_props(
+            settings.resource_directory / "workflows", identifier
+        )
+        if workflow_props:
             return descriptions.merge_workflow_props(ewoks_workflow, workflow_props)
-        except FileNotFoundError:
+        else:
             return ewoks_workflow
     except PermissionError:
         return JSONResponse(
@@ -320,6 +319,13 @@ def delete_workflow(
     settings: EwoksSettingsType,
 ) -> Dict[str, str]:
     try:
+        workflow_props = descriptions.get_not_ewoks_props(
+            settings.resource_directory / "workflows", identifier
+        )
+        if workflow_props:
+            json_backend.delete_resource(
+                settings.resource_directory / "workflows" / "notewoksprops", identifier
+            )
         json_backend.delete_resource(
             settings.resource_directory / "workflows", identifier
         )
