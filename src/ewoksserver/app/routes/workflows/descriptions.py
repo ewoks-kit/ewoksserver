@@ -44,11 +44,10 @@ def workflow_descriptions(
 ) -> Iterator[Dict]:
     root_path = Path(root)
     for res in json_backend.resources(root):
-        if res["graph"].get("id", None): # general validation issue to be abstacted
+        if res["graph"].get("id", None):  # general validation issue to be abstacted
             workflow_props = get_not_ewoks_props(
-                root_path / "notewoksprops", res["graph"].get("id", None)
+                root_path, res["graph"].get("id", None)
             )
-            
             if workflow_props:
                 description = merge_workflow_props(res, workflow_props)["graph"]
             else:
@@ -56,7 +55,7 @@ def workflow_descriptions(
 
             if not _include_resource(description.get("keywords", dict()), keywords):
                 continue
-            
+
             yield {
                 key: value
                 for key, value in description.items()
@@ -64,11 +63,8 @@ def workflow_descriptions(
             }
 
 
-def get_not_ewoks_props( root_path: Path, workflow_id: str):
-    print(root_path, workflow_id)
-    exists = json_backend.resource_exists(
-        root_path / "notewoksprops", workflow_id
-    )
+def get_not_ewoks_props(root_path: Path, workflow_id: str):
+    exists = json_backend.resource_exists(root_path / "notewoksprops", workflow_id)
     if exists:
         workflow_props = json_backend.load_resource(
             root_path / "notewoksprops", workflow_id
@@ -85,14 +81,14 @@ def _include_resource(res_keywords: dict, keywords: Optional[Dict] = None) -> bo
 
 def split_ewoks_properties(workflow):
     ewoks_props = {"graph": {}, "nodes": [], "links": []}
-    notEwoks_props = {}
+    not_ewoks_props = {}
 
     for key, value in workflow.items():
         if key == "graph":
             ewoks_props["graph"] = {
                 k: v for k, v in value.items() if k in _ALLOWED_IN_GRAPH
             }
-            notEwoks_props["graph"] = {
+            not_ewoks_props["graph"] = {
                 k: v for k, v in value.items() if k not in _ALLOWED_IN_GRAPH
             }
         elif key == "nodes":
@@ -101,27 +97,23 @@ def split_ewoks_properties(workflow):
                 properties_node = {
                     k: v for k, v in node.items() if k not in _ALLOWED_IN_NODES
                 }
-                # Add 'id' to notEwoks_props of nodes to merge them on get
+                # Add 'id' to not_ewoks_props of nodes to merge them on get
                 properties_node["id"] = node.get("id")
                 ewoks_props["nodes"].append(ewoks_node)
-                if properties_node:
-                    notEwoks_props.setdefault("nodes", []).append(properties_node)
+                not_ewoks_props.setdefault("nodes", []).append(properties_node)
         elif key == "links":
             for link in value:
                 ewoks_link = {k: v for k, v in link.items() if k in _ALLOWED_IN_LINKS}
                 properties_link = {
                     k: v for k, v in link.items() if k not in _ALLOWED_IN_LINKS
                 }
-                # Add 'source' and 'target' to notEwoks_props of links to merge them on get
+                # Add 'source' and 'target' to not_ewoks_props of links to merge them on get
                 properties_link["source"] = link.get("source")
                 properties_link["target"] = link.get("target")
                 ewoks_props["links"].append(ewoks_link)
-                if properties_link:
-                    notEwoks_props.setdefault("links", []).append(properties_link)
-        else:
-            notEwoks_props[key] = value
+                not_ewoks_props.setdefault("links", []).append(properties_link)
 
-    return ewoks_props, notEwoks_props
+    return ewoks_props, not_ewoks_props
 
 
 def merge_workflow_props(ewoks_workflow, not_ewoks_props):
@@ -151,11 +143,6 @@ def merge_workflow_props(ewoks_workflow, not_ewoks_props):
         links.append(merged_link)
 
     result = {"graph": graph}
-
-    if nodes:
-        result["nodes"] = nodes
-
-    if links:
-        result["links"] = links
-
+    result["nodes"] = nodes
+    result["links"] = links
     return result
