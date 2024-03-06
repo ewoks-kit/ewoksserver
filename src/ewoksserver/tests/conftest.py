@@ -30,9 +30,9 @@ def rest_client(tmpdir):
             configured=True, resource_directory=str(tmpdir)
         )
 
-    app.dependency_overrides[
-        serverconfig.get_ewoks_settings
-    ] = get_ewoks_settings_for_tests
+    app.dependency_overrides[serverconfig.get_ewoks_settings] = (
+        get_ewoks_settings_for_tests
+    )
 
     with TestClient(app) as client:
         yield client

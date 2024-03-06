@@ -79,6 +79,18 @@ def _include_resource(res_keywords: dict, keywords: Optional[Dict] = None) -> bo
     return all(res_keywords.get(key) == value for key, value in keywords.items())
 
 
+def _split_in_out_nodes(ewoks_nodes):
+    new_ewoks_nodes = []
+    not_ewoks_nodes = []
+    for node in ewoks_nodes:
+        ewoks_node = {k: v for k, v in node.items() if k not in ["uiProps"]}
+        not_ewoks_node = {k: v for k, v in node.items() if k in ["uiProps"]}
+        not_ewoks_node["id"] = node["id"]
+        new_ewoks_nodes.append(ewoks_node)
+        not_ewoks_nodes.append(not_ewoks_node)
+    return new_ewoks_nodes, not_ewoks_nodes
+
+
 def split_ewoks_properties(workflow):
     ewoks_props = {"graph": {}, "nodes": [], "links": []}
     not_ewoks_props = {}
@@ -91,6 +103,21 @@ def split_ewoks_properties(workflow):
             not_ewoks_props["graph"] = {
                 k: v for k, v in value.items() if k not in _ALLOWED_IN_GRAPH
             }
+            # Handle input_nodes
+            in_nodes = ewoks_props["graph"].get("input_nodes", [])
+            if in_nodes:
+                new_ewoks_in_nodes, not_ewoks_out_nodes = _split_in_out_nodes(in_nodes)
+                ewoks_props["graph"]["input_nodes"] = new_ewoks_in_nodes
+                not_ewoks_props["graph"]["input_nodes"] = not_ewoks_out_nodes
+            # Handle output_nodes
+            out_nodes = ewoks_props["graph"].get("output_nodes", [])
+            if out_nodes:
+                new_ewoks_out_nodes, not_ewoks_out_nodes = _split_in_out_nodes(
+                    out_nodes
+                )
+                ewoks_props["graph"]["output_nodes"] = new_ewoks_out_nodes
+                not_ewoks_props["graph"]["output_nodes"] = not_ewoks_out_nodes
+
         elif key == "nodes":
             for node in value:
                 ewoks_node = {k: v for k, v in node.items() if k in _ALLOWED_IN_NODES}
@@ -116,11 +143,36 @@ def split_ewoks_properties(workflow):
     return ewoks_props, not_ewoks_props
 
 
+def _merge_in_out_nodes(ewoks_nodes, not_ewoks_nodes):
+    nodes_dict = {node["id"]: node for node in not_ewoks_nodes}
+    nodes = []
+    for node in ewoks_nodes:
+        node_id = node.get("id", "")
+        merged_node = node.copy()
+        if node_id in nodes_dict:
+            merged_node.update(nodes_dict[node_id])
+        nodes.append(merged_node)
+
+    return nodes
+
+
 def merge_workflow_props(ewoks_workflow, not_ewoks_props):
-    graph = {**ewoks_workflow["graph"], **not_ewoks_props["graph"]}
-
+    # merge the input-nodes if there are any.
+    input_nodes = ewoks_workflow["graph"].get("input_nodes", [])
+    not_ewoks_input_nodes = not_ewoks_props["graph"].get("input_nodes", [])
+    if input_nodes and not_ewoks_input_nodes:
+        in_nodes = _merge_in_out_nodes(input_nodes, not_ewoks_input_nodes)
+        ewoks_workflow["graph"]["input_nodes"] = in_nodes
+    # merge the output-nodes if there are any.
+    output_nodes = ewoks_workflow["graph"].get("output_nodes", [])
+    not_ewoks_output_nodes = not_ewoks_props["graph"].get("output_nodes", [])
+    if output_nodes and not_ewoks_output_nodes:
+        out_nodes = _merge_in_out_nodes(output_nodes, not_ewoks_output_nodes)
+        ewoks_workflow["graph"]["output_nodes"] = out_nodes
+    # merge graph
+    graph = {**not_ewoks_props["graph"], **ewoks_workflow["graph"]}
+    # merge nodes
     nodes_props_dict = {node["id"]: node for node in not_ewoks_props.get("nodes", [])}
-
     nodes = []
     for ewoks_node in ewoks_workflow.get("nodes", []):
         node_id = ewoks_node.get("id", "")
