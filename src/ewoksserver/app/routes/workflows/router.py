@@ -272,11 +272,19 @@ def create_workflow(
             },
             status_code=status.HTTP_409_CONFLICT,
         )
+    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(
+        workflow.model_dump(exclude_none=True)
+    )
     try:
         json_backend.save_resource(
             settings.resource_directory / "workflows",
             ridentifier,
-            workflow.model_dump(exclude_none=True),
+            ewoks_workflow,
+        )
+        json_backend.save_resource(
+            settings.resource_directory / "workflows/notewoksprops",
+            ridentifier,
+            workflow_props,
         )
     except PermissionError:
         return JSONResponse(
