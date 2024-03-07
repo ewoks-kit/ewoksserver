@@ -1,6 +1,9 @@
 import pytest
+import json
 from .api_versions import ROOT_ALL_VERSIONS
-from tests.data.workflow_with_non_ewoks_props import workflow_with_non_ewoks_props
+
+
+
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
