@@ -51,7 +51,7 @@ def get_workflow(
         ewoks_workflow = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
         )
-        workflow_props = descriptions.get_not_ewoks_props(
+        workflow_props = descriptions.get_non_ewoks_props(
             settings.resource_directory / "workflows", identifier
         )
         if workflow_props:
@@ -194,7 +194,7 @@ def update_workflow(
             },
             status_code=status.HTTP_404_NOT_FOUND,
         )
-    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(
+    ewoks_workflow, non_ewoks_workflow_props = descriptions.split_ewoks_properties(
         workflow.model_dump(exclude_none=True)
     )
     try:
@@ -204,9 +204,9 @@ def update_workflow(
             ewoks_workflow,
         )
         json_backend.save_resource(
-            settings.resource_directory / "workflows/notewoksprops",
+            settings.resource_directory / "workflows" / "nonewoksprops",
             identifier,
-            workflow_props,
+            non_ewoks_workflow_props,
         )
     except PermissionError:
         return JSONResponse(
@@ -272,7 +272,7 @@ def create_workflow(
             },
             status_code=status.HTTP_409_CONFLICT,
         )
-    ewoks_workflow, workflow_props = descriptions.split_ewoks_properties(
+    ewoks_workflow, non_ewoks_workflow_props = descriptions.split_ewoks_properties(
         workflow.model_dump(exclude_none=True)
     )
     try:
@@ -282,9 +282,9 @@ def create_workflow(
             ewoks_workflow,
         )
         json_backend.save_resource(
-            settings.resource_directory / "workflows/notewoksprops",
+            settings.resource_directory / "workflows" / "nonewoksprops",
             ridentifier,
-            workflow_props,
+            non_ewoks_workflow_props,
         )
     except PermissionError:
         return JSONResponse(
@@ -327,12 +327,12 @@ def delete_workflow(
     settings: EwoksSettingsType,
 ) -> Dict[str, str]:
     try:
-        workflow_props = descriptions.get_not_ewoks_props(
+        workflow_props = descriptions.get_non_ewoks_props(
             settings.resource_directory / "workflows", identifier
         )
         if workflow_props:
             json_backend.delete_resource(
-                settings.resource_directory / "workflows" / "notewoksprops", identifier
+                settings.resource_directory / "workflows" / "nonewoksprops", identifier
             )
         json_backend.delete_resource(
             settings.resource_directory / "workflows", identifier
