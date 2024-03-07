@@ -1,5 +1,6 @@
 import pytest
 from .api_versions import ROOT_ALL_VERSIONS
+from tests.data.workflow_with_non_ewoks_props import workflow_with_non_ewoks_props
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
@@ -205,3 +206,8 @@ def test_workflow_keywords(rest_client, default_workflow_identifiers, root):
     )
     data = [res["id"] for res in response.json()["items"]]
     assert data == ["myworkflow_ID00_ct"]
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_non_ewoks_props_workflows(rest_client, default_workflow_identifiers, root):
+    print(workflow_with_non_ewoks_props)
