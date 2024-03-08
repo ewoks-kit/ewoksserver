@@ -106,17 +106,19 @@ def split_ewoks_properties(workflow):
             # Split {graph: input_nodes: [...]}
             input_nodes = ewoks_props["graph"].get("input_nodes", [])
             if input_nodes:
-                ewoks_input_nodes_props, non_ewoks_input_node_props = (
-                    _split_input_output_nodes(input_nodes)
-                )
+                (
+                    ewoks_input_nodes_props,
+                    non_ewoks_input_node_props,
+                ) = _split_input_output_nodes(input_nodes)
                 ewoks_props["graph"]["input_nodes"] = ewoks_input_nodes_props
                 non_ewoks_props["graph"]["input_nodes"] = non_ewoks_input_node_props
             # Split {graph: output_nodes: [...]}
             output_nodes = ewoks_props["graph"].get("output_nodes", [])
             if output_nodes:
-                ewoks_output_nodes_props, non_ewoks_output_node_props = (
-                    _split_input_output_nodes(output_nodes)
-                )
+                (
+                    ewoks_output_nodes_props,
+                    non_ewoks_output_node_props,
+                ) = _split_input_output_nodes(output_nodes)
                 ewoks_props["graph"]["output_nodes"] = ewoks_output_nodes_props
                 non_ewoks_props["graph"]["output_nodes"] = non_ewoks_output_node_props
         elif key == "nodes":
@@ -174,7 +176,7 @@ def merge_workflow_props(ewoks_workflow, not_ewoks_props):
         )
         ewoks_workflow["graph"]["output_nodes"] = output_nodes
 
-    # merge graph props
+    # merge all graph props in graph
     graph = {**not_ewoks_props["graph"], **ewoks_workflow["graph"]}
 
     # merge nodes props
@@ -200,5 +202,7 @@ def merge_workflow_props(ewoks_workflow, not_ewoks_props):
             merged_link.update(links_props_dict[link_id])
         links.append(merged_link)
 
-    result = {"graph": graph, "nodes": nodes, "links": links}
+    result = {"graph": graph, "nodes": nodes}
+    if links:
+        result["links"] = links
     return result

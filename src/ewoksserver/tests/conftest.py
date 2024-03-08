@@ -15,7 +15,7 @@ from ..app import config as serverconfig
 from ..app.backends.binary_backend import _load_url
 from ..resources import DEFAULT_ROOT
 
-from .data import resource_filenames
+from .data.icons import icon_filenames
 from .socketio_test import SocketIOTestClient
 
 
@@ -30,9 +30,9 @@ def rest_client(tmpdir):
             configured=True, resource_directory=str(tmpdir)
         )
 
-    app.dependency_overrides[serverconfig.get_ewoks_settings] = (
-        get_ewoks_settings_for_tests
-    )
+    app.dependency_overrides[
+        serverconfig.get_ewoks_settings
+    ] = get_ewoks_settings_for_tests
 
     with TestClient(app) as client:
         yield client
@@ -91,13 +91,13 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
 
 @pytest.fixture
 def png_icons():
-    filenames = resource_filenames()
+    filenames = icon_filenames()
     return [_load_url(filename) for filename in filenames if filename.endswith(".png")]
 
 
 @pytest.fixture
 def svg_icons():
-    filenames = resource_filenames()
+    filenames = icon_filenames()
     return [_load_url(filename) for filename in filenames if filename.endswith(".svg")]
 
 

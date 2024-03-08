@@ -1,6 +1,6 @@
 {
     "graph":{
-       "id":"id22",
+       "id":"workflow_with_non_ewoks_props",
        "label":"convert",
        "category":"demo",
        "uiProps":{
