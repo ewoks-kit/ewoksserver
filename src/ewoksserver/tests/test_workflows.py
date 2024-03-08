@@ -211,7 +211,6 @@ def test_workflow_keywords(rest_client, default_workflow_identifiers, root):
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_non_ewoks_props_workflows(rest_client, root):
     workflow = get_workflow("workflow_with_non_ewoks_props.json")
-    print("test for workflows", workflow)
     response = rest_client.post(f"{root}/workflows", json=workflow)
     data = response.json()
     assert response.status_code == 200, data

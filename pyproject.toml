@@ -6,4 +6,6 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:SelectableGroups dict interface is deprecated. Use select.:DeprecationWarning"]
+addopts = [
+    "-W ignore:SelectableGroups dict interface is deprecated. Use select.:DeprecationWarning"
+]

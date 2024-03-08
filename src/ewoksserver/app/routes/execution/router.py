@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from ewoksutils import event_utils
 from ewoksjob.client import get_workers, submit
 from ewoksjob.client.local import submit as submit_local
+from ewoksserver.app.routes.workflows.router import get_workflow
 
 from ...backends import json_backend
 from ...config import EwoksSettingsType
@@ -55,9 +56,7 @@ def execute_workflow(
     ] = None,
 ) -> Dict[str, Union[int, str]]:
     try:
-        graph = json_backend.load_resource(
-            settings.resource_directory / "workflows", identifier
-        )
+        graph = get_workflow(identifier=identifier, settings=settings)
     except PermissionError:
         return JSONResponse(
             {
