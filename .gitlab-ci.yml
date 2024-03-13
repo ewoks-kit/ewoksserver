@@ -3,14 +3,21 @@ include:
     file: .gitlab-ci-template.yml
 
 variables:
-  WARNING1: "ignore::DeprecationWarning:ansiwrap.core"
-  WARNING2: "ignore::DeprecationWarning:kombu.utils.compat"
+  WARNING1: "ignore::DeprecationWarning:kombu.utils.compat"
+  WARNING2: "ignore::DeprecationWarning:celery.utils.imports"
+  WARNING3: "ignore::DeprecationWarning:httpx._client"
 
 test-3.7:
   extends: .test-3.7
   variables:
     JUPYTER_PLATFORM_DIRS: 1
-    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2}"
+    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2} -W ${WARNING3}"
+
+test-3.9:
+  extends: .test-3.9
+  variables:
+    JUPYTER_PLATFORM_DIRS: 1
+    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2} -W ${WARNING3}"
 
 build_sdist:
   extends: .build_sdist
@@ -19,13 +26,13 @@ test_sdist-3.7:
   extends: .test_sdist-3.7
   variables:
     JUPYTER_PLATFORM_DIRS: 1
-    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2}"
+    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2} -W ${WARNING3}"
 
 test_sdist-3.8-win:
   extends: .test_sdist-3.8-win
   variables:
     JUPYTER_PLATFORM_DIRS: 1
-    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2}"
+    PYTEST_WARNINGS: "-W error -W ${WARNING1} -W ${WARNING2} -W ${WARNING3}"
 
 build_doc:
   extends: .build_doc
