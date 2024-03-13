@@ -20,7 +20,7 @@ def _test_socketio_connection(sclient):
     _assert_eventloop_is_running(True, sclient)
 
 
-async def _assert_eventloop_is_running(running, sclient, timeout=3):
+def _assert_eventloop_is_running(running, sclient, timeout=3):
     t0 = time.time()
     while True:
         if sclient.is_running() == running:
