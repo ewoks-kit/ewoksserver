@@ -1,25 +1,24 @@
 ewoksserver |version|
 =====================
 
-*ewoksserver* is a Python project that can be used in two ways:
+*ewoksserver* is a **a REST server** to manage and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
 
-- as **a full-stack web application** to create, modify and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows through `ewoksweb <https://ewoksweb.readthedocs.io/>`_ .
-- as **a REST server** to manage and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
+It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_, **a full-stack web application** to create, modify and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
 
-See the relevant section of the documentation below for each usecase.
+> If you are looking for information on `ewoksweb`, please refer to the `ewoksweb <https://ewoksweb.readthedocs.io/>`_ documentation.
 
 *ewoksserver* is developed by the `Software group <http://www.esrf.eu/Instrumentation/software>`_ of the `European Synchrotron <https://www.esrf.eu/>`_.
 
-Use as a full-stack web application
------------------------------------
+Usage
+-----
 
-To use *ewoksserver* to create, modify and execute workflows, first install it with the ``frontend`` (i.e. *ewoksweb*)
+To start the REST server, first install it via `pip`:
 
 .. code:: bash
 
-    pip install ewoksserver[frontend]
+    pip install ewoksserver
 
-Then, start the full-stack app
+The server can then be started via
 
 .. code:: bash
 
@@ -42,29 +41,16 @@ The web app will be available at ``localhost:8000``.
 
         ewoks-server --dir /path/to/ewoksserver/resources
 
+    To have the complete list of arguments, run
 
-Use as a REST server
---------------------
+    .. code::bash
+        
+        ewoks-server --help
 
-To start the REST server, the ``frontend`` requirements are not needed:
+To go further 
+-------------
 
-.. code:: bash
-
-    pip install ewoksserver
-
-The server can then be started the same way
-
-.. code:: bash
-
-    ewoks-server
-
-``--dir`` and ``--port`` command line arguments are available to respectively change the resource directory and the port. To have the complete list of arguments, run
-
-.. code::bash
-    
-    ewoks-server --help
-
-To go further, see the following pages
+See the following pages
 
 .. toctree::
     :maxdepth: 1
@@ -74,3 +60,4 @@ To go further, see the following pages
     restapi
     restapi_versioning
     api
+
