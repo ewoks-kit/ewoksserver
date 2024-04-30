@@ -2,7 +2,7 @@
 
 ## General guidelines
 
-<a href="https://gitlab.esrf.fr/workflow/ewoksadmin/ewoksci/-/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a>
+<a href="https://gitlab.esrf.fr/dau/ci/pyci/-/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a>
 
 ## Starting the server
 
