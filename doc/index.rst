@@ -41,6 +41,12 @@ The web app will be available at ``localhost:8000``.
 
         ewoks-server --dir /path/to/ewoksserver/resources
 
+    In order to use local tasks (i.e. not pip installed) the user can define the execution directory through the ``--dir`` command line argument
+
+    .. code:: bash
+
+        ewoks-server --exec-dir /path/to/execution/directory
+
     To have the complete list of arguments, run
 
     .. code::bash

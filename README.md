@@ -38,6 +38,8 @@ The configuration keys are uppercase variables in a python script:
 # /tmp/config.py
 RESOURCE_DIRECTORY = "/path/to/resource/directory/"
 
+EXECUTE_DIRECTORY = "/path/to/execution/directory/"
+
 EWOKS = {"handlers": ...}
 
 CELERY = {"broker_url":...}
@@ -64,6 +66,8 @@ import os
 _SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 RESOURCE_DIRECTORY = os.path.join(_SCRIPT_DIR, "resources")
+
+EXECUTE_DIRECTORY = os.path.join(_SCRIPT_DIR)
 
 EWOKS = {
     "handlers": [

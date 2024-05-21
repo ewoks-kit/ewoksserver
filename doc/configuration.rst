@@ -4,6 +4,7 @@ Configure ``ewoksserver``
 ``ewoksserver`` can be configured by declaration the following variables in a Python file:
 
 - ``RESOURCE_DIRECTORY`` (string): defines the path to the resource folder where workflows, tasks, icons are stored. Equivalent to the ``--dir/-d`` command line argument.
+- ``EXECUTE_DIRECTORY`` (string): defines the path to the execution folder where local tasks (i.e. not pip installed), exist. Equivalent to the ``--exec-dir/-d`` command line argument.
 - ``EWOKS`` (dict): Configuration of ewoks handlers. See the `Ewoks events`_ section below.
 - ``CELERY`` (dict): Configuration of Celery to allow launching workflows in ewoks workers.
 
@@ -14,6 +15,8 @@ Configure ``ewoksserver``
     # /tmp/config.py
 
     RESOURCE_DIRECTORY = "/path/to/resource/directory/"
+
+    EXECUTE_DIRECTORY = "/path/to/execution/directory/"
 
     EWOKS = {"handlers": ...}
 

@@ -31,6 +31,13 @@ uvicorn_cmd = click.option(
 )(uvicorn_cmd)
 
 uvicorn_cmd = click.option(
+    "--exec-dir",
+    type=str,
+    default=None,
+    help="Root directory for local tasks (i.e. not pip installed)",
+)(uvicorn_cmd)
+
+uvicorn_cmd = click.option(
     "--without-events",
     is_flag=True,
     help="Disable Socket.IO app for event stream",
@@ -58,6 +65,7 @@ uvicorn_cmd = click.option(
 def ewoks_main(
     config: Optional[str] = None,  # ewoks parameter
     dir: Optional[str] = None,  # ewoks parameter
+    exec_dir: Optional[str] = None,  # ewoks parameter
     without_events: bool = False,  # ewoks parameter
     frontend_tests: bool = False,  # ewoks parameter
     rediscover_tasks: bool = False,  # ewoks parameter
@@ -76,6 +84,7 @@ def ewoks_main(
     create_ewoks_settings(
         config=config,
         directory=dir,
+        exec_directory=exec_dir,
         without_events=without_events,
         frontend_tests=frontend_tests,
         rediscover_tasks=rediscover_tasks,

@@ -22,6 +22,9 @@ class EwoksSettings(BaseModel):
     resource_directory: Path = Field(
         default=Path("."), title="Backend file resource directory"
     )
+    execute_directory: Path = Field(
+        default=Path("."), title="Backend execution directory"
+    )
     ewoks: Optional[Dict] = Field(default=None, title="Ewoks configuration")
     celery: Optional[Dict] = Field(default=None, title="Celery configuration")
     without_events: bool = Field(default=False, title="Enable ewoks events")
@@ -42,6 +45,7 @@ _EWOKS_SETTINGS = None
 def create_ewoks_settings(
     config: Optional[str] = None,
     directory: Optional[str] = None,
+    exec_directory: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
     rediscover_tasks: bool = False,
@@ -59,6 +63,7 @@ def create_ewoks_settings(
 
     # Extract settings from configuration file
     resource_directory = None
+    execute_directory = None
     ewoks = None
     celery = None
     if filename:
@@ -67,6 +72,7 @@ def create_ewoks_settings(
         sys.modules["ewoksserverconfig"] = mod
         spec.loader.exec_module(mod)
         resource_directory = getattr(mod, "RESOURCE_DIRECTORY", resource_directory)
+        execute_directory = getattr(mod, "EXECUTE_DIRECTORY", execute_directory)
         ewoks = getattr(mod, "EWOKS", ewoks)
         celery = getattr(mod, "CELERY", celery)
 
@@ -76,11 +82,18 @@ def create_ewoks_settings(
     if not resource_directory:
         resource_directory = "."
 
+    # Overwrite execute directory
+    if exec_directory:
+        execute_directory = exec_directory
+    if not execute_directory:
+        execute_directory = "."
+
     configured = bool(filename) or bool(directory)
 
     _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
         resource_directory=resource_directory,
+        execute_directory=execute_directory,
         ewoks=ewoks,
         celery=celery,
         without_events=without_events,
