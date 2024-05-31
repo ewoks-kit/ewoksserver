@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict
 from typing_extensions import Annotated
 
@@ -6,6 +7,7 @@ from fastapi import Path
 from fastapi import Body
 from fastapi.responses import JSONResponse
 from fastapi import status
+from pydantic import ValidationError
 
 
 from ...backends import json_backend
@@ -13,6 +15,8 @@ from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 from . import discovery
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -83,7 +87,6 @@ def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
         )
     }
 
-
 @router.get(
     "/tasks/descriptions",
     summary="Get all ewoks task descriptions",
@@ -91,9 +94,21 @@ def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
     response_description="Ewoks task descriptions",
     status_code=200,
 )
-def get_tasks(settings: EwoksSettingsType) -> Dict[str, List[str]]:
+def get_tasks(settings: EwoksSettingsType) -> Dict[str, List[models.EwoksTaskDescriptions]]:
+    tasks = list(json_backend.resources(settings.resource_directory / "tasks"))
+    
+    valid_tasks = [task for task in tasks if 'task_type' in task]
+
+    valid_tasks = []
+    for task in tasks:
+        try:
+            valid_task = models.EwoksTaskDescriptions(**task)
+            valid_tasks.append(valid_task)
+        except ValidationError as e:
+            logger.warning(f"Invalid task description: {e}")
+
     return {
-        "items": list(json_backend.resources(settings.resource_directory / "tasks"))
+        "items": valid_tasks
     }
 
 

@@ -27,6 +27,7 @@ def resource_identifiers(root: ResourceUrlType) -> Iterator[ResourceIdentifierTy
 
 def resources(root: ResourceUrlType) -> Iterator[ResourceContentType]:
     for url in _resource_urls(root):
+        print(url)
         yield _load_url(url)
 
 

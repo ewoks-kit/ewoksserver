@@ -203,3 +203,16 @@ def test_task_descriptions(rest_client, default_task_identifiers, root):
     ]
     assert response.status_code == 200
     assert sorted(data1["identifiers"]) == sorted(data2)
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_disformed_task(rest_client, default_task_identifiers, root):
+    identifier = "myproject.tasks.Dummy"
+    task_disformed = {
+        "task_identifier": identifier,
+        "required_input_names": ["a"],
+    }
+    response = rest_client.post(f"{root}/tasks", json=task_disformed)
+    assert response.status_code == 422
+
+
