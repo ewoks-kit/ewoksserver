@@ -214,5 +214,3 @@ def test_disformed_task(rest_client, default_task_identifiers, root):
     }
     response = rest_client.post(f"{root}/tasks", json=task_disformed)
     assert response.status_code == 422
-
-

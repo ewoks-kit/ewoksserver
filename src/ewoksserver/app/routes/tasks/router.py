@@ -87,6 +87,7 @@ def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
         )
     }
 
+
 @router.get(
     "/tasks/descriptions",
     summary="Get all ewoks task descriptions",
@@ -94,22 +95,22 @@ def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
     response_description="Ewoks task descriptions",
     status_code=200,
 )
-def get_tasks(settings: EwoksSettingsType) -> Dict[str, List[models.EwoksTaskDescriptions]]:
+def get_tasks(
+    settings: EwoksSettingsType,
+) -> Dict[str, List[models.EwoksTaskDescriptions]]:
     tasks = list(json_backend.resources(settings.resource_directory / "tasks"))
-    
-    valid_tasks = [task for task in tasks if 'task_type' in task]
+
+    valid_tasks = [task for task in tasks if "task_type" in task]
 
     valid_tasks = []
     for task in tasks:
         try:
-            valid_task = models.EwoksTaskDescriptions(**task)
+            valid_task = models.EwoksTaskDescription(**task)
             valid_tasks.append(valid_task)
         except ValidationError as e:
             logger.warning(f"Invalid task description: {e}")
 
-    return {
-        "items": valid_tasks
-    }
+    return {"items": valid_tasks}
 
 
 @router.put(
