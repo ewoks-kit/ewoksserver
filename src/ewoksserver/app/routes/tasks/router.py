@@ -74,21 +74,6 @@ def get_task(
 
 
 @router.get(
-    "/tasks",
-    summary="Get all ewoks task identifiers",
-    response_model=models.EwoksTaskIdentifiers,
-    response_description="Ewoks task identifiers",
-    status_code=200,
-)
-def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
-    return {
-        "identifiers": list(
-            json_backend.resource_identifiers(settings.resource_directory / "tasks")
-        )
-    }
-
-
-@router.get(
     "/tasks/descriptions",
     summary="Get all ewoks task descriptions",
     response_model=models.EwoksTaskDescriptions,
@@ -97,10 +82,8 @@ def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
 )
 def get_tasks(
     settings: EwoksSettingsType,
-) -> Dict[str, List[models.EwoksTaskDescriptions]]:
+) -> Dict[str, List[models.EwoksTaskDescription]]:
     tasks = list(json_backend.resources(settings.resource_directory / "tasks"))
-
-    valid_tasks = [task for task in tasks if "task_type" in task]
 
     valid_tasks = []
     for task in tasks:
@@ -111,6 +94,19 @@ def get_tasks(
             logger.warning(f"Invalid task description: {e}")
 
     return {"items": valid_tasks}
+
+
+@router.get(
+    "/tasks",
+    summary="Get all ewoks task identifiers",
+    response_model=models.EwoksTaskIdentifiers,
+    response_description="Ewoks task identifiers",
+    status_code=200,
+)
+def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
+    task_descriptions = get_tasks(settings)
+    identifiers = [task.task_identifier for task in task_descriptions["items"]]
+    return {"identifiers": identifiers}
 
 
 @router.put(
