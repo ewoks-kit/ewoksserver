@@ -207,46 +207,39 @@ def test_task_descriptions(rest_client, default_task_identifiers, root):
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_disformed_task(rest_client, root):
-    identifier = "myproject.tasks.Dummy"
-    task_disformed = {
-        "task_identifier": identifier,
-        "required_input_names": ["a"],
-    }
-    response = rest_client.post(f"{root}/tasks", json=task_disformed)
-    assert response.status_code == 422
-
-
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_malformed_task(rest_client, root, tmpdir):
-    disformed_task_id = "myproject.tasks.Disformed"
-    task_disformed = {"task_identifier": disformed_task_id}
+    malformed_task_id = "myproject.tasks.Malformed"
+    task_malformed = {"task_identifier": malformed_task_id}
     normal_task_id = "myproject.tasks.Normal"
     task_normal = {
         "task_identifier": normal_task_id,
         "task_type": "class",
     }
-    response = rest_client.post(f"{root}/tasks", json=task_disformed)
+    response = rest_client.post(f"{root}/tasks", json=task_malformed)
     assert response.status_code == 422
 
+    response = rest_client.get(f"{root}/tasks/descriptions")
+    data = response.json()
+    existing_tasks = len(data["items"])
+
     tasks_dir = tmpdir / "tasks"
-    disformed_task_file = tasks_dir / f"{disformed_task_id}.json"
+    malformed_task_file = tasks_dir / f"{malformed_task_id}.json"
     normal_task_file = tasks_dir / f"{normal_task_id}.json"
 
     with open(normal_task_file, "w") as f:
         json.dump(task_normal, f)
-    with open(disformed_task_file, "w") as f:
-        json.dump(task_disformed, f)
+    with open(malformed_task_file, "w") as f:
+        json.dump(task_malformed, f)
 
-    response = rest_client.get(f"{root}/tasks/{disformed_task_id}")
+    response = rest_client.get(f"{root}/tasks/{malformed_task_id}")
     assert response.status_code == 404
 
     response = rest_client.get(f"{root}/tasks/descriptions")
     data = response.json()
     assert response.status_code == 200
-    assert len(data["items"]) == 3
+    assert len(data["items"]) - existing_tasks == 1
 
     response = rest_client.get(f"{root}/tasks")
     data = response.json()
     assert response.status_code == 200
-    assert len(data["identifiers"]) == 3
+    assert len(data["identifiers"]) - existing_tasks == 1
