@@ -1,3 +1,4 @@
+import json
 import pytest
 from .api_versions import ROOT_ALL_VERSIONS
 
@@ -203,3 +204,42 @@ def test_task_descriptions(rest_client, default_task_identifiers, root):
     ]
     assert response.status_code == 200
     assert sorted(data1["identifiers"]) == sorted(data2)
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_malformed_task(rest_client, root, tmpdir):
+    malformed_task_id = "myproject.tasks.Malformed"
+    task_malformed = {"task_identifier": malformed_task_id}
+    normal_task_id = "myproject.tasks.Normal"
+    task_normal = {
+        "task_identifier": normal_task_id,
+        "task_type": "class",
+    }
+    response = rest_client.post(f"{root}/tasks", json=task_malformed)
+    assert response.status_code == 422
+
+    response = rest_client.get(f"{root}/tasks/descriptions")
+    data = response.json()
+    existing_tasks = len(data["items"])
+
+    tasks_dir = tmpdir / "tasks"
+    malformed_task_file = tasks_dir / f"{malformed_task_id}.json"
+    normal_task_file = tasks_dir / f"{normal_task_id}.json"
+
+    with open(normal_task_file, "w") as f:
+        json.dump(task_normal, f)
+    with open(malformed_task_file, "w") as f:
+        json.dump(task_malformed, f)
+
+    response = rest_client.get(f"{root}/tasks/{malformed_task_id}")
+    assert response.status_code == 404
+
+    response = rest_client.get(f"{root}/tasks/descriptions")
+    data = response.json()
+    assert response.status_code == 200
+    assert len(data["items"]) - existing_tasks == 1
+
+    response = rest_client.get(f"{root}/tasks")
+    data = response.json()
+    assert response.status_code == 200
+    assert len(data["identifiers"]) - existing_tasks == 1

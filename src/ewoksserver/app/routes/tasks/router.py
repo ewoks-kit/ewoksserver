@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict
 from typing_extensions import Annotated
 
@@ -6,6 +7,7 @@ from fastapi import Path
 from fastapi import Body
 from fastapi.responses import JSONResponse
 from fastapi import status
+from pydantic import ValidationError
 
 
 from ...backends import json_backend
@@ -13,6 +15,8 @@ from ...config import EwoksSettingsType
 from ..common import models as common_models
 from . import models
 from . import discovery
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -70,6 +74,29 @@ def get_task(
 
 
 @router.get(
+    "/tasks/descriptions",
+    summary="Get all ewoks task descriptions",
+    response_model=models.EwoksTaskDescriptions,
+    response_description="Ewoks task descriptions",
+    status_code=200,
+)
+def get_tasks(
+    settings: EwoksSettingsType,
+) -> Dict[str, List[models.EwoksTaskDescription]]:
+    tasks = list(json_backend.resources(settings.resource_directory / "tasks"))
+
+    valid_tasks = []
+    for task in tasks:
+        try:
+            valid_task = models.EwoksTaskDescription(**task)
+            valid_tasks.append(valid_task)
+        except ValidationError as e:
+            logger.warning(f"Invalid task description: {e}")
+
+    return {"items": valid_tasks}
+
+
+@router.get(
     "/tasks",
     summary="Get all ewoks task identifiers",
     response_model=models.EwoksTaskIdentifiers,
@@ -77,24 +104,9 @@ def get_task(
     status_code=200,
 )
 def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
-    return {
-        "identifiers": list(
-            json_backend.resource_identifiers(settings.resource_directory / "tasks")
-        )
-    }
-
-
-@router.get(
-    "/tasks/descriptions",
-    summary="Get all ewoks task descriptions",
-    response_model=models.EwoksTaskDescriptions,
-    response_description="Ewoks task descriptions",
-    status_code=200,
-)
-def get_tasks(settings: EwoksSettingsType) -> Dict[str, List[str]]:
-    return {
-        "items": list(json_backend.resources(settings.resource_directory / "tasks"))
-    }
+    task_descriptions = get_tasks(settings)
+    identifiers = [task.task_identifier for task in task_descriptions["items"]]
+    return {"identifiers": identifiers}
 
 
 @router.put(
