@@ -78,7 +78,7 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
         return serverconfig.EwoksSettings(
             configured=True,
             resource_directory=str(tmpdir),
-            celery=dict(),
+            celery={"broker_url": ""},
             ewoks={"handlers": ewoks_handlers},
         )
 

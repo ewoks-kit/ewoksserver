@@ -6,6 +6,7 @@ from ewoksjob.client.local import (
     discover_tasks_from_modules as discover_tasks_from_modules_local,
 )
 
+from ..common.utils import has_celery
 from ...config import EwoksSettings
 
 
@@ -28,18 +29,18 @@ def discover_tasks(
     if reload is not None:
         kwargs["kwargs"]["reload"] = reload
 
-    if settings.celery is None:
-        if modules:
-            future = discover_tasks_from_modules_local(**kwargs)
-        else:
-            future = discover_all_tasks_local(**kwargs)
-        tasks = future.result()
-    else:
+    if has_celery(settings):
         if modules:
             future = discover_tasks_from_modules(**kwargs)
         else:
             future = discover_all_tasks(**kwargs)
         tasks = future.get()
+    else:
+        if modules:
+            future = discover_tasks_from_modules_local(**kwargs)
+        else:
+            future = discover_all_tasks_local(**kwargs)
+        tasks = future.result()
 
     for task in tasks:
         _set_default_task_properties(task)

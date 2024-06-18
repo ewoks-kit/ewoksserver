@@ -17,6 +17,7 @@ from ewoksjob.client.local import submit as submit_local
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
+from ..common.utils import has_celery
 from . import models
 from . import events
 
@@ -103,10 +104,10 @@ def execute_workflow(
             if handler not in handlers:
                 handlers.append(handler)
 
-    if settings.celery is None:
-        future = submit_local(**submit_kwargs)
-    else:
+    if has_celery(settings):
         future = submit(**submit_kwargs)
+    else:
+        future = submit_local(**submit_kwargs)
     return {"job_id": future.task_id}
 
 
@@ -154,10 +155,10 @@ def execute_events(
     status_code=200,
 )
 def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
-    if settings.celery is None:
-        return {"workers": None}
+    if has_celery(settings):
+        return {"workers": get_workers()}
 
-    return {"workers": get_workers()}
+    return {"workers": None}
 
 
 v1_1_0_router.include_router(v1_0_0_router)
