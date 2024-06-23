@@ -1,6 +1,18 @@
 # CHANGELOG.md
 
-## 1.2.0 (unreleased)
+## (unreleased)
+
+## 1.2.0
+
+Changes:
+
+- `ewoksweb` is no longer installed with `ewoksserver[frontend]`.
+  Instead `ewoksserver[frontend]` is a dependency of `ewoksweb`.
+
+Bug fixes:
+
+- Support pip 24.1 and avoid pyyaml 6.0.2rc1
+- Ignore malformed tasks in the resource directory
 
 ## 1.1.0
 
