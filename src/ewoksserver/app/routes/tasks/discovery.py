@@ -1,7 +1,7 @@
 from typing import Optional, Dict, List
 from ewoksjob.client import discover_all_tasks
 from ewoksjob.client.local import discover_all_tasks as discover_all_tasks_local
-from ewoksjob.client import discover_tasks_from_modules
+from ewoksjob.client import discover_tasks_from_modules, get_workers
 from ewoksjob.client.local import (
     discover_tasks_from_modules as discover_tasks_from_modules_local,
 )
@@ -35,15 +35,29 @@ def discover_tasks(
             future = discover_all_tasks_local(**kwargs)
         tasks = future.result()
     else:
-        if modules:
-            future = discover_tasks_from_modules(**kwargs)
-        else:
-            future = discover_all_tasks(**kwargs)
-        tasks = future.get()
+        tasks = _discover_tasks_in_all_queues(kwargs)
 
     for task in tasks:
         _set_default_task_properties(task)
     return tasks
+
+
+def _discover_tasks_in_all_queues(kwargs: Dict) -> List[Dict[str, str]]:
+    discover_from_modules = bool(kwargs["args"])
+    discover = (
+        discover_tasks_from_modules if discover_from_modules else discover_all_tasks
+    )
+    futures = [discover(**kwargs, queue=queue) for queue in get_workers()]
+
+    # Store tasks in a dict to avoid duplicates
+    task_dict = {}
+    for future in futures:
+        new_tasks = future.get()
+        if new_tasks is None:
+            continue
+        for task in new_tasks:
+            task_dict[task["task_identifier"]] = task
+    return list(task_dict.values())
 
 
 def _set_default_task_properties(task: dict) -> None:
