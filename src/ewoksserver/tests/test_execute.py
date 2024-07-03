@@ -147,7 +147,7 @@ def test_get_workers_with_celery(celery_exec_client, root):
     rest_client, _ = celery_exec_client
     response = rest_client.get(f"{root}/execution/workers")
     assert response.status_code == 200, response.json()
-    assert len(response.json()["workers"]) == 1
+    assert response.json()["workers"] == ["celery"]
 
 
 @pytest.mark.parametrize("root", ROOT_V1_1_0)
