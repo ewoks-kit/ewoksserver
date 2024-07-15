@@ -5,7 +5,7 @@ from ewoksserver import __version__
 
 project = "ewoksserver"
 version = ".".join(__version__.split(".")[:2])  # MAJOR.MINOR
-copyright = "2021-2023, ESRF"
+copyright = "2021-2024, ESRF"
 author = "ESRF"
 
 extensions = [
