@@ -9,14 +9,17 @@ It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_, **a f
 
 *ewoksserver* is developed by the `Software group <http://www.esrf.eu/Instrumentation/software>`_ of the `European Synchrotron <https://www.esrf.eu/>`_.
 
-Usage
------
+How to install
+--------------
 
 To start the REST server, first install it via `pip`:
 
 .. code:: bash
 
     pip install ewoksserver
+
+How to use
+-----------
 
 The server can then be started via
 
@@ -47,7 +50,7 @@ The web app will be available at ``localhost:8000``.
         
         ewoks-server --help
 
-To go further 
+Documentation 
 -------------
 
 See the following pages
