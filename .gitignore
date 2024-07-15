@@ -16,6 +16,7 @@ __pycache__/
 /dist/
 *.egg-info/
 .eggs/
+html
 
 # workflows, tasks and icons folders
 /workflows
