@@ -115,7 +115,9 @@ def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
     adict = ewoks_settings.celery
     if adict is None:
         lines += ["", "CELERY:", "Not configured (local workflow execution)"]
-    elif not adict: # if the dictionary is empty, configured (distant workflow execution)
+    elif (
+        not adict
+    ):  # if the dictionary is empty, configured (distant workflow execution)
         lines += [
             "",
             "CELERY",
