@@ -5,7 +5,7 @@ from ewoksserver import __version__
 
 project = "ewoksserver"
 version = ".".join(__version__.split(".")[:2])  # MAJOR.MINOR
-copyright = "2021-2023, ESRF"
+copyright = "2021-2024, ESRF"
 author = "ESRF"
 
 extensions = [
@@ -21,11 +21,26 @@ exclude_patterns = []
 
 always_document_param_types = True
 
-html_theme = "sphinx_book_theme"
+html_theme = "pydata_sphinx_theme"
+
 html_theme_options = {
-    "repository_url": "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver",
-    "use_repository_button": True,
+    "icon_links": [
+        {
+            "name": "gitlab",
+            "url": "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver",
+            "icon": "fa-brands fa-gitlab",
+        },
+        {
+            "name": "pypi",
+            "url": "https://pypi.org/project/ewoksserver/",
+            "icon": "fa-brands fa-python",
+        },
+    ],
+    "navbar_start": ["navbar_start"],
+    "footer_start": ["copyright"],
+    "footer_end": ["footer_end"],
 }
+
 html_static_path = []
 
 autosummary_generate = True

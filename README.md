@@ -4,6 +4,14 @@ ewoksserver is a REST server to manage and execute [ewoks](https://ewoks.readthe
 
 It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emits ewoks execution events over Socket.IO.
 
+## Getting started
+
+Install the [ewoksserver](https://ewoksserver.readthedocs.io/en/latest/) Python package
+
+```
+pip install ewoksserver
+```
+
 ## Development
 
 Install from source
