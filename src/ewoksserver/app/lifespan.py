@@ -110,19 +110,12 @@ def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
     resourcedir = ewoks_settings.resource_directory
     if not resourcedir:
         resourcedir = "."
-    lines += ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
+
+    lines = ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
 
     adict = ewoks_settings.celery
     if adict is None:
         lines += ["", "CELERY:", "Not configured (local workflow execution)"]
-    elif (
-        not adict
-    ):  # if the dictionary is empty, configured (distant workflow execution)
-        lines += [
-            "",
-            "CELERY",
-            "Configured! Workflows will be executed remotely using the following config: {}",
-        ]
     else:
         lines += [
             "",
