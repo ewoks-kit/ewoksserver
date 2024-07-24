@@ -107,17 +107,22 @@ def _enable_execution(
 
 def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
     """Print summary of all Ewoks settings"""
-    lines = list()
     resourcedir = ewoks_settings.resource_directory
     if not resourcedir:
         resourcedir = "."
-    lines += ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
+
+    lines = ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
 
     adict = ewoks_settings.celery
     if adict is None:
         lines += ["", "CELERY:", "Not configured (local workflow execution)"]
     else:
-        lines += ["", "CELERY:", pformat(adict)]
+        lines += [
+            "",
+            "CELERY",
+            "Configured! Workflows will be executed remotely using the following config: ",
+            pformat(adict),
+        ]
 
     adict = ewoks_settings.ewoks
     if adict is None:
