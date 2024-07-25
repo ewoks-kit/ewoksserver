@@ -1,4 +1,4 @@
-import json
+from celery.exceptions import TimeoutError
 import pytest
 from .api_versions import ROOT_ALL_VERSIONS
 
@@ -58,7 +58,7 @@ def test_discover_all_tasks(rest_client, default_task_identifiers, root):
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_discover_in_a_non_existing_module(rest_client, default_task_identifiers, root):
+def test_discover_in_a_non_existing_module(rest_client, root):
     response = rest_client.post(
         f"{root}/tasks/discover", json={"modules": ["not_a_module"]}
     )
@@ -70,3 +70,10 @@ def test_discover_in_a_non_existing_module(rest_client, default_task_identifiers
     data = response.json()
     assert response.status_code == 200, data
     assert data["identifiers"]
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_discover_timeout(celery_discover_timeout_client, root):
+    rest_client, _ = celery_discover_timeout_client
+    with pytest.raises(TimeoutError):
+        rest_client.post(f"{root}/tasks/discover")
