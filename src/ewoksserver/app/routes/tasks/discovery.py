@@ -43,7 +43,7 @@ def discover_tasks(
 
 
 def _discover_tasks_in_all_queues(kwargs: Dict) -> List[Dict[str, str]]:
-    discover_from_modules = bool(kwargs["args"])
+    discover_from_modules = "args" in kwargs and bool(kwargs["args"])
     discover = (
         discover_tasks_from_modules if discover_from_modules else discover_all_tasks
     )
