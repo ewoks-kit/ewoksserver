@@ -20,3 +20,5 @@ EWOKS = {
 #    "broker_url": "redis://localhost:25001/2",
 #    "result_backend": "redis://localhost:25001/3",
 # }
+
+DISCOVER_TIMEOUT = 60

@@ -26,6 +26,9 @@ class EwoksSettings(BaseModel):
     celery: Optional[Dict] = Field(default=None, title="Celery configuration")
     without_events: bool = Field(default=False, title="Enable ewoks events")
     discover_tasks: bool = Field(default=False, title="Discover ewoks tasks on startup")
+    discover_timeout: Optional[float] = Field(
+        default=None, title="Timeout for task discovery (in seconds)"
+    )
 
 
 class AppSettings(BaseModel):
@@ -61,6 +64,7 @@ def create_ewoks_settings(
     resource_directory = None
     ewoks = None
     celery = None
+    discover_timeout = None
     if filename:
         spec = importlib.util.spec_from_file_location("ewoksserverconfig", filename)
         mod = importlib.util.module_from_spec(spec)
@@ -69,6 +73,7 @@ def create_ewoks_settings(
         resource_directory = getattr(mod, "RESOURCE_DIRECTORY", resource_directory)
         ewoks = getattr(mod, "EWOKS", ewoks)
         celery = getattr(mod, "CELERY", celery)
+        discover_timeout = getattr(mod, "DISCOVER_TIMEOUT", discover_timeout)
 
     # Overwrite resource directory
     if directory:
@@ -85,6 +90,7 @@ def create_ewoks_settings(
         celery=celery,
         without_events=without_events,
         discover_tasks=rediscover_tasks,
+        discover_timeout=discover_timeout,
     )
     return _EWOKS_SETTINGS
 

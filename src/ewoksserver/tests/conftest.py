@@ -90,6 +90,27 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
 
 
 @pytest.fixture
+def celery_discover_timeout_client(tmpdir, celery_session_worker, ewoks_handlers):
+    """Client to the REST server and Socket.IO (with a very small timeout for discovery)"""
+    app = newserver.create_app()
+
+    def get_settings_override():
+        return serverconfig.EwoksSettings(
+            configured=True,
+            resource_directory=str(tmpdir),
+            celery=dict(),
+            ewoks={"handlers": ewoks_handlers},
+            discover_timeout=0.1,
+        )
+
+    app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override
+
+    with TestClient(app) as client:
+        with SocketIOTestClient() as sclient:
+            yield client, sclient
+
+
+@pytest.fixture
 def png_icons():
     filenames = resource_filenames()
     return [_load_url(filename) for filename in filenames if filename.endswith(".png")]

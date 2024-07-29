@@ -28,21 +28,24 @@ def discover_tasks(
     if reload is not None:
         kwargs["kwargs"]["reload"] = reload
 
+    timeout = settings.discover_timeout
     if settings.celery is None:
         if modules:
             future = discover_tasks_from_modules_local(**kwargs)
         else:
             future = discover_all_tasks_local(**kwargs)
-        tasks = future.result()
+        tasks = future.result(timeout=timeout)
     else:
-        tasks = _discover_tasks_in_all_queues(kwargs)
+        tasks = _discover_tasks_in_all_queues(kwargs, timeout=timeout)
 
     for task in tasks:
         _set_default_task_properties(task)
     return tasks
 
 
-def _discover_tasks_in_all_queues(kwargs: Dict) -> List[Dict[str, str]]:
+def _discover_tasks_in_all_queues(
+    kwargs: Dict, timeout: Optional[float] = None
+) -> List[Dict[str, str]]:
     discover_from_modules = "args" in kwargs and bool(kwargs["args"])
     discover = (
         discover_tasks_from_modules if discover_from_modules else discover_all_tasks
@@ -52,7 +55,7 @@ def _discover_tasks_in_all_queues(kwargs: Dict) -> List[Dict[str, str]]:
     # Store tasks in a dict to avoid duplicates
     task_dict = {}
     for future in futures:
-        new_tasks = future.get()
+        new_tasks = future.get(timeout=timeout)
         if new_tasks is None:
             continue
         for task in new_tasks:
