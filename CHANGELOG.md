@@ -2,6 +2,18 @@
 
 ## (unreleased)
 
+## 1.3.0
+
+Changes:
+
+- Task discovery is now done in all available queues if `CELERY` is set-up. It was only done in the default queue `celery` before.
+- New setting `DISCOVER_TIMEOUT` in the server config: it allows to set a timeout for task discovery operations (default: `None` i.e. no timeout).
+- Improve Celery config print on start-up
+
+Bug fixes:
+
+- Fix task discovery if no module is supplied
+
 ## 1.2.0
 
 Changes:
