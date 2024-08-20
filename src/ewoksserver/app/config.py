@@ -1,40 +1,18 @@
 import os
 import sys
 import importlib.util
-from pathlib import Path
-from typing import Optional, Dict
 from typing_extensions import Annotated
+from typing import Optional
 
-from pydantic import Field
-from pydantic import BaseModel
 from fastapi import Depends
+
+
+from .models import AppSettings, EwoksSettings
 
 try:
     from ewoksweb.serverutils import get_test_config
 except ImportError:
     get_test_config = None
-
-
-class EwoksSettings(BaseModel):
-    configured: bool = Field(
-        default=False, title="Config or resource directory have been defined"
-    )
-    resource_directory: Path = Field(
-        default=Path("."), title="Backend file resource directory"
-    )
-    ewoks: Optional[Dict] = Field(default=None, title="Ewoks configuration")
-    celery: Optional[Dict] = Field(default=None, title="Celery configuration")
-    without_events: bool = Field(default=False, title="Enable ewoks events")
-    discover_tasks: bool = Field(default=False, title="Discover ewoks tasks on startup")
-    discover_timeout: Optional[float] = Field(
-        default=None, title="Timeout for task discovery (in seconds)"
-    )
-
-
-class AppSettings(BaseModel):
-    no_older_versions: bool = (
-        Field(default=False, title="Do not create end points for older API versions"),
-    )
 
 
 _APP_SETTINGS = None
