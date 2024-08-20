@@ -23,9 +23,9 @@ def reader_context(
 
 
 def _reader(ewoks_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
-    cfg = ewoks_settings.ewoks
+    cfg = ewoks_settings.ewoks_execution
     if cfg:
-        handlers = cfg.get("handlers", list())
+        handlers = cfg.handlers
     else:
         handlers = list()
     argmap = {"uri": "url"}
