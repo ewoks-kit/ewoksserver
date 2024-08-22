@@ -1,9 +1,8 @@
 from pathlib import Path
 from typing import Dict, List, Optional
-import warnings
 import logging
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator
 from pydantic import BaseModel
 
 
@@ -30,60 +29,20 @@ class EwoksSettings(BaseModel):
     )
     celery: Optional[Dict] = Field(default=None, title="Celery configuration")
     without_events: bool = Field(default=False, title="Enable ewoks events")
-    ewoks_discovery: Optional[EwoksDiscoverySettings] = Field(
-        default=None, title="Ewoks discovery settings"
+    ewoks_discovery: EwoksDiscoverySettings = Field(
+        default=None, title="Ewoks discovery settings", validate_default=True
     )
-    ewoks_execution: Optional[EwoksExecutionSettings] = Field(
-        default=None, title="Ewoks execution settings"
-    )
-    # DEPRECATED
-    ewoks: Optional[Dict] = Field(default=None, title="Ewoks configuration")
-    discover_timeout: Optional[float] = Field(
-        default=None, title="Timeout for task discovery (in seconds)"
+    ewoks_execution: EwoksExecutionSettings = Field(
+        default=None, title="Ewoks execution settings", validate_default=True
     )
 
-    @model_validator(mode="after")
-    def resolve_ewoks_execution_settings(self):
-        ewoks_execution = self.ewoks_execution
-        ewoks = self.ewoks
+    @field_validator("ewoks_discovery", "ewoks_execution", mode="before")
+    @classmethod
+    def set_default_value(cls, input_value):
+        if input_value is None:
+            return dict()
 
-        if ewoks is None:
-            return self
-
-        if ewoks_execution is None:
-            warnings.warn(
-                "EWOKS configuration field has been renamed EWOKS_EXECUTION",
-                DeprecationWarning,
-            )
-            self.ewoks_execution = EwoksExecutionSettings(**ewoks)
-        else:
-            logger.warning(
-                "Both EWOKS_EXECUTION and EWOKS fields were specified but EWOKS field is deprecated. EWOKS field will be ignored."
-            )
-
-        return self
-
-    @model_validator(mode="after")
-    def resolve_ewoks_discovery_timeout(self):
-        ewoks_discovery = self.ewoks_discovery
-        discover_timeout = self.discover_timeout
-
-        if discover_timeout is None:
-            return self
-
-        if ewoks_discovery is not None:
-            logger.warning(
-                "Both EWOKS_DISCOVERY and DISCOVER_TIMEOUT fields were specified but DISCOVER_TIMEOUT field is deprecated. DISCOVER_TIMEOUT field will be ignored."
-            )
-            return self
-
-        warnings.warn(
-            "DISCOVER_TIMEOUT is deprecated. The timeout should be specified via the `timeout` field of EWOKS_DISCOVERY",
-            DeprecationWarning,
-        )
-        self.ewoks_discovery = EwoksDiscoverySettings(timeout=discover_timeout)
-
-        return self
+        return input_value
 
 
 class AppSettings(BaseModel):

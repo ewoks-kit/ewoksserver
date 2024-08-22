@@ -23,11 +23,7 @@ def reader_context(
 
 
 def _reader(ewoks_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
-    cfg = ewoks_settings.ewoks_execution
-    if cfg:
-        handlers = cfg.handlers
-    else:
-        handlers = list()
+    handlers = ewoks_settings.ewoks_execution.handlers
     argmap = {"uri": "url"}
     for name in ("Redis", "Sqlite3", None):
         for handler in handlers:

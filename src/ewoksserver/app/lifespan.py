@@ -13,7 +13,6 @@ from celery import current_app as current_celery_app
 from .backends import json_backend
 from .. import resources
 from . import config
-from .models import EwoksExecutionSettings
 from .routes.execution import socketio
 from .routes.tasks.discovery import discover_tasks
 
@@ -65,10 +64,7 @@ def _copy_default_resources(ewoks_settings: config.EwoksSettings) -> None:
 
 
 def _rediscover_tasks(ewoks_settings: config.EwoksSettings) -> None:
-    discover_on_start_up = (
-        ewoks_settings.ewoks_discovery and ewoks_settings.ewoks_discovery.on_start_up
-    )
-    if not discover_on_start_up:
+    if not ewoks_settings.ewoks_discovery.on_start_up:
         return
     tasks = discover_tasks(ewoks_settings)
     root_url = json_backend.root_url(ewoks_settings.resource_directory, "tasks")
@@ -80,8 +76,6 @@ def _enable_execution_events(ewoks_settings: config.EwoksSettings) -> None:
     """Set default ewoks event handler when nothing has been configured"""
     if ewoks_settings.configured:
         return
-    if ewoks_settings.ewoks_execution is None:
-        ewoks_settings.ewoks_execution = EwoksExecutionSettings()
     if not ewoks_settings.ewoks_execution.handlers:
         ewoks_settings.ewoks_execution.handlers = [
             {
@@ -128,17 +122,17 @@ def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
             pformat(adict),
         ]
 
-    execution_settings = ewoks_settings.ewoks_execution
-    if execution_settings is None:
-        lines += ["", "EWOKS EXECUTION:", "Not configured (local workflow execution)"]
-    else:
-        lines += ["", "EWOKS EXECUTION:", pformat(execution_settings.model_dump())]
+    lines += [
+        "",
+        "EWOKS EXECUTION:",
+        pformat(ewoks_settings.ewoks_execution.model_dump()),
+    ]
 
-    discover_settings = ewoks_settings.ewoks_discovery
-    if discover_settings is None:
-        lines += ["", "EWOKS DISCOVERY:", "Not configured"]
-    else:
-        lines += ["", "EWOKS DISCOVERY:", pformat(discover_settings.model_dump())]
+    lines += [
+        "",
+        "EWOKS DISCOVERY:",
+        pformat(ewoks_settings.ewoks_discovery.model_dump()),
+    ]
 
     lines += [""]
 

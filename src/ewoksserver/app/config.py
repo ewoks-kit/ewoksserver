@@ -1,8 +1,11 @@
+from __future__ import annotations
 import os
 import sys
 import importlib.util
+import logging
 from typing_extensions import Annotated
 from typing import Optional
+import warnings
 
 from fastapi import Depends
 
@@ -14,10 +17,50 @@ try:
 except ImportError:
     get_test_config = None
 
+logger = logging.getLogger(__name__)
 
 _APP_SETTINGS = None
 
 _EWOKS_SETTINGS = None
+
+
+def _resolve_ewoks_execution_settings(
+    ewoks_execution: dict | None, ewoks: dict | None
+) -> dict:
+    if ewoks is None:
+        return ewoks_execution if ewoks_execution else dict()
+
+    if ewoks_execution is None:
+        warnings.warn(
+            "EWOKS configuration field has been renamed EWOKS_EXECUTION",
+            DeprecationWarning,
+        )
+        return ewoks
+
+    logger.warning(
+        "Both EWOKS_EXECUTION and EWOKS fields were specified but EWOKS field is deprecated. EWOKS field will be ignored."
+    )
+    return ewoks_execution
+
+
+def _resolve_ewoks_discovery_settings(
+    ewoks_discovery: dict | None, discover_timeout: float | None
+) -> dict:
+
+    if discover_timeout is None:
+        return ewoks_discovery if ewoks_discovery else dict()
+
+    if ewoks_discovery is None:
+        warnings.warn(
+            "DISCOVER_TIMEOUT is deprecated. The timeout should be specified via the `timeout` field of EWOKS_DISCOVERY",
+            DeprecationWarning,
+        )
+        return {"timeout": discover_timeout}
+
+    logger.warning(
+        "Both EWOKS_DISCOVERY and DISCOVER_TIMEOUT fields were specified but DISCOVER_TIMEOUT field is deprecated. DISCOVER_TIMEOUT field will be ignored."
+    )
+    return ewoks_discovery
 
 
 def create_ewoks_settings(
@@ -64,9 +107,13 @@ def create_ewoks_settings(
     if not resource_directory:
         resource_directory = "."
 
+    ewoks_discovery = _resolve_ewoks_discovery_settings(
+        ewoks_discovery, discover_timeout
+    )
+    ewoks_execution = _resolve_ewoks_execution_settings(ewoks_execution, ewoks)
+
     # Overwrite rediscover_tasks
     if rediscover_tasks is not None:
-        ewoks_discovery = ewoks_discovery if ewoks_discovery else dict()
         ewoks_discovery["on_start_up"] = rediscover_tasks
 
     configured = bool(filename) or bool(directory)
@@ -78,8 +125,6 @@ def create_ewoks_settings(
         without_events=without_events,
         ewoks_execution=ewoks_execution,
         ewoks_discovery=ewoks_discovery,
-        discover_timeout=discover_timeout,
-        ewoks=ewoks,
     )
     return _EWOKS_SETTINGS
 

@@ -57,6 +57,7 @@ def test_execute_options(rest_client, mocked_local_submit, root):
             "args": (workflow,),
             "kwargs": {
                 "engine": "ppf",
+                "execinfo": {"handlers": list()},
                 "_slurm_spawn_arguments": {
                     "parameters": {"time_limit": 10, "partition": "nice"},
                     "pre_script": "module load ewoks",
@@ -87,6 +88,7 @@ def test_execute_options(rest_client, mocked_local_submit, root):
             "args": (workflow,),
             "kwargs": {
                 "engine": "ppf",
+                "execinfo": {"handlers": list()},
                 "_slurm_spawn_arguments": {
                     "parameters": {"time_limit": 20, "partition": "nice"},
                     "pre_script": "module load ewoks",
