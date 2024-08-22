@@ -1,40 +1,18 @@
 import os
 import sys
 import importlib.util
-from pathlib import Path
-from typing import Optional, Dict
 from typing_extensions import Annotated
+from typing import Optional
 
-from pydantic import Field
-from pydantic import BaseModel
 from fastapi import Depends
+
+
+from .models import AppSettings, EwoksSettings
 
 try:
     from ewoksweb.serverutils import get_test_config
 except ImportError:
     get_test_config = None
-
-
-class EwoksSettings(BaseModel):
-    configured: bool = Field(
-        default=False, title="Config or resource directory have been defined"
-    )
-    resource_directory: Path = Field(
-        default=Path("."), title="Backend file resource directory"
-    )
-    ewoks: Optional[Dict] = Field(default=None, title="Ewoks configuration")
-    celery: Optional[Dict] = Field(default=None, title="Celery configuration")
-    without_events: bool = Field(default=False, title="Enable ewoks events")
-    discover_tasks: bool = Field(default=False, title="Discover ewoks tasks on startup")
-    discover_timeout: Optional[float] = Field(
-        default=None, title="Timeout for task discovery (in seconds)"
-    )
-
-
-class AppSettings(BaseModel):
-    no_older_versions: bool = (
-        Field(default=False, title="Do not create end points for older API versions"),
-    )
 
 
 _APP_SETTINGS = None
@@ -47,7 +25,7 @@ def create_ewoks_settings(
     directory: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
-    rediscover_tasks: bool = False,
+    rediscover_tasks: Optional[bool] = None,
 ) -> EwoksSettings:
     global _EWOKS_SETTINGS
 
@@ -63,6 +41,8 @@ def create_ewoks_settings(
     # Extract settings from configuration file
     resource_directory = None
     ewoks = None
+    ewoks_execution = None
+    ewoks_discovery = None
     celery = None
     discover_timeout = None
     if filename:
@@ -71,8 +51,11 @@ def create_ewoks_settings(
         sys.modules["ewoksserverconfig"] = mod
         spec.loader.exec_module(mod)
         resource_directory = getattr(mod, "RESOURCE_DIRECTORY", resource_directory)
-        ewoks = getattr(mod, "EWOKS", ewoks)
         celery = getattr(mod, "CELERY", celery)
+        ewoks_execution = getattr(mod, "EWOKS_EXECUTION", None)
+        ewoks_discovery = getattr(mod, "EWOKS_DISCOVERY", None)
+        # DEPRECATED
+        ewoks = getattr(mod, "EWOKS", ewoks)
         discover_timeout = getattr(mod, "DISCOVER_TIMEOUT", discover_timeout)
 
     # Overwrite resource directory
@@ -81,16 +64,22 @@ def create_ewoks_settings(
     if not resource_directory:
         resource_directory = "."
 
+    # Overwrite rediscover_tasks
+    if rediscover_tasks is not None:
+        ewoks_discovery = ewoks_discovery if ewoks_discovery else dict()
+        ewoks_discovery["on_start_up"] = rediscover_tasks
+
     configured = bool(filename) or bool(directory)
 
     _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
         resource_directory=resource_directory,
-        ewoks=ewoks,
         celery=celery,
         without_events=without_events,
-        discover_tasks=rediscover_tasks,
+        ewoks_execution=ewoks_execution,
+        ewoks_discovery=ewoks_discovery,
         discover_timeout=discover_timeout,
+        ewoks=ewoks,
     )
     return _EWOKS_SETTINGS
 

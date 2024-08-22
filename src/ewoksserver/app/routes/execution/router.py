@@ -95,11 +95,11 @@ def execute_workflow(
     # Workflow execution: named arguments
     submit_kwargs["kwargs"] = execute_arguments
 
-    ewoks_config = settings.ewoks
+    ewoks_config = settings.ewoks_execution
     if ewoks_config:
         execinfo = execute_arguments.setdefault("execinfo", dict())
         handlers = execinfo.setdefault("handlers", list())
-        for handler in ewoks_config.get("handlers", list()):
+        for handler in ewoks_config.handlers:
             if handler not in handlers:
                 handlers.append(handler)
 

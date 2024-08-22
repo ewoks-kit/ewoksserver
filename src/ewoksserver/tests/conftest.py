@@ -13,8 +13,8 @@ from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from .. import app as newserver
 from ..app import config as serverconfig
 from ..app.backends.binary_backend import _load_url
+from ..app.models import EwoksDiscoverySettings, EwoksExecutionSettings
 from ..resources import DEFAULT_ROOT
-
 from .data import resource_filenames
 from .socketio_test import SocketIOTestClient
 
@@ -59,7 +59,7 @@ def local_exec_client(tmpdir, ewoks_handlers):
         return serverconfig.EwoksSettings(
             configured=True,
             resource_directory=str(tmpdir),
-            ewoks={"handlers": ewoks_handlers},
+            ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override
@@ -79,7 +79,7 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
             configured=True,
             resource_directory=str(tmpdir),
             celery=dict(),
-            ewoks={"handlers": ewoks_handlers},
+            ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override
@@ -99,8 +99,8 @@ def celery_discover_timeout_client(tmpdir, celery_session_worker, ewoks_handlers
             configured=True,
             resource_directory=str(tmpdir),
             celery=dict(),
-            ewoks={"handlers": ewoks_handlers},
-            discover_timeout=0.1,
+            ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
+            ewoks_discovery=EwoksDiscoverySettings(timeout=0.1),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override

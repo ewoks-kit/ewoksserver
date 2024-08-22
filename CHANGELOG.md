@@ -2,6 +2,13 @@
 
 ## (unreleased)
 
+Changes:
+
+- `EWOKS` configuration field was renamed `EWOKS_EXECUTION` (`EWOKS_EXECUTION` is now deprecated).
+- New setting `EWOKS_DISCOVERY` in the server config. It is a dictionnary with two fields:
+  - `on_start_up` (bool): rediscover tasks when restarting the server
+  - `timeout` (number): timeout for task discovery operations (replaces `DISCOVER_TIMEOUT` that is now deprecated)
+
 ## 1.3.0
 
 Changes:
