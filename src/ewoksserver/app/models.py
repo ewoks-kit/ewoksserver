@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional
 import logging
@@ -7,6 +8,11 @@ from pydantic import BaseModel
 
 
 logger = logging.getLogger(__name__)
+
+
+class EwoksSchedulingType(str, Enum):
+    Local = "local"
+    Celery = "celery"
 
 
 class EwoksDiscoverySettings(BaseModel):
@@ -20,6 +26,11 @@ class EwoksExecutionSettings(BaseModel):
     handlers: List[Dict] = Field(default=list(), title="Ewoks execution handlers")
 
 
+class EwoksJobSettings(BaseModel):
+    type: EwoksSchedulingType = EwoksSchedulingType.Local
+    configuration: dict = dict()
+
+
 class EwoksSettings(BaseModel):
     configured: bool = Field(
         default=False, title="Config or resource directory have been defined"
@@ -27,7 +38,6 @@ class EwoksSettings(BaseModel):
     resource_directory: Path = Field(
         default=Path("."), title="Backend file resource directory"
     )
-    celery: Optional[Dict] = Field(default=None, title="Celery configuration")
     without_events: bool = Field(default=False, title="Enable ewoks events")
     ewoks_discovery: EwoksDiscoverySettings = Field(
         default=None, title="Ewoks discovery settings", validate_default=True
@@ -35,8 +45,13 @@ class EwoksSettings(BaseModel):
     ewoks_execution: EwoksExecutionSettings = Field(
         default=None, title="Ewoks execution settings", validate_default=True
     )
+    ewoks_scheduling: EwoksJobSettings = Field(
+        default=None, title="Ewoks job scheduling settings", validate_default=True
+    )
 
-    @field_validator("ewoks_discovery", "ewoks_execution", mode="before")
+    @field_validator(
+        "ewoks_discovery", "ewoks_execution", "ewoks_scheduling", mode="before"
+    )
     @classmethod
     def set_default_value(cls, input_value):
         if input_value is None:

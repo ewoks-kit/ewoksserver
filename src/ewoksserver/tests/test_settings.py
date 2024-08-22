@@ -1,7 +1,11 @@
 import json
 import pytest
 from ewoksserver.app.config import create_ewoks_settings
-from ewoksserver.app.models import EwoksDiscoverySettings, EwoksExecutionSettings
+from ewoksserver.app.models import (
+    EwoksDiscoverySettings,
+    EwoksExecutionSettings,
+    EwoksSchedulingType,
+)
 
 
 _HANDLERS = [
@@ -113,3 +117,27 @@ def test_ignore_deprecated_timeout_field(tmpdir):
     assert settings.resource_directory == tmpdir
     assert settings.ewoks_execution == EwoksExecutionSettings()
     assert settings.ewoks_discovery.timeout == 50
+
+
+def test_ewoks_local_scheduling(tmpdir):
+    filename = tmpdir / "config.py"
+    write_config(filename)
+
+    settings = create_ewoks_settings(filename)
+
+    assert settings.ewoks_scheduling.type == EwoksSchedulingType.Local
+    assert settings.ewoks_scheduling.configuration == {}
+
+
+def test_ewoks_celery_scheduling(tmpdir):
+    filename = tmpdir / "config.py"
+    celery_config = {
+        "broker_url": "redis://localhost:25001/2",
+        "result_backend": "redis://localhost:25001/3",
+    }
+    write_config(filename, CELERY=celery_config)
+
+    settings = create_ewoks_settings(filename)
+
+    assert settings.ewoks_scheduling.type == EwoksSchedulingType.Celery
+    assert settings.ewoks_scheduling.configuration == celery_config

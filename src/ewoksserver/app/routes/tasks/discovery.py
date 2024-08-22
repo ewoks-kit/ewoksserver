@@ -7,6 +7,7 @@ from ewoksjob.client.local import (
 )
 
 from ...config import EwoksSettings
+from ...models import EwoksSchedulingType
 
 
 def discover_tasks(
@@ -29,7 +30,7 @@ def discover_tasks(
         kwargs["kwargs"]["reload"] = reload
 
     timeout = settings.ewoks_discovery.timeout
-    if settings.celery is None:
+    if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         if modules:
             future = discover_tasks_from_modules_local(**kwargs)
         else:

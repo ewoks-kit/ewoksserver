@@ -10,6 +10,8 @@ from fastapi import FastAPI
 from ewoksjob.client.local import pool_context
 from celery import current_app as current_celery_app
 
+from ewoksserver.app.models import EwoksSchedulingType
+
 from .backends import json_backend
 from .. import resources
 from . import config
@@ -95,12 +97,13 @@ def _enable_execution(
     ewoks_settings: config.EwoksSettings,
 ) -> Generator[None, None, None]:
     """Ensure workflows can be executed"""
-    if ewoks_settings.celery is None:
+    config = ewoks_settings.ewoks_scheduling
+    if config.type == EwoksSchedulingType.Celery:
+        current_celery_app.conf.update(config.configuration)
+        yield
+    else:
         with pool_context():
             yield
-    else:
-        current_celery_app.conf.update(ewoks_settings.celery)
-        yield
 
 
 def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
@@ -111,15 +114,15 @@ def _print_ewoks_settings(ewoks_settings: config.EwoksSettings) -> None:
 
     lines = ["", "", "RESOURCE DIRECTORY:", os.path.abspath(resourcedir)]
 
-    adict = ewoks_settings.celery
-    if adict is None:
-        lines += ["", "CELERY:", "Not configured (local workflow execution)"]
+    cfg = ewoks_settings.ewoks_scheduling
+    if cfg.type is EwoksSchedulingType.Local:
+        lines += ["", "EWOKS JOB SCHEDULING", "Local workflow execution"]
     else:
         lines += [
             "",
-            "CELERY",
-            "Configured! Workflows will be executed remotely using the following config: ",
-            pformat(adict),
+            "EWOKS JOB SCHEDULING",
+            f"Execution using {cfg.type} with the following config:",
+            pformat(cfg.configuration),
         ]
 
     lines += [

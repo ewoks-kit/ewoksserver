@@ -17,6 +17,7 @@ from ewoksjob.client.local import submit as submit_local
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
+from ...models import EwoksSchedulingType
 from . import models
 from . import events
 
@@ -101,7 +102,7 @@ def execute_workflow(
         if handler not in handlers:
             handlers.append(handler)
 
-    if settings.celery is None:
+    if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         future = submit_local(**submit_kwargs)
     else:
         future = submit(**submit_kwargs)
@@ -152,7 +153,7 @@ def execute_events(
     status_code=200,
 )
 def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
-    if settings.celery is None:
+    if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         return {"workers": None}
 
     return {"workers": get_workers()}

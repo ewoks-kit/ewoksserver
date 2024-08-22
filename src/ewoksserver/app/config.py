@@ -63,6 +63,13 @@ def _resolve_ewoks_discovery_settings(
     return ewoks_discovery
 
 
+def _resolve_ewoks_scheduling_settings(celery: dict | None) -> dict:
+    if celery is None:
+        return {"type": "local"}
+
+    return {"type": "celery", "configuration": celery}
+
+
 def create_ewoks_settings(
     config: Optional[str] = None,
     dir: Optional[str] = None,
@@ -111,6 +118,7 @@ def create_ewoks_settings(
         ewoks_discovery, discover_timeout
     )
     ewoks_execution = _resolve_ewoks_execution_settings(ewoks_execution, ewoks)
+    ewoks_scheduling = _resolve_ewoks_scheduling_settings(celery)
 
     # Overwrite rediscover_tasks
     if rediscover_tasks is not None:
@@ -121,10 +129,10 @@ def create_ewoks_settings(
     _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
         resource_directory=resource_directory,
-        celery=celery,
         without_events=without_events,
         ewoks_execution=ewoks_execution,
         ewoks_discovery=ewoks_discovery,
+        ewoks_scheduling=ewoks_scheduling,
     )
     return _EWOKS_SETTINGS
 
