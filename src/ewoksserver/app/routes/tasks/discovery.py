@@ -28,7 +28,7 @@ def discover_tasks(
     if reload is not None:
         kwargs["kwargs"]["reload"] = reload
 
-    timeout = settings.ewoks_discovery.timeout if settings.ewoks_discovery else None
+    timeout = settings.ewoks_discovery.timeout
     if settings.celery is None:
         if modules:
             future = discover_tasks_from_modules_local(**kwargs)

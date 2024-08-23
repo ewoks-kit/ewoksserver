@@ -1,6 +1,7 @@
 import json
 import pytest
 from ewoksserver.app.config import create_ewoks_settings
+from ewoksserver.app.models import EwoksDiscoverySettings, EwoksExecutionSettings
 
 
 _HANDLERS = [
@@ -34,7 +35,7 @@ def test_ewoks_execution_no_discovery(tmpdir):
 
     assert settings.resource_directory == tmpdir
     assert settings.ewoks_execution.handlers == _HANDLERS
-    assert settings.ewoks_discovery is None
+    assert settings.ewoks_discovery == EwoksDiscoverySettings()
 
 
 def test_ewoks_execution_and_discovery(tmpdir):
@@ -67,7 +68,7 @@ def test_deprecated_ewoks_field(tmpdir):
 
     assert settings.resource_directory == tmpdir
     assert settings.ewoks_execution.handlers == _HANDLERS
-    assert settings.ewoks_discovery is None
+    assert settings.ewoks_discovery == EwoksDiscoverySettings()
 
 
 def test_ignore_deprecated_ewoks_field(tmpdir):
@@ -83,7 +84,7 @@ def test_ignore_deprecated_ewoks_field(tmpdir):
 
     assert settings.resource_directory == tmpdir
     assert settings.ewoks_execution.handlers == []
-    assert settings.ewoks_discovery is None
+    assert settings.ewoks_discovery == EwoksDiscoverySettings()
 
 
 def test_deprecated_timeout_field(tmpdir):
@@ -94,7 +95,7 @@ def test_deprecated_timeout_field(tmpdir):
         settings = create_ewoks_settings(filename)
 
     assert settings.resource_directory == tmpdir
-    assert settings.ewoks_execution is None
+    assert settings.ewoks_execution == EwoksExecutionSettings()
     assert settings.ewoks_discovery.timeout == 100
 
 
@@ -110,5 +111,5 @@ def test_ignore_deprecated_timeout_field(tmpdir):
     settings = create_ewoks_settings(filename)
 
     assert settings.resource_directory == tmpdir
-    assert settings.ewoks_execution is None
+    assert settings.ewoks_execution == EwoksExecutionSettings()
     assert settings.ewoks_discovery.timeout == 50
