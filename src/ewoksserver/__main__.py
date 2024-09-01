@@ -1,19 +1,19 @@
-"""Start ewoks server from the command line (supports configuration)
+"""Start ewoks server from the command line with the ewoks-server CLI
 
 ..code: bash
 
     ewoks-server --reload
+
+Ewoks specific parameters are supported through command line arguments.
 """
 
 import sys
-import logging
 from typing import Optional, List
 
 import click
 from uvicorn.main import main as uvicorn_cmd
 
-from .app.config import create_ewoks_settings
-from .app.config import create_app_settings
+from .config import configure_app
 
 
 uvicorn_cmd = click.option(
@@ -65,22 +65,17 @@ def ewoks_main(
     log_level: Optional[str] = None,  # uvicorn parameter
     **kw
 ):
-    if not log_level:
-        log_level = "info"
-    if log_level:
-        level = logging.getLevelName(log_level.upper())
-        logging.basicConfig(
-            level=level, format="%(levelname)8s(BACKEND %(asctime)s): %(message)s"
-        )
-    create_app_settings(no_older_versions=no_older_versions)
-    create_ewoks_settings(
+    modified_kw = configure_app(
         config=config,
-        directory=dir,
+        dir=dir,
         without_events=without_events,
         frontend_tests=frontend_tests,
         rediscover_tasks=rediscover_tasks,
+        no_older_versions=no_older_versions,
+        log_level=log_level,
     )
-    return uvicorn_main(log_level=log_level, **kw)
+    kw.update(modified_kw)
+    return uvicorn_main(**kw)
 
 
 uvicorn_main = uvicorn_cmd.callback
