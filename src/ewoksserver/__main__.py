@@ -3,83 +3,67 @@
 ..code: bash
 
     ewoks-server --reload
-
-Ewoks specific parameters are supported through command line arguments.
 """
 
 import sys
 from typing import Optional, List
 
 import click
-from uvicorn.main import main as uvicorn_cmd
+from uvicorn.main import main as uvicorn_main
 
 from .config import configure_app
+from .config import get_default_args
 
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--config",
     type=str,
-    default=None,
+    default=get_default_args()["config"],
     help="Path to the config python script (equivalent to the environment variable 'EWOKSSERVER_SETTINGS')",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--dir",
     type=str,
-    default=None,
+    default=get_default_args()["dir"],
     help="Root directory for resources (e.g. workflows, tasks, icons descriptions)",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--without-events",
     is_flag=True,
+    default=get_default_args()["without_events"],
     help="Disable Socket.IO app for event stream",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--frontend-tests",
     is_flag=True,
+    default=get_default_args()["frontend_tests"],
     help="Load frontend test configuration",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--rediscover-tasks",
     is_flag=True,
+    default=get_default_args()["rediscover_tasks"],
     help="Run task discovery on start up",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
-uvicorn_cmd = click.option(
+uvicorn_main = click.option(
     "--no-older-versions",
     is_flag=True,
+    default=get_default_args()["no_older_versions"],
     help="Do not provide end-points for older versions of the Ewoks API",
-)(uvicorn_cmd)
+)(uvicorn_main)
 
 
-def ewoks_main(
-    config: Optional[str] = None,  # ewoks parameter
-    dir: Optional[str] = None,  # ewoks parameter
-    without_events: bool = False,  # ewoks parameter
-    frontend_tests: bool = False,  # ewoks parameter
-    rediscover_tasks: bool = False,  # ewoks parameter
-    no_older_versions: bool = False,  # app parameter
-    log_level: Optional[str] = None,  # uvicorn parameter
-    **kw
-):
-    modified_kw = configure_app(
-        config=config,
-        dir=dir,
-        without_events=without_events,
-        frontend_tests=frontend_tests,
-        rediscover_tasks=rediscover_tasks,
-        no_older_versions=no_older_versions,
-        log_level=log_level,
-    )
-    kw.update(modified_kw)
-    return uvicorn_main(**kw)
+def _ewoks_main(**cli_args):
+    return _original_callback(**configure_app(**cli_args))
 
 
-uvicorn_main = uvicorn_cmd.callback
-uvicorn_cmd.callback = ewoks_main
+_original_callback = uvicorn_main.callback
+uvicorn_main.callback = _ewoks_main
 
 
 def main(argv: Optional[List[str]] = None) -> None:
@@ -88,7 +72,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         argv = sys.argv[1:]
     if "--factory" not in argv:
         argv += ["--factory", "ewoksserver.app:create_app"]
-    uvicorn_cmd(argv)
+    uvicorn_main(argv)
 
 
 if __name__ == "__main__":

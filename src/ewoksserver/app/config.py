@@ -65,7 +65,7 @@ def _resolve_ewoks_discovery_settings(
 
 def create_ewoks_settings(
     config: Optional[str] = None,
-    directory: Optional[str] = None,
+    dir: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
     rediscover_tasks: Optional[bool] = None,
@@ -102,8 +102,8 @@ def create_ewoks_settings(
         discover_timeout = getattr(mod, "DISCOVER_TIMEOUT", discover_timeout)
 
     # Overwrite resource directory
-    if directory:
-        resource_directory = directory
+    if dir:
+        resource_directory = dir
     if not resource_directory:
         resource_directory = "."
 
@@ -116,7 +116,7 @@ def create_ewoks_settings(
     if rediscover_tasks is not None:
         ewoks_discovery["on_start_up"] = rediscover_tasks
 
-    configured = bool(filename) or bool(directory)
+    configured = bool(filename) or bool(dir)
 
     _EWOKS_SETTINGS = EwoksSettings(
         configured=configured,
