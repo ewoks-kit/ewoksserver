@@ -12,7 +12,7 @@ A custom command line interface is provided to start the application
 
     ewoks-server
 
-The Uvicorn and FastAPI command line interface are supported as well
+The Uvicorn and FastAPI command line interface are supported as well. The server can be launched by using one of the following commands:
 
 .. code:: bash
 

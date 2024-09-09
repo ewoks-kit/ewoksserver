@@ -9,6 +9,9 @@ or the FastAPI CLI
 ..code: bash
 
     fastapi dev src/ewoksserver/main.py
+
+..code: bash
+
     fastapi run src/ewoksserver/main.py
 """
 
