@@ -6,28 +6,28 @@
 
 ## Starting the server
 
-To allow for custom command line arguments, an entry point is created to start the server
+A custom command line interface is provided to start the application
 
-.. code:: python
+.. code:: bash
 
     ewoks-server
 
-If none of the ewoks specific parameters like `--rediscover-tasks` need to be specified you
-can also do this
+The Uvicorn and FastAPI command line interface are supported as well. The server can be launched by using one of the following commands:
 
-.. code:: python
+.. code:: bash
 
+    uvicorn ewoksserver.main:app
     uvicorn --factory ewoksserver.app:create_app
+    fastapi dev src/ewoksserver/main.py
+    fastapi run src/ewoksserver/main.py
 
-Most FastAPI projects provide a module with a global FastAPI instance to allow starting the
-server like this
+Ewoks specific application parameters (as opposed to FastAPI or Uvicorn parameters)
+can be provided through (in order of priority)
 
-.. code:: python
-
-    uvicorn <projectname>.main:app
-
-Ewoksserver does not provide this since a global app instance does not allow configuration before
-instantiation and is impractical for unit testing.
+* command line interface arguments (example: `--rediscover-tasks`, only available for `ewoks-server`)
+* environment variables (example: `EWOKSAPP_REDISCOVER_TASKS=True`)
+* "dotenv" file called `.env.prod` in the current working directory
+* "dotenv" file called `.env` in the current working directory
 
 ## API versioning
 
