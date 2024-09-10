@@ -13,7 +13,12 @@ from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from .. import app as newserver
 from ..app import config as serverconfig
 from ..app.backends.binary_backend import _load_url
-from ..app.models import EwoksDiscoverySettings, EwoksExecutionSettings
+from ..app.models import (
+    EwoksDiscoverySettings,
+    EwoksExecutionSettings,
+    EwoksJobSettings,
+    EwoksSchedulingType,
+)
 from ..resources import DEFAULT_ROOT
 from .data import resource_filenames
 from .socketio_test import SocketIOTestClient
@@ -78,7 +83,9 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
         return serverconfig.EwoksSettings(
             configured=True,
             resource_directory=str(tmpdir),
-            celery=dict(),
+            ewoks_scheduling=EwoksJobSettings(
+                type=EwoksSchedulingType.Celery, configuration=dict()
+            ),
             ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
         )
 
@@ -98,7 +105,9 @@ def celery_discover_timeout_client(tmpdir, celery_session_worker, ewoks_handlers
         return serverconfig.EwoksSettings(
             configured=True,
             resource_directory=str(tmpdir),
-            celery=dict(),
+            ewoks_scheduling=EwoksJobSettings(
+                type=EwoksSchedulingType.Celery, configuration=dict()
+            ),
             ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
             ewoks_discovery=EwoksDiscoverySettings(timeout=0.1),
         )
