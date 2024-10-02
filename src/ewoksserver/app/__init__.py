@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from .config import get_app_settings
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
-from . import routes
 from .routes import backend
 from .routes import frontend
 from .routes import tasks
@@ -63,10 +62,10 @@ def create_app() -> FastAPI:
         },
         openapi_tags=tags_metadata,
         lifespan=fastapi_lifespan,
-        openapi_url=f"{routes.BACKEND_PREFIX}/openapi.json",
-        docs_url=f"{routes.BACKEND_PREFIX}/docs",
-        swagger_ui_oauth2_redirect_url=f"{routes.BACKEND_PREFIX}/docs/oauth2-redirect",
-        redoc_url=f"{routes.BACKEND_PREFIX}/redoc",
+        openapi_url="/openapi.json",
+        docs_url="/docs",
+        swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
+        redoc_url="/redoc",
     )
 
     enable_cors(app)

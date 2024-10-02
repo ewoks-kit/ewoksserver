@@ -137,7 +137,7 @@ def create_ewoks_settings(
     return _EWOKS_SETTINGS
 
 
-def create_app_settings(no_older_versions: bool = False) -> None:
+def create_app_settings(no_older_versions: bool = False) -> AppSettings:
     global _APP_SETTINGS
     _APP_SETTINGS = AppSettings(no_older_versions=no_older_versions)
     return _APP_SETTINGS

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Tuple, List, Set, Union, Callable
+from typing import Dict, Mapping, Tuple, List, Set, Union, Callable
 
 from fastapi import APIRouter
 from fastapi import FastAPI
@@ -9,6 +9,7 @@ from . import BACKEND_PREFIX
 
 AppGenerator = Callable[[], ASGIApp]
 RouterType = Union[APIRouter, AppGenerator]
+VersionTuple = Tuple[int, int, int]
 
 
 @dataclass
@@ -20,7 +21,7 @@ class Route:
 
 
 def get_routes(
-    tag: str, routers: Dict[Tuple[int], RouterType], suffix: str = ""
+    tag: str, routers: Dict[VersionTuple, RouterType], suffix: str = ""
 ) -> Dict[Tuple[int], Route]:
     """Generate routes with versioned paths for all strict and major versions.
     In addition add a route with non-versioned path for the latest version."""
@@ -70,12 +71,12 @@ def get_routes(
     return routes
 
 
-def assert_route_versions(*all_routes: Dict[Tuple[int], RouterType]) -> None:
+def assert_route_versions(*all_routes: Mapping[VersionTuple, RouterType]) -> None:
     versions = {tuple(sorted(routes)) for routes in all_routes}
     assert len(versions) == 1, "Not all routes have the same versions"
 
 
-def extract_version_tags(all_routes: List[Dict[Tuple[int], Route]]) -> Set[str]:
+def extract_version_tags(all_routes: List[Dict[VersionTuple, Route]]) -> Set[str]:
     """Extract all version tags"""
     tags = set()
     for routes in all_routes:
@@ -85,14 +86,14 @@ def extract_version_tags(all_routes: List[Dict[Tuple[int], Route]]) -> Set[str]:
     return tags
 
 
-def extract_latest_version(all_routes: List[Dict[Tuple[int], Route]]) -> Tuple[int]:
+def extract_latest_version(all_routes: List[Dict[VersionTuple, Route]]) -> VersionTuple:
     """Extract the latest version"""
     return max(sorted(routes)[-1][:3] for routes in all_routes)
 
 
 def add_routes(
     app: FastAPI,
-    all_routes: List[Dict[Tuple[int], Route]],
+    all_routes: List[Dict[VersionTuple, Route]],
     no_older_versions: bool = False,
 ) -> None:
     """Add routes to a fastapi app"""
