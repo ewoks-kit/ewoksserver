@@ -47,8 +47,8 @@ def execute_workflow(
     identifier: Annotated[
         str,
         Path(
-            title="Task identifier",
-            description="Unique identifier in the task database",
+            title="Workflow identifier",
+            description="Unique identifier in the workflow database",
         ),
     ],
     options: Annotated[
