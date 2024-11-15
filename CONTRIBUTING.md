@@ -24,20 +24,24 @@ The Uvicorn and FastAPI command line interface are supported as well. The server
 Ewoks specific application parameters (as opposed to FastAPI or Uvicorn parameters)
 can be provided through (in order of priority)
 
-* command line interface arguments (example: `--rediscover-tasks`, only available for `ewoks-server`)
-* environment variables (example: `EWOKSAPP_REDISCOVER_TASKS=True`)
-* "dotenv" file called `.env.prod` in the current working directory
-* "dotenv" file called `.env` in the current working directory
+- command line interface arguments (example: `--rediscover-tasks`, only available for `ewoks-server`)
+- environment variables (example: `EWOKSAPP_REDISCOVER_TASKS=True`)
+- "dotenv" file called `.env.prod` in the current working directory
+- "dotenv" file called `.env` in the current working directory
 
 ## API versioning
 
 Versioning applies to all paths under the `/api` subpath (REST and Socket.IO). This does not include paths that serve the frontend (`/`, `/edit`, `/monitor`).
 
-When applying changes, increment the version semantically:
+For each api subpath (`execution`, `icons`, `tasks` and `workflows`), an ensemble of routes (or `router`) is defined for each version. In the `__init__` of each corresponding submodules, there is a dictionnary that has versions as keys and routers as values.
 
-- major: breaking API changes
-- minor: API has extra stuff
-- patch: same API, only bug fix
+When applying changes, you need to create a new entry in this dictionnary: a new key that is the new version number and a new `router` that includes the changed routes.
+
+The new version number that should be incremented semantically:
+
+- major increment: breaking API changes
+- minor increment: API has extra stuff
+- patch increment: same API, only bug fix
 
 ## Documentation
 
