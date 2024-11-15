@@ -83,6 +83,26 @@ def test_single_task(rest_client, root):
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_task_creation_errors(rest_client, default_task_identifiers, root):
+    task_without_id = {"task_type": "class"}
+    response = rest_client.post(f"{root}/tasks", json=task_without_id)
+    assert response.status_code == 422
+
+    task_with_empty_id = {"task_identifier": "", "task_type": "class"}
+    response = rest_client.post(f"{root}/tasks", json=task_with_empty_id)
+    assert response.status_code == 422
+    data = response.json()
+    assert data["message"] == "Task identifier cannot be empty"
+
+    existing_id = default_task_identifiers[0]
+    task_with_existing_id = {"task_identifier": existing_id, "task_type": "class"}
+    response = rest_client.post(f"{root}/tasks", json=task_with_existing_id)
+    assert response.status_code == 409
+    data = response.json()
+    assert data["message"] == f"Task '{existing_id}' already exists."
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_tasks(rest_client, default_task_identifiers, root):
     response = rest_client.get(f"{root}/tasks")
     data = response.json()

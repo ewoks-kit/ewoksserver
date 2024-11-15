@@ -191,6 +191,10 @@ def update_task(
     response_description="Ewoks task description",
     status_code=200,
     responses={
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Task identifier cannot be empty",
+            "model": common_models.ResourceIdentifierError,
+        },
         status.HTTP_409_CONFLICT: {
             "description": "Task already exists",
             "model": common_models.ResourceIdentifierError,
@@ -206,6 +210,15 @@ def create_task(
     settings: EwoksSettingsType,
 ) -> models.EwoksTaskDescription:
     ridentifier = task.task_identifier
+
+    if ridentifier == "":
+        return JSONResponse(
+            {
+                "message": "Task identifier cannot be empty",
+                "type": "task",
+            },
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
 
     exists = json_backend.resource_exists(
         settings.resource_directory / "tasks", ridentifier
