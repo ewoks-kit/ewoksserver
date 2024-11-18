@@ -219,6 +219,10 @@ def update_workflow(
             "description": "Workflow identifier missing",
             "model": common_models.ResourceIdentifierError,
         },
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Workflow identifier cannot be empty",
+            "model": common_models.ResourceIdentifierError,
+        },
         status.HTTP_409_CONFLICT: {
             "description": "Workflow already exists",
             "model": common_models.ResourceIdentifierError,
@@ -243,7 +247,16 @@ def create_workflow(
                 "message": "Workflow identifier missing",
                 "type": "workflow",
             },
-            status_code=status.HTTP_400_CONFLICT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
+    if ridentifier == "":
+        return JSONResponse(
+            {
+                "message": "Workflow identifier cannot be empty",
+                "type": "workflow",
+            },
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
     exists = json_backend.resource_exists(

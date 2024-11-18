@@ -48,6 +48,28 @@ def test_single_workflow(rest_client, root):
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_workflow_creation_errors(rest_client, default_workflow_identifiers, root):
+    workflow_without_id = {"graph": {}}
+    response = rest_client.post(f"{root}/workflows", json=workflow_without_id)
+    assert response.status_code == 422
+    data = response.json()
+    assert data["message"] == "Workflow identifier missing"
+
+    workflow_with_empty_id = {"graph": {"id": ""}}
+    response = rest_client.post(f"{root}/workflows", json=workflow_with_empty_id)
+    assert response.status_code == 422
+    data = response.json()
+    assert data["message"] == "Workflow identifier cannot be empty"
+
+    existing_id = default_workflow_identifiers[0]
+    workflow_with_existing_id = {"graph": {"id": existing_id}}
+    response = rest_client.post(f"{root}/workflows", json=workflow_with_existing_id)
+    assert response.status_code == 409
+    data = response.json()
+    assert data["message"] == f"Workflow '{existing_id}' already exists."
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
 def test_multiple_workflows(rest_client, default_workflow_identifiers, root):
     response = rest_client.get(f"{root}/workflows")
     data = response.json()
