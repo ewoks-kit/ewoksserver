@@ -18,6 +18,7 @@ def test_discover_tasks_from_a_module(rest_client, default_task_identifiers, roo
     expected = [
         "ewoksserver.tests.dummy_tasks.MyTask1",
         "ewoksserver.tests.dummy_tasks.MyTask2",
+        "ewoksserver.tests.dummy_tasks.my_task3",
     ]
     assert sorted(data["identifiers"]) == sorted(expected)
 
@@ -27,8 +28,21 @@ def test_discover_tasks_from_a_module(rest_client, default_task_identifiers, roo
     expected = default_task_identifiers + [
         "ewoksserver.tests.dummy_tasks.MyTask1",
         "ewoksserver.tests.dummy_tasks.MyTask2",
+        "ewoksserver.tests.dummy_tasks.my_task3",
     ]
     assert sorted(data["identifiers"]) == sorted(expected)
+
+
+@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
+def test_discover_method_task_type(rest_client, root):
+    module = "ewoksserver.tests.dummy_tasks"
+
+    response = rest_client.post(
+        f"{root}/tasks/discover", json={"modules": [module], "task_type": "method"}
+    )
+    data = response.json()
+    assert response.status_code == 200
+    assert sorted(data["identifiers"]) == ["ewoksserver.tests.dummy_tasks.my_task3"]
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)

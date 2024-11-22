@@ -29,4 +29,5 @@ class EwoksTaskDescriptions(BaseModel):
 
 class EwoksTaskDiscovery(BaseModel):
     modules: Optional[List[str]] = Field(title="Ewoks task description", default=None)
+    task_type: Optional[str] = Field(title="Task type to discover", default=None)
     worker_options: Optional[Dict] = Field(title="Worker options", default=None)

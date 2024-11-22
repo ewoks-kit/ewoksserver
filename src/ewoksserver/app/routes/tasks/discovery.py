@@ -17,6 +17,7 @@ def discover_tasks(
     settings: EwoksSettings,
     modules: Optional[List[str]] = None,
     reload: Optional[bool] = None,
+    task_type: Optional[str] = None,
     worker_options: Optional[Dict] = None,
 ) -> List[Dict[str, str]]:
     if worker_options is None:
@@ -31,6 +32,8 @@ def discover_tasks(
     kwargs["kwargs"] = dict()
     if reload is not None:
         kwargs["kwargs"]["reload"] = reload
+    if task_type is not None:
+        kwargs["kwargs"]["task_type"] = task_type
 
     timeout = settings.ewoks_discovery.timeout
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
