@@ -1,4 +1,5 @@
 from typing import Optional, Dict, List
+import logging
 from ewoksjob.client import discover_all_tasks
 from ewoksjob.client.local import discover_all_tasks as discover_all_tasks_local
 from ewoksjob.client import discover_tasks_from_modules, get_workers
@@ -8,6 +9,8 @@ from ewoksjob.client.local import (
 
 from ...config import EwoksSettings
 from ...models import EwoksSchedulingType
+
+logger = logging.getLogger(__name__)
 
 
 def discover_tasks(
@@ -56,7 +59,11 @@ def _discover_tasks_in_all_queues(
     # Store tasks in a dict to avoid duplicates
     task_dict = {}
     for future in futures:
-        new_tasks = future.get(timeout=timeout)
+        # Ignore failures of a single queue to not prevent discovery on other queues
+        new_tasks = future.get(timeout=timeout, propagate=False)
+        if future.failed():
+            logger.warning(f"Task discovery failed for {future.queue}")
+            continue
         if new_tasks is None:
             continue
         for task in new_tasks:
