@@ -7,3 +7,7 @@ class MyTask1(Task):
 
 class MyTask2(Task):
     pass
+
+
+def my_task3():
+    pass
