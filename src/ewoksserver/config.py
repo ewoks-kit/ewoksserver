@@ -70,7 +70,9 @@ class _DefaultArgs(BaseSettings):
 class _EnvArgs(_DefaultArgs):
     # env_prefix > .env.prod > .env > pydantic defaults
     model_config = SettingsConfigDict(
-        env_file=(".env", ".env.prod"), env_prefix="ewoksapp_"
+        env_file=(".env", ".env.prod"),
+        env_prefix="ewoksapp_",
+        extra="ignore",
     )
 
     @validator("log_level", pre=True, always=True)
