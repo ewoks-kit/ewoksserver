@@ -2,12 +2,26 @@
 
 ## (unreleased)
 
-Changes:
+## 1.4.0
 
-- `EWOKS` configuration field was renamed `EWOKS_EXECUTION` (`EWOKS_EXECUTION` is now deprecated).
+New features:
+
 - New setting `EWOKS_DISCOVERY` in the server config. It is a dictionnary with two fields:
   - `on_start_up` (bool): rediscover tasks when restarting the server
   - `timeout` (number): timeout for task discovery operations (replaces `DISCOVER_TIMEOUT` that is now deprecated)
+- Support the Uvicorn and FastAPI command line interfaces to start the server.
+- New end-point `/execution/workers` to get all task execution queue names.
+- End-point `/tasks/discover` now has an `task_type` option and discovers all task types when not provided.
+
+Changes:
+
+- `EWOKS` configuration field was renamed `EWOKS_EXECUTION` (`EWOKS_EXECUTION` is now deprecated).
+- Documentation end-point has been renamed from `/api/docs` to `docs`.
+
+Bug fixes:
+
+- Handle remote task discovery failures.
+- Fix end-point `/execute/{identifier}` documentation of the identifier.
 
 ## 1.3.0
 
