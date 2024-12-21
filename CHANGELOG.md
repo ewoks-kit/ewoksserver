@@ -2,6 +2,12 @@
 
 ## (unreleased)
 
+## 1.4.1
+
+Bug fixes:
+
+- Ignore unknown dotenv variables.
+
 ## 1.4.0
 
 New features:
