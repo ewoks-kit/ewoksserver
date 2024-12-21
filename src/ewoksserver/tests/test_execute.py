@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from ewoksutils import event_utils
 from ewokscore.tests.examples.graphs import get_graph
 
 from .api_versions import ROOT_ALL_VERSIONS, ROOT_V1_1_0
@@ -124,7 +125,10 @@ def get_events(sclient, nevents, timeout=10):
     t0 = time.time()
     events = list()
     while True:
-        events.extend(sclient.get_events())
+        for event in sclient.get_events():
+            if "engine" in event_utils.FIELD_TYPES:
+                event["binding"] = event.pop("engine")
+            events.append(event)
         if len(events) == nevents:
             break
         time.sleep(0.1)
