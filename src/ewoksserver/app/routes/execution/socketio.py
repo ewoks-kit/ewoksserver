@@ -85,7 +85,7 @@ class EwoksEventManager:
                         break
                     self._emit(loop, event)
         except Exception as e:
-            # TODO: client needs to recieve an error
+            # TODO: client needs to receive an error
             logger.exception(str(e))
             raise
         finally:

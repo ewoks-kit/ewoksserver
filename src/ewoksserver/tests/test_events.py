@@ -34,7 +34,7 @@ def test_get_execution_events(local_exec_client, root):
     # Wait until all events have been received over the Socket.IO connection
     events1 = get_events(sclient, nevents)
 
-    # Query should return the same a what was recieved over the Socket.IO connection
+    # Query should return the same a what was received over the Socket.IO connection
     response = client.get(f"{root}/execution/events")
     assert response.status_code == 200
     events = response.json()["jobs"]
