@@ -1,9 +1,10 @@
-from typing import Optional, Dict, List
 import logging
-from ewoksjob.client import discover_all_tasks
-from ewoksjob.client.local import discover_all_tasks as discover_all_tasks_local
+from typing import Optional, Dict, List
+
 from ewoksjob.client import get_queues
+from ewoksjob.client import discover_all_tasks
 from ewoksjob.client import discover_tasks_from_modules
+from ewoksjob.client.local import discover_all_tasks as discover_all_tasks_local
 from ewoksjob.client.local import (
     discover_tasks_from_modules as discover_tasks_from_modules_local,
 )
