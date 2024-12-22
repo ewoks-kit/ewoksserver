@@ -11,7 +11,8 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from ewoksutils import event_utils
-from ewoksjob.client import get_workers, submit
+from ewoksjob.client import submit
+from ewoksjob.client import get_queues
 from ewoksjob.client.local import submit as submit_local
 
 from ...backends import json_backend
@@ -156,7 +157,7 @@ def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         return {"workers": None}
 
-    return {"workers": get_workers()}
+    return {"workers": get_queues()}
 
 
 v1_1_0_router.include_router(v1_0_0_router)

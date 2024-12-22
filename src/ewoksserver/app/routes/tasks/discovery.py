@@ -1,8 +1,10 @@
-from typing import Optional, Dict, List
 import logging
+from typing import Optional, Dict, List
+
+from ewoksjob.client import get_queues
 from ewoksjob.client import discover_all_tasks
+from ewoksjob.client import discover_tasks_from_modules
 from ewoksjob.client.local import discover_all_tasks as discover_all_tasks_local
-from ewoksjob.client import discover_tasks_from_modules, get_workers
 from ewoksjob.client.local import (
     discover_tasks_from_modules as discover_tasks_from_modules_local,
 )
@@ -57,7 +59,7 @@ def _discover_tasks_in_all_queues(
     discover = (
         discover_tasks_from_modules if discover_from_modules else discover_all_tasks
     )
-    futures = [discover(**kwargs, queue=queue) for queue in get_workers()]
+    futures = [discover(**kwargs, queue=queue) for queue in get_queues()]
 
     # Store tasks in a dict to avoid duplicates
     task_dict = {}
