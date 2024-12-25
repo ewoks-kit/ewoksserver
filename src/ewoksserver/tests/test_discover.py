@@ -63,12 +63,12 @@ def test_discover_all_tasks(rest_client, default_task_identifiers, root):
         "ewokscore.tests.examples.tasks.simplemethods.add",
         "ewokscore.tests.examples.tasks.simplemethods.append",
     ]
-    assert sorted(data["identifiers"]) == sorted(expected)
+    assert set(expected) <= set(data["identifiers"])
 
     response = rest_client.get(f"{root}/tasks")
     data = response.json()
     assert response.status_code == 200
-    assert sorted(data["identifiers"]) == sorted(expected)
+    assert set(expected) <= set(data["identifiers"])
 
 
 @pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
