@@ -1,34 +1,29 @@
 import time
 
-import pytest
 from ewoksutils import event_utils
 from ewokscore.tests.examples.graphs import get_graph
 
-from .api_versions import ROOT_ALL_VERSIONS, ROOT_V1_1_0
+from .api_versions import api_version_bounds
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_execute_with_celery(celery_exec_client, root):
-    _test_execute(root, *celery_exec_client)
+def test_execute_with_celery(celery_exec_client, api_root):
+    _test_execute(api_root, *celery_exec_client)
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_execute_without_celery(local_exec_client, root):
-    _test_execute(root, *local_exec_client)
+def test_execute_without_celery(local_exec_client, api_root):
+    _test_execute(api_root, *local_exec_client)
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_new_client_new_events(local_exec_client, root):
+def test_new_client_new_events(local_exec_client, api_root):
     client, sclient = local_exec_client
-    _test_execute(root, client, sclient)
+    _test_execute(api_root, client, sclient)
     sclient.disconnect()
     sclient.connect()
     time.sleep(1)
     assert not sclient.get_events()
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_execute_options(rest_client, mocked_local_submit, root):
+def test_execute_options(rest_client, mocked_local_submit, api_root):
     workflow = {
         "graph": {
             "id": "myworkflow",
@@ -45,13 +40,13 @@ def test_execute_options(rest_client, mocked_local_submit, root):
         },
         "nodes": [{"id": "task1"}],
     }
-    response = rest_client.post(f"{root}/workflows", json=workflow)
+    response = rest_client.post(f"{api_root}/workflows", json=workflow)
     data = response.json()
     assert response.status_code == 200, data
 
     # Check that the backend uses execute_arguments and worker_options
     # from the workflow definition
-    response = rest_client.post(f"{root}/execute/myworkflow")
+    response = rest_client.post(f"{api_root}/execute/myworkflow")
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
@@ -82,7 +77,7 @@ def test_execute_options(rest_client, mocked_local_submit, root):
         "worker_options": {"queue": "id00", "time_limit": 30},
     }
 
-    response = rest_client.post(f"{root}/execute/myworkflow", json=data)
+    response = rest_client.post(f"{api_root}/execute/myworkflow", json=data)
     expected_submit_arguments = {
         "args": (),
         "kwargs": {
@@ -102,31 +97,31 @@ def test_execute_options(rest_client, mocked_local_submit, root):
     assert mocked_local_submit == expected_submit_arguments
 
 
-def _test_execute(root, client, sclient):
-    graph_name, expected = upload_graph(root, client)
-    response = client.post(f"{root}/execute/{graph_name}")
+def _test_execute(api_root, client, sclient):
+    graph_name, expected = upload_graph(api_root, client)
+    response = client.post(f"{api_root}/execute/{graph_name}")
     assert response.status_code == 200, response.json()
 
     n = 2 * (len(expected) + 2)
-    events = get_events(sclient, n)
+    events = get_events(api_root, sclient, n)
     _assert_events(response, events, expected)
     return n
 
 
-def upload_graph(root, client):
+def upload_graph(api_root, client):
     graph_name = "acyclic1"
     graph, expected = get_graph(graph_name)
-    response = client.post(f"{root}/workflows", json=graph)
+    response = client.post(f"{api_root}/workflows", json=graph)
     assert response.status_code == 200, response.json()
     return graph_name, expected
 
 
-def get_events(sclient, nevents, timeout=10):
+def get_events(api_root, sclient, nevents, timeout=10):
     t0 = time.time()
     events = list()
     while True:
         for event in sclient.get_events():
-            if "engine" in event_utils.FIELD_TYPES:
+            if "/v1" in api_root and "engine" in event_utils.FIELD_TYPES:
                 event["binding"] = event.pop("engine")
             events.append(event)
         if len(events) == nevents:
@@ -148,16 +143,31 @@ def _assert_events(response, events, expected):
             assert event["node_id"] in expected
 
 
-@pytest.mark.parametrize("root", ROOT_V1_1_0)
-def test_get_workers_with_celery(celery_exec_client, root):
+@api_version_bounds(min_version="1.1.0", max_version="1.1.0")
+def test_get_workers_with_celery(celery_exec_client, api_root):
     rest_client, _ = celery_exec_client
-    response = rest_client.get(f"{root}/execution/workers")
+    response = rest_client.get(f"{api_root}/execution/workers")
     assert response.status_code == 200, response.json()
     assert response.json()["workers"] == ["celery"]
 
 
-@pytest.mark.parametrize("root", ROOT_V1_1_0)
-def test_get_workers_without_celery(rest_client, root):
-    response = rest_client.get(f"{root}/execution/workers")
+@api_version_bounds(min_version="1.1.0", max_version="1.1.0")
+def test_get_workers_without_celery(rest_client, api_root):
+    response = rest_client.get(f"{api_root}/execution/workers")
     assert response.status_code == 200, response.json()
     assert response.json()["workers"] is None
+
+
+@api_version_bounds(min_version="2.0.0")
+def test_get_queues_with_celery(celery_exec_client, api_root):
+    rest_client, _ = celery_exec_client
+    response = rest_client.get(f"{api_root}/execution/queues")
+    assert response.status_code == 200, response.json()
+    assert response.json()["queues"] == ["celery"]
+
+
+@api_version_bounds(min_version="2.0.0")
+def test_get_queues_without_celery(rest_client, api_root):
+    response = rest_client.get(f"{api_root}/execution/queues")
+    assert response.status_code == 200, response.json()
+    assert response.json()["queues"] is None

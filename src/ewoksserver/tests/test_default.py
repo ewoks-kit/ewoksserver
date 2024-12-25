@@ -1,26 +1,19 @@
-import pytest
-from .api_versions import ROOT_ALL_VERSIONS
-
-
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_default_workflows(rest_client, default_workflow_identifiers, root):
+def test_default_workflows(rest_client, default_workflow_identifiers, api_root):
     for identifier in default_workflow_identifiers:
-        response = rest_client.get(f"{root}/workflow/{identifier}")
+        response = rest_client.get(f"{api_root}/workflow/{identifier}")
         data = response.json()
         assert response.status_code == 200, data
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_default_icons(rest_client, default_icon_identifiers, root):
+def test_default_icons(rest_client, default_icon_identifiers, api_root):
     for identifier in default_icon_identifiers:
-        response = rest_client.get(f"{root}/icon/{identifier}")
+        response = rest_client.get(f"{api_root}/icon/{identifier}")
         data = response.json()
         assert response.status_code == 200, data
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_default_tasks(rest_client, default_task_identifiers, root):
+def test_default_tasks(rest_client, default_task_identifiers, api_root):
     for identifier in default_task_identifiers:
-        response = rest_client.get(f"{root}/task/{identifier}")
+        response = rest_client.get(f"{api_root}/task/{identifier}")
         data = response.json()
         assert response.status_code == 200, data

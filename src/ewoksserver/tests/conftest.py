@@ -20,8 +20,12 @@ from ..app.models import (
     EwoksSchedulingType,
 )
 from ..resources import DEFAULT_ROOT
-from .data import resource_filenames
 from .socketio_test import SocketIOTestClient
+
+from .api_versions import api_root  # noqa F401
+from .api_versions import min_api_version  # noqa F401
+from .api_versions import max_api_version  # noqa F401
+from .data import resource_filenames
 
 
 @pytest.fixture

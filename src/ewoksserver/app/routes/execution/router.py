@@ -24,6 +24,7 @@ from . import events
 
 v1_0_0_router = APIRouter()
 v1_1_0_router = APIRouter()
+v2_0_0_router = APIRouter()
 
 
 @v1_0_0_router.post(
@@ -113,7 +114,7 @@ def execute_workflow(
 @v1_0_0_router.get(
     "/execution/events",
     summary="Get workflow events",
-    response_model=models.EwoksEventList,
+    response_model=models.EwoksEventList_v1,
     response_description="Workflow execution jobs grouped per job ID",
     status_code=200,
     responses={
@@ -123,7 +124,7 @@ def execute_workflow(
         },
     },
 )
-def execute_events(
+def execute_events_v1(
     settings: EwoksSettingsType,
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
@@ -161,3 +162,56 @@ def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
 
 
 v1_1_0_router.include_router(v1_0_0_router)
+v2_0_0_router.include_router(v1_1_0_router)
+
+for route in list(v2_0_0_router.routes):
+    if route.path in {"/execution/workers", "/execution/events"}:
+        v2_0_0_router.routes.remove(route)
+
+
+@v2_0_0_router.get(
+    "/execution/events",
+    summary="Get workflow events",
+    response_model=models.EwoksEventList_v2,
+    response_description="Workflow execution jobs grouped per job ID",
+    status_code=200,
+    responses={
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Server not configured for ewoks events",
+            "model": common_models.ResourceIdentifierError,
+        },
+    },
+)
+def execute_events_v2(
+    settings: EwoksSettingsType,
+    filters: Annotated[
+        models.EwoksEventFilter, Depends(models.EwoksEventFilter)
+    ],  # pydantic model to parse query parameters
+) -> Dict[str, List[List[Dict]]]:
+    jobs = OrderedDict()
+    with events.reader_context(settings) as reader:
+        if reader is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Server not configured for ewoks events",
+            )
+        for event in reader.get_events(**filters.model_dump(exclude_none=True)):
+            job_id = event["job_id"]
+            if job_id not in jobs:
+                jobs[job_id] = list()
+            jobs[job_id].append(event)
+    return {"jobs": list(jobs.values())}
+
+
+@v2_0_0_router.get(
+    "/execution/queues",
+    summary="Get queues",
+    response_model=models.EwoksQueueList,
+    response_description="List of available queues",
+    status_code=200,
+)
+def queues(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
+    if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
+        return {"queues": None}
+
+    return {"queues": get_queues()}
