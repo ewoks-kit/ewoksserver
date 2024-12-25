@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import List
 from functools import lru_cache
@@ -75,7 +76,21 @@ def local_exec_client(tmpdir, ewoks_handlers):
 
 
 @pytest.fixture
-def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
+def celery_session_registered_worker(celery_session_worker):
+    # Some server end-points submit a celery task to all queues.
+    # If there are no queue's registered yet, nothing is submitted.
+    timeout_seconds = 10
+    start_time = time.time()
+    while not celery_session_worker.app.control.inspect().active_queues():
+        if time.time() - start_time > timeout_seconds:
+            pytest.fail(
+                f"Celery worker queues were not registered within {timeout_seconds} seconds."
+            )
+        time.sleep(0.1)
+
+
+@pytest.fixture
+def celery_exec_client(tmpdir, celery_session_registered_worker, ewoks_handlers):
     """Client to the REST server and Socket.IO (execution with celery)."""
     app = newserver.create_app()
 
@@ -97,7 +112,9 @@ def celery_exec_client(tmpdir, celery_session_worker, ewoks_handlers):
 
 
 @pytest.fixture
-def celery_discover_timeout_client(tmpdir, celery_session_worker, ewoks_handlers):
+def celery_discover_timeout_client(
+    tmpdir, celery_session_registered_worker, ewoks_handlers
+):
     """Client to the REST server and Socket.IO (with a very small timeout for discovery)"""
     app = newserver.create_app()
 
