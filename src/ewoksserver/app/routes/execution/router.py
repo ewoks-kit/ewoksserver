@@ -22,12 +22,13 @@ from ...models import EwoksSchedulingType
 from . import models
 from . import events
 
+_base_execution_router = APIRouter()
 v1_0_0_router = APIRouter()
 v1_1_0_router = APIRouter()
 v2_0_0_router = APIRouter()
 
 
-@v1_0_0_router.post(
+@_base_execution_router.post(
     "/execute/{identifier}",
     summary="Execute workflow",
     response_model=models.EwoksJobInfo,
@@ -111,6 +112,9 @@ def execute_workflow(
     return {"job_id": future.task_id}
 
 
+v1_0_0_router.include_router(_base_execution_router)
+
+
 @v1_0_0_router.get(
     "/execution/events",
     summary="Get workflow events",
@@ -147,6 +151,9 @@ def execute_events_v1(
     return {"jobs": list(jobs.values())}
 
 
+v1_1_0_router.include_router(v1_0_0_router)
+
+
 @v1_1_0_router.get(
     "/execution/workers",
     summary="Get workers",
@@ -161,12 +168,7 @@ def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
     return {"workers": get_queues()}
 
 
-v1_1_0_router.include_router(v1_0_0_router)
-v2_0_0_router.include_router(v1_1_0_router)
-
-for route in list(v2_0_0_router.routes):
-    if route.path in {"/execution/workers", "/execution/events"}:
-        v2_0_0_router.routes.remove(route)
+v2_0_0_router.include_router(_base_execution_router)
 
 
 @v2_0_0_router.get(
