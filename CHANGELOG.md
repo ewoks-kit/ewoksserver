@@ -7,6 +7,11 @@ New API version `v2_0_0`:
 - End-point `/execution/events` returns events with the field `engine` instead of `binding`.
 - End-point `/execution/workers` is renamed to `/execution/queues`.
 
+Breaking changes:
+
+- Tasks are rediscovered when launching the server. This can be disabled by using the CLI arg `--no-discovery-at-launch`.
+- `--rediscover-tasks` CLI argument was removed.
+
 ## 1.4.1
 
 Bug fixes:

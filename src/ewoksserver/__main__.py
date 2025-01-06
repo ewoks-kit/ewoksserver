@@ -44,10 +44,10 @@ uvicorn_main = click.option(
 )(uvicorn_main)
 
 uvicorn_main = click.option(
-    "--rediscover-tasks",
+    "--no-discovery-at-launch",
     is_flag=True,
-    default=get_default_args()["rediscover_tasks"],
-    help="Run task discovery on start up",
+    default=get_default_args()["no_discovery_at_launch"],
+    help="Do not rediscover tasks when launching the server",
 )(uvicorn_main)
 
 uvicorn_main = click.option(

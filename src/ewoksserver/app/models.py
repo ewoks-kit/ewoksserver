@@ -16,7 +16,7 @@ class EwoksSchedulingType(str, Enum):
 
 
 class EwoksDiscoverySettings(BaseModel):
-    on_start_up: bool = Field(default=False, title="Discover ewoks tasks on startup")
+    on_start_up: bool = Field(default=True, title="Discover ewoks tasks on startup")
     timeout: Optional[float] = Field(
         default=None, title="Timeout for task discovery (in seconds)"
     )
