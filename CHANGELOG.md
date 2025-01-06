@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.0
+
 New API version `v2_0_0`:
 
 - End-point `/execution/events` returns events with the field `engine` instead of `binding`.
