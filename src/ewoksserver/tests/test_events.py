@@ -2,52 +2,49 @@ import os
 from collections import Counter
 from datetime import datetime
 
-import pytest
 from ewokscore.tests.examples.graphs import get_graph
 
 from .test_execute import upload_graph
 from .test_execute import get_events
-from .api_versions import ROOT_ALL_VERSIONS
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_get_execution_events(local_exec_client, root):
+def test_get_execution_events(local_exec_client, api_root):
     client, sclient = local_exec_client
 
-    graph_name, expected = upload_graph(root, client)
+    graph_name, expected = upload_graph(api_root, client)
     nevents = 0
     nevents_per_exec = 2 * (len(expected) + 2)
 
     # Test no events (nothing has been executed)
-    response = client.get(f"{root}/execution/events")
+    response = client.get(f"{api_root}/execution/events")
     assert response.status_code == 200
     data = response.json()
     assert data == {"jobs": list()}
 
     # Execute workflow
-    response = client.post(f"{root}/execute/{graph_name}")
+    response = client.post(f"{api_root}/execute/{graph_name}")
     data = response.json()
     assert response.status_code == 200, data
     job_id1 = data["job_id"]
     nevents += nevents_per_exec
 
     # Wait until all events have been received over the Socket.IO connection
-    events1 = get_events(sclient, nevents)
+    events1 = get_events(api_root, sclient, nevents)
 
     # Query should return the same a what was received over the Socket.IO connection
-    response = client.get(f"{root}/execution/events")
+    response = client.get(f"{api_root}/execution/events")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
     assert events[0] == events1
 
-    response = client.get(f"{root}/execution/events?job_id={job_id1}")
+    response = client.get(f"{api_root}/execution/events?job_id={job_id1}")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
     assert events[0] == events1
 
-    response = client.get(f"{root}/execution/events?context=job")
+    response = client.get(f"{api_root}/execution/events?context=job")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
@@ -56,29 +53,29 @@ def test_get_execution_events(local_exec_client, root):
     dtmid = datetime.now().astimezone()
 
     # Execute workflow
-    response = client.post(f"{root}/execute/{graph_name}")
+    response = client.post(f"{api_root}/execute/{graph_name}")
     data = response.json()
     assert response.status_code == 200, data
     job_id2 = data["job_id"]
     nevents += nevents_per_exec
 
     # Wait until all events have been received over the Socket.IO connection
-    events2 = get_events(sclient, nevents_per_exec)
+    events2 = get_events(api_root, sclient, nevents_per_exec)
 
-    response = client.get(f"{root}/execution/events")
+    response = client.get(f"{api_root}/execution/events")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 2
     assert events[0] == events1
     assert events[1] == events2
 
-    response = client.get(f"{root}/execution/events?job_id={job_id2}")
+    response = client.get(f"{api_root}/execution/events?job_id={job_id2}")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
     assert events[0] == events2
 
-    response = client.get(f"{root}/execution/events?context=job")
+    response = client.get(f"{api_root}/execution/events?context=job")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 2
@@ -90,21 +87,20 @@ def test_get_execution_events(local_exec_client, root):
 
     # Test time Query
     midtime = dtmid.isoformat().replace("+", "%2b")
-    response = client.get(f"{root}/execution/events?endtime={midtime}")
+    response = client.get(f"{api_root}/execution/events?endtime={midtime}")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
     assert events[0] == events1
 
-    response = client.get(f"{root}/execution/events?starttime={midtime}")
+    response = client.get(f"{api_root}/execution/events?starttime={midtime}")
     assert response.status_code == 200
     events = response.json()["jobs"]
     assert len(events) == 1
     assert events[0] == events2
 
 
-@pytest.mark.parametrize("root", ROOT_ALL_VERSIONS)
-def test_get_execution_events_parallel(local_exec_client, root):
+def test_get_execution_events_parallel(local_exec_client, api_root):
     client, sclient = local_exec_client
 
     _, expected = get_graph("demo")
@@ -112,14 +108,14 @@ def test_get_execution_events_parallel(local_exec_client, root):
     nevents_per_exec = 2 * (len(expected) + 2)
 
     # Test no events (nothing has been executed)
-    jobs = client.get(f"{root}/execution/events").json()["jobs"]
+    jobs = client.get(f"{api_root}/execution/events").json()["jobs"]
     assert not jobs
 
     # Execute workflows in parallel
     nruns = 3
     for _ in range(nruns):
         response = client.post(
-            f"{root}/execute/demo",
+            f"{api_root}/execute/demo",
             json={"execute_arguments": {"inputs": [{"name": "delay", "value": 0.1}]}},
         )
         data = response.json()
@@ -127,8 +123,8 @@ def test_get_execution_events_parallel(local_exec_client, root):
         nevents += nevents_per_exec
 
     # Get events from Socket.IO and REST API
-    events_socketio = get_events(sclient, nevents)
-    events_get = client.get(f"{root}/execution/events").json()["jobs"]
+    events_socketio = get_events(api_root, sclient, nevents)
+    events_get = client.get(f"{api_root}/execution/events").json()["jobs"]
 
     # Check that we have all events from the Socket.IO connection
     nevents = Counter()

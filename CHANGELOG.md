@@ -1,6 +1,11 @@
 # CHANGELOG.md
 
-## (unreleased)
+## Unreleased
+
+New API version `v2_0_0`:
+
+- End-point `/execution/events` returns events with the field `engine` instead of `binding`.
+- End-point `/execution/workers` is renamed to `/execution/queues`.
 
 ## 1.4.1
 
