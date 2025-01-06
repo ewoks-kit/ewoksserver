@@ -62,7 +62,7 @@ class _DefaultArgs(BaseSettings):
     dir: Optional[str] = None  # ewoks parameter
     without_events: bool = False  # ewoks parameter
     frontend_tests: bool = False  # ewoks parameter
-    rediscover_tasks: bool = False  # ewoks parameter
+    no_discovery_at_launch: bool = False  # ewoks parameter
     no_older_versions: bool = False  # app parameter
     log_level: Optional[str] = None  # uvicorn parameter
 

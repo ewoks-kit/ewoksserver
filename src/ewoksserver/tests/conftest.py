@@ -37,7 +37,10 @@ def rest_client(tmpdir):
     @lru_cache()
     def get_ewoks_settings_for_tests():
         return serverconfig.EwoksSettings(
-            configured=True, resource_directory=str(tmpdir)
+            configured=True,
+            resource_directory=str(tmpdir),
+            # Disable discovery since this client is used to test manual discovery
+            ewoks_discovery=EwoksDiscoverySettings(on_start_up=False),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = (
@@ -130,7 +133,8 @@ def celery_discover_timeout_client(
                 type=EwoksSchedulingType.Celery, configuration=dict()
             ),
             ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
-            ewoks_discovery=EwoksDiscoverySettings(timeout=0.1),
+            # Disable discovery since this client is used to test manual discovery timeout
+            ewoks_discovery=EwoksDiscoverySettings(on_start_up=False, timeout=0.1),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override

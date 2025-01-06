@@ -24,8 +24,8 @@ The Uvicorn and FastAPI command line interface are supported as well. The server
 Ewoks specific application parameters (as opposed to FastAPI or Uvicorn parameters)
 can be provided through (in order of priority)
 
-- command line interface arguments (example: `--rediscover-tasks`, only available for `ewoks-server`)
-- environment variables (example: `EWOKSAPP_REDISCOVER_TASKS=True`)
+- command line interface arguments (example: `--no-discovery-at-launch`, only available for `ewoks-server`)
+- environment variables (example: `EWOKSAPP_NO_DISCOVERY_AT_LAUNCH=True`)
 - "dotenv" file called `.env.prod` in the current working directory
 - "dotenv" file called `.env` in the current working directory
 

@@ -75,7 +75,7 @@ def create_ewoks_settings(
     dir: Optional[str] = None,
     without_events: bool = False,
     frontend_tests: bool = False,
-    rediscover_tasks: Optional[bool] = None,
+    no_discovery_at_launch: bool = False,
 ) -> EwoksSettings:
     global _EWOKS_SETTINGS
 
@@ -120,9 +120,9 @@ def create_ewoks_settings(
     ewoks_execution = _resolve_ewoks_execution_settings(ewoks_execution, ewoks)
     ewoks_scheduling = _resolve_ewoks_scheduling_settings(celery)
 
-    # Overwrite rediscover_tasks
-    if rediscover_tasks is not None:
-        ewoks_discovery["on_start_up"] = rediscover_tasks
+    # Overwrite on_start_up if asked
+    if no_discovery_at_launch:
+        ewoks_discovery["on_start_up"] = False
 
     configured = bool(filename) or bool(dir)
 
