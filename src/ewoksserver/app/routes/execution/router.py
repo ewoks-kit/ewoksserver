@@ -49,7 +49,7 @@ v2_0_0_router = APIRouter()
         },
     },
 )
-def execute_workflow(
+def execute_workflow_v1(
     settings: EwoksSettingsType,
     identifier: Annotated[
         str,
@@ -168,7 +168,7 @@ def execute_workflow(
         ),
     ],
     options: Annotated[
-        Optional[models.EwoksExecuteOptions_v1], Body(title="Ewoks execute options")
+        Optional[models.EwoksExecuteOptions_v2], Body(title="Ewoks execute options")
     ] = None,
 ) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
     try:
@@ -182,15 +182,15 @@ def execute_workflow(
 
     if options is None:
         execute_arguments = None
-        worker_options = None
+        submit_arguments = None
     else:
         execute_arguments = options.execute_arguments
-        worker_options = options.worker_options
+        submit_arguments = options.submit_arguments
     execute_arguments = json_backend.merge_mappings(
         graph["graph"].get("execute_arguments"), execute_arguments
     )
     submit_kwargs = json_backend.merge_mappings(
-        graph["graph"].get("worker_options"), worker_options
+        graph["graph"].get("submit_arguments"), submit_arguments
     )
 
     future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
