@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Mapping, Union, Optional
 from collections import OrderedDict
 from typing_extensions import Annotated
 
@@ -11,9 +11,8 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from ewoksutils import event_utils
-from ewoksjob.client import submit
 from ewoksjob.client import get_queues
-from ewoksjob.client.local import submit as submit_local
+
 
 from ...backends import json_backend
 from ...config import EwoksSettingsType
@@ -21,6 +20,12 @@ from ..common import models as common_models
 from ...models import EwoksSchedulingType
 from . import models
 from . import events
+from .utils import (
+    WorkflowNotFoundResponse,
+    WorkflowNotReadableResponse,
+    submit_workflow,
+)
+
 
 _base_execution_router = APIRouter()
 v1_0_0_router = APIRouter()
@@ -57,29 +62,15 @@ def execute_workflow(
     options: Annotated[
         Optional[models.EwoksExecuteOptions], Body(title="Ewoks execute options")
     ] = None,
-) -> Dict[str, Union[int, str]]:
+) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
     try:
         graph = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
         )
     except PermissionError:
-        return JSONResponse(
-            {
-                "message": f"No permission to read workflow '{identifier}'.",
-                "type": "workflow",
-                "identifier": identifier,
-            },
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+        return WorkflowNotReadableResponse(identifier)
     except FileNotFoundError:
-        return JSONResponse(
-            {
-                "message": f"Workflow '{identifier}' is not found.",
-                "type": "workflow",
-                "identifier": identifier,
-            },
-            status_code=status.HTTP_404_NOT_FOUND,
-        )
+        return WorkflowNotFoundResponse(identifier)
 
     if options is None:
         execute_arguments = None
@@ -94,21 +85,7 @@ def execute_workflow(
         graph["graph"].get("worker_options"), worker_options
     )
 
-    # Workflow execution: position arguments
-    submit_kwargs["args"] = (graph,)
-    # Workflow execution: named arguments
-    submit_kwargs["kwargs"] = execute_arguments
-
-    execinfo = execute_arguments.setdefault("execinfo", dict())
-    handlers = execinfo.setdefault("handlers", list())
-    for handler in settings.ewoks_execution.handlers:
-        if handler not in handlers:
-            handlers.append(handler)
-
-    if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
-        future = submit_local(**submit_kwargs)
-    else:
-        future = submit(**submit_kwargs)
+    future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
     return {"job_id": future.task_id}
 
 

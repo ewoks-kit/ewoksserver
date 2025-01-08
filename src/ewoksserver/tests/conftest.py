@@ -184,7 +184,7 @@ def default_task_identifiers() -> List[Path]:
 @pytest.fixture
 def mocked_local_submit(mocker) -> str:
     submit_local_mock = mocker.patch(
-        "ewoksserver.app.routes.execution.router.submit_local"
+        "ewoksserver.app.routes.execution.utils.submit_local"
     )
 
     MockFuture = namedtuple("Future", ["task_id"])
