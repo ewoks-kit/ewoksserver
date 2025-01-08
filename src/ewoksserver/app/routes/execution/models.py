@@ -3,11 +3,20 @@ from pydantic import BaseModel
 from pydantic import Field
 
 
-class EwoksExecuteOptions(BaseModel):
+class EwoksExecuteOptions_v1(BaseModel):
     execute_arguments: Optional[Dict] = Field(
         title="Workflow execution options", default=None
     )
     worker_options: Optional[Dict] = Field(title="Worker options", default=None)
+
+
+class EwoksExecuteOptions_v2(BaseModel):
+    execute_arguments: Optional[Dict] = Field(
+        title="Workflow execution options", default=None
+    )
+    submit_arguments: Optional[Dict] = Field(
+        title="Workflow submission options", default=None
+    )
 
 
 class EwoksJobInfo(BaseModel):

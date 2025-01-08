@@ -27,13 +27,12 @@ from .utils import (
 )
 
 
-_base_execution_router = APIRouter()
 v1_0_0_router = APIRouter()
 v1_1_0_router = APIRouter()
 v2_0_0_router = APIRouter()
 
 
-@_base_execution_router.post(
+@v1_0_0_router.post(
     "/execute/{identifier}",
     summary="Execute workflow",
     response_model=models.EwoksJobInfo,
@@ -60,7 +59,7 @@ def execute_workflow(
         ),
     ],
     options: Annotated[
-        Optional[models.EwoksExecuteOptions], Body(title="Ewoks execute options")
+        Optional[models.EwoksExecuteOptions_v1], Body(title="Ewoks execute options")
     ] = None,
 ) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
     try:
@@ -87,9 +86,6 @@ def execute_workflow(
 
     future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
     return {"job_id": future.task_id}
-
-
-v1_0_0_router.include_router(_base_execution_router)
 
 
 @v1_0_0_router.get(
@@ -145,7 +141,60 @@ def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
     return {"workers": get_queues()}
 
 
-v2_0_0_router.include_router(_base_execution_router)
+@v2_0_0_router.post(
+    "/execute/{identifier}",
+    summary="Execute workflow",
+    response_model=models.EwoksJobInfo,
+    response_description="Workflow execution job description",
+    status_code=200,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            "description": "No permission to read workflow",
+            "model": common_models.ResourceIdentifierError,
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Workflow not found",
+            "model": common_models.ResourceIdentifierError,
+        },
+    },
+)
+def execute_workflow(
+    settings: EwoksSettingsType,
+    identifier: Annotated[
+        str,
+        Path(
+            title="Workflow identifier",
+            description="Unique identifier in the workflow database",
+        ),
+    ],
+    options: Annotated[
+        Optional[models.EwoksExecuteOptions_v1], Body(title="Ewoks execute options")
+    ] = None,
+) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
+    try:
+        graph = json_backend.load_resource(
+            settings.resource_directory / "workflows", identifier
+        )
+    except PermissionError:
+        return WorkflowNotReadableResponse(identifier)
+    except FileNotFoundError:
+        return WorkflowNotFoundResponse(identifier)
+
+    if options is None:
+        execute_arguments = None
+        worker_options = None
+    else:
+        execute_arguments = options.execute_arguments
+        worker_options = options.worker_options
+    execute_arguments = json_backend.merge_mappings(
+        graph["graph"].get("execute_arguments"), execute_arguments
+    )
+    submit_kwargs = json_backend.merge_mappings(
+        graph["graph"].get("worker_options"), worker_options
+    )
+
+    future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
+    return {"job_id": future.task_id}
 
 
 @v2_0_0_router.get(
