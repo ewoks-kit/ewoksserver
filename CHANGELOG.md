@@ -8,6 +8,7 @@ New API version `v2_0_0`:
 
 - End-point `/execution/events` returns events with the field `engine` instead of `binding`.
 - End-point `/execution/workers` is renamed to `/execution/queues`.
+- End-point `/execute/{identifier}` payload field `worker_options` is renamed `submit_arguments`. This renaming also impacts the related workflow field that is merged with the payload: if a workflow contain the field `worker_options` in its `graph` section, it needs to be renamed to `submit_arguments` when using the v2 API.
 
 Breaking changes:
 

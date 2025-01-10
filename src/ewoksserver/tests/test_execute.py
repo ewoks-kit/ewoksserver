@@ -23,7 +23,8 @@ def test_new_client_new_events(local_exec_client, api_root):
     assert not sclient.get_events()
 
 
-def test_execute_options(rest_client, mocked_local_submit, api_root):
+@api_version_bounds(max_version="1.1.0")
+def test_execute_options_v1(rest_client, mocked_local_submit, api_root):
     workflow = {
         "graph": {
             "id": "myworkflow",
@@ -75,6 +76,81 @@ def test_execute_options(rest_client, mocked_local_submit, api_root):
             },
         },
         "worker_options": {"queue": "id00", "time_limit": 30},
+    }
+
+    response = rest_client.post(f"{api_root}/execute/myworkflow", json=data)
+    expected_submit_arguments = {
+        "args": (),
+        "kwargs": {
+            "args": (workflow,),
+            "kwargs": {
+                "engine": "ppf",
+                "execinfo": {"handlers": list()},
+                "slurm_arguments": {
+                    "parameters": {"time_limit": 20, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "queue": "id00",
+            "time_limit": 30,
+        },
+    }
+    assert mocked_local_submit == expected_submit_arguments
+
+
+@api_version_bounds(min_version="2.0.0")
+def test_execute_options(rest_client, mocked_local_submit, api_root):
+    workflow = {
+        "graph": {
+            "id": "myworkflow",
+            "label": "label1",
+            "category": "cat1",
+            "execute_arguments": {
+                "engine": "ppf",
+                "slurm_arguments": {
+                    "parameters": {"time_limit": 10, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "submit_arguments": {"queue": "id00"},
+        },
+        "nodes": [{"id": "task1"}],
+    }
+    response = rest_client.post(f"{api_root}/workflows", json=workflow)
+    data = response.json()
+    assert response.status_code == 200, data
+
+    # Check that the backend uses execute_arguments and submit_arguments
+    # from the workflow definition
+    response = rest_client.post(f"{api_root}/execute/myworkflow")
+    expected_submit_arguments = {
+        "args": (),
+        "kwargs": {
+            "args": (workflow,),
+            "kwargs": {
+                "engine": "ppf",
+                "execinfo": {"handlers": list()},
+                "slurm_arguments": {
+                    "parameters": {"time_limit": 10, "partition": "nice"},
+                    "pre_script": "module load ewoks",
+                },
+            },
+            "queue": "id00",
+        },
+    }
+    assert mocked_local_submit == expected_submit_arguments
+
+    # Check that the backend merges execute_arguments and submit_arguments
+    # from the client
+    data = {
+        "execute_arguments": {
+            "engine": "ppf",
+            "slurm_arguments": {
+                "parameters": {"time_limit": 20, "partition": "nice"},
+                "pre_script": "module load ewoks",
+            },
+        },
+        "submit_arguments": {"queue": "id00", "time_limit": 30},
     }
 
     response = rest_client.post(f"{api_root}/execute/myworkflow", json=data)
