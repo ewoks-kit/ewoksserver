@@ -1,5 +1,67 @@
 [build-system]
-requires = [
-    "setuptools>=46.4"
-]
+requires = ["setuptools>=46.4"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "ewoksserver"
+version = "2.0.0rc1"
+authors = [{ name = "ESRF", email = "dau-pydev@esrf.fr" }]
+description = "Backend for ewoksweb"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE.md" }
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "python-socketio",
+    "ewoksjob[worker] >=0.6.1",
+    "ewokscore >=1.0.0",
+    "pydantic-settings",
+]
+
+[project.urls]
+Homepage = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver"
+Documentation = "https://workflow.gitlab-pages.esrf.fr/ewoks/ewoksserver"
+Repository = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver"
+Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/issues"
+Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/-/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+frontend = ["ewoksjob[sql] >= 0.3"]
+test = [
+    "pytest >=7",
+    "pytest-celery",
+    "ewoksjob[sql] >= 0.3",
+    "pytest-mock",
+    "httpx",
+]
+dev = ["ewoksserver[test]", "black >=24", "flake8 >=4", "ewokscore >=0.5"]
+doc = [
+    "ewoksserver[test]",
+    "sphinx >=4.5",
+    "sphinx-autodoc-typehints >=1.16",
+    "sphinxcontrib-redoc",
+    "sphinx_design",
+    "pydata_sphinx_theme",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ['*.png', '*.svg', '*.json']
+
+[tool.coverage.run]
+omit = ['*/tests/*']
+
+[project.scripts]
+ewoks-server = "ewoksserver.__main__:main"
+ewoks-server-spec = "ewoksserver.spec:save"
