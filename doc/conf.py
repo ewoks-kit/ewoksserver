@@ -1,10 +1,12 @@
 """rm -rf doc/_generated/; sphinx-build doc build/sphinx/html -E -a
 """
 
-from ewoksserver import __version__
+import importlib.metadata
+
+release = importlib.metadata.version("ewoksserver")
 
 project = "ewoksserver"
-version = ".".join(__version__.split(".")[:2])  # MAJOR.MINOR
+version = ".".join(release.split(".")[:2])  # MAJOR.MINOR
 copyright = "2021-2024, ESRF"
 author = "ESRF"
 
