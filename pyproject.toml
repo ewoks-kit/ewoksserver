@@ -40,7 +40,7 @@ test = [
     "pytest-mock",
     "httpx",
 ]
-dev = ["ewoksserver[test]", "black >=24", "flake8 >=4", "ewokscore >=0.5"]
+dev = ["ewoksserver[test]", "black >=25", "flake8 >=4", "ewokscore >=0.5"]
 doc = [
     "ewoksserver[test]",
     "sphinx >=4.5",
