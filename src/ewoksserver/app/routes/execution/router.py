@@ -72,19 +72,23 @@ def execute_workflow_v1(
         return WorkflowNotFoundResponse(identifier)
 
     if options is None:
-        execute_arguments = None
-        worker_options = None
+        client_execute_arguments = None
+        client_submit_arguments = None
     else:
-        execute_arguments = options.execute_arguments
-        worker_options = options.worker_options
-    execute_arguments = json_backend.merge_mappings(
-        graph["graph"].get("execute_arguments"), execute_arguments
-    )
-    submit_kwargs = json_backend.merge_mappings(
-        graph["graph"].get("worker_options"), worker_options
-    )
+        client_execute_arguments = options.execute_arguments
+        client_submit_arguments = options.worker_options
 
-    future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
+    graph_execute_arguments = graph["graph"].get("execute_arguments")
+    graph_submit_arguments = graph["graph"].get("worker_options")
+
+    future = submit_workflow(
+        graph,
+        client_execute_arguments,
+        client_submit_arguments,
+        graph_execute_arguments,
+        graph_submit_arguments,
+        settings,
+    )
     return {"job_id": future.task_id}
 
 
@@ -181,19 +185,23 @@ def execute_workflow(
         return WorkflowNotFoundResponse(identifier)
 
     if options is None:
-        execute_arguments = None
-        submit_arguments = None
+        client_execute_arguments = None
+        client_submit_arguments = None
     else:
-        execute_arguments = options.execute_arguments
-        submit_arguments = options.submit_arguments
-    execute_arguments = json_backend.merge_mappings(
-        graph["graph"].get("execute_arguments"), execute_arguments
-    )
-    submit_kwargs = json_backend.merge_mappings(
-        graph["graph"].get("submit_arguments"), submit_arguments
-    )
+        client_execute_arguments = options.execute_arguments
+        client_submit_arguments = options.submit_arguments
 
-    future = submit_workflow(graph, execute_arguments, submit_kwargs, settings)
+    graph_execute_arguments = graph["graph"].get("execute_arguments")
+    graph_submit_arguments = graph["graph"].get("submit_arguments")
+
+    future = submit_workflow(
+        graph,
+        client_execute_arguments,
+        client_submit_arguments,
+        graph_execute_arguments,
+        graph_submit_arguments,
+        settings,
+    )
     return {"job_id": future.task_id}
 
 
