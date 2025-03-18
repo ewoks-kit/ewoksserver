@@ -3,8 +3,9 @@ Configure ``ewoksserver``
 
 ``ewoksserver`` can be configured by declaration the following variables in a Python file:
 
-- ``RESOURCE_DIRECTORY`` (string): defines the path to the resource folder where workflows, tasks, icons are stored. Equivalent to the ``--dir/-d`` command line argument.
-- ``EWOKS`` (dict): Configuration of ewoks handlers. See the `Ewoks events`_ section below.
+- ``RESOURCE_DIRECTORY`` (string): defines the path to the resource folder where workflows,
+  tasks, icons are stored. Equivalent to the ``--dir/-d`` command line argument.
+- ``EWOKS_EXECUTION`` (dict): Configuration of ewoks handlers. See the `Ewoks events`_ section below.
 - ``CELERY`` (dict): Configuration of Celery to allow launching workflows in ewoks workers.
 
 *Example*:
@@ -15,7 +16,7 @@ Configure ``ewoksserver``
 
     RESOURCE_DIRECTORY = "/path/to/resource/directory/"
 
-    EWOKS = {"handlers": ...}
+    EWOKS_EXECUTION = {"handlers": ...}
 
     CELERY = {"broker_url":...}
 
@@ -38,21 +39,24 @@ The environment variable ``EWOKSSERVER_SETTINGS`` can be used instead:
 Ewoks events
 ------------
 
-When executing workflows, ``ewoksserver`` can send ewoks events through a Socket.IO connection. Events are stored in a database by ``ewoksjob`` which needs further configuration.
+When executing workflows, ``ewoksserver`` can send ewoks events through a Socket.IO connection.
+Events are stored in a database by ``ewoksjob`` which needs further configuration.
 
-``ewoksjob`` supports ``redis`` and ``sql`` as databases. So first, one of these must be installed (here we choose ``sql``):
+``ewoksjob`` supports ``redis`` and ``sql`` as databases. So first, one of these must be installed
+(here we choose ``sql``):
 
 .. code:: bash
 
     pip install ewoksjob[sql]
 
-Then, in the configuration of ``ewoks-server``, the ``EWOKS`` handler must be appropriately set:
+Then, in the configuration of ``ewoks-server``, the ``EWOKS_EXECUTION`` parameter must define the
+appropriate `"handlers"`:
 
 .. code:: python
 
     # /tmp/config.py
 
-    EWOKS = {
+    EWOKS_EXECUTION = {
         "handlers": [
             {
                 "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
@@ -66,7 +70,8 @@ Then, in the configuration of ``ewoks-server``, the ``EWOKS`` handler must be ap
         ]
     }
 
-If the server displays on start-up that the ``EWOKS`` handlers are properly set, it means that ewoks events are ready to be sent when executing workflows:
+If the server displays on start-up that the ``EWOKS_EXECUTION`` parameter has `"handlers"`,
+it means that ewoks events are ready to be sent when executing workflows:
 
 .. code:: bash
 
@@ -74,7 +79,7 @@ If the server displays on start-up that the ``EWOKS`` handlers are properly set,
 
     <...>
 
-    EWOKS:
+    EWOKS_EXECUTION:
     {'handlers': [{'arguments': [{'name': 'uri',
                                 'value': 'file:/home/huder/ewoksserver_resources/ewoks_events.db'}],
                 'class': 'ewokscore.events.handlers.Sqlite3EwoksEventHandler'}]}
