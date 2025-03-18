@@ -21,4 +21,8 @@ EWOKS_EXECUTION = {
 #    "result_backend": "redis://localhost:25001/3",
 # }
 
-DISCOVER_TIMEOUT = 60
+
+EWOKS_DISCOVERY = {
+    "on_start_up": True,
+    "timeout": 60,
+}
