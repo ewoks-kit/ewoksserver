@@ -144,14 +144,12 @@ def create_app_settings(no_older_versions: bool = False) -> AppSettings:
 
 
 def get_ewoks_settings():
-    global _EWOKS_SETTINGS
     if _EWOKS_SETTINGS is not None:
         return _EWOKS_SETTINGS
     return create_ewoks_settings()
 
 
 def get_app_settings():
-    global _APP_SETTINGS
     if _APP_SETTINGS is not None:
         return _APP_SETTINGS
     return create_app_settings()

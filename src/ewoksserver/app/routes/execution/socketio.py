@@ -108,7 +108,6 @@ def create_socketio_app() -> socketio.ASGIApp:
 
 
 def configure_socketio(ewoks_settings: EwoksSettings) -> None:
-    global _MANAGER
     _MANAGER.configure(ewoks_settings)
 
 
