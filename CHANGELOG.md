@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.0.1
+
+- Pin `ewoksjob` requirement to `0.x`.
+
 ## 2.0.0
 
 New API version `v2_0_0`:
