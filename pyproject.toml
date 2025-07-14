@@ -38,7 +38,7 @@ test = [
     "pytest-celery",
     "ewoksjob[sql] >= 0.3",
     "pytest-mock",
-    "httpx",
+    "httpx !=1.0.dev1",  # https://github.com/encode/starlette/issues/2960
 ]
 dev = ["ewoksserver[test]", "black >=25", "flake8 >=4", "ewokscore >=0.5"]
 doc = [
