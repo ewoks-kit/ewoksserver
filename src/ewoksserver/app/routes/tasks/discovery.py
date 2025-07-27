@@ -65,9 +65,10 @@ def _discover_tasks_in_all_queues(
     task_dict = {}
     for future in futures:
         # Ignore failures of a single queue to not prevent discovery on other queues
-        new_tasks = future.get(timeout=timeout, propagate=False)
-        if future.failed():
-            logger.warning(f"Task discovery failed for {future.queue}")
+        new_tasks = future.result(timeout=timeout)
+        exc = future.exception()
+        if exc:
+            logger.warning(f"Task discovery failed for {future.queue}: {exc}")
             continue
         if new_tasks is None:
             continue

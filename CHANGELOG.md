@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Pin `ewoksjob` requirement to `1.x`.
+
 ## 2.0.1
 
 - Pin `ewoksjob` requirement to `0.x`.

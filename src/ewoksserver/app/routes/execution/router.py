@@ -89,7 +89,7 @@ def execute_workflow_v1(
         graph_submit_arguments,
         settings,
     )
-    return {"job_id": future.task_id}
+    return {"job_id": future.uuid}
 
 
 @v1_0_0_router.get(
@@ -202,7 +202,7 @@ def execute_workflow(
         graph_submit_arguments,
         settings,
     )
-    return {"job_id": future.task_id}
+    return {"job_id": future.uuid}
 
 
 @v2_0_0_router.get(

@@ -19,7 +19,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "python-socketio",
-    "ewoksjob[worker] >=0.6.1,<1",
+    "ewoksjob[worker] >=1.1,<2",
     "ewokscore >=1.0.0",
     "pydantic-settings",
 ]
@@ -32,15 +32,21 @@ Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/issues"
 Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/-/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-frontend = ["ewoksjob[sql] >= 0.3"]
+frontend = [
+    "ewoksjob[sql]"
+]
 test = [
     "pytest >=7",
     "pytest-celery",
-    "ewoksjob[sql] >= 0.3",
+    "ewoksserver[frontend]",
     "pytest-mock",
     "httpx !=1.0.dev1",  # https://github.com/encode/starlette/issues/2960
 ]
-dev = ["ewoksserver[test]", "black >=25", "flake8 >=4", "ewokscore >=0.5"]
+dev = [
+    "ewoksserver[test]",
+    "black >=25",
+    "flake8 >=4"
+]
 doc = [
     "ewoksserver[test]",
     "sphinx >=4.5",
