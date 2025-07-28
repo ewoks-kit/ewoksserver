@@ -182,22 +182,22 @@ def default_task_identifiers() -> List[Path]:
 
 
 @pytest.fixture
-def mocked_local_submit(mocker) -> str:
+def mocked_local_submit(mocker) -> dict:
     submit_local_mock = mocker.patch(
         "ewoksserver.app.routes.execution.utils.submit_local"
     )
 
-    MockFuture = namedtuple("Future", ["task_id"])
+    MockFuture = namedtuple("Future", ["uuid"])
 
     arguments = dict()
-    task_id = 0
+    uuid = 0
 
     def mocked_submit(*args, **kwargs):
-        nonlocal task_id
+        nonlocal uuid
         arguments["args"] = args
         arguments["kwargs"] = kwargs
-        task_id += 1
-        return MockFuture(task_id=task_id)
+        uuid += 1
+        return MockFuture(uuid=uuid)
 
     submit_local_mock.side_effect = mocked_submit
     return arguments

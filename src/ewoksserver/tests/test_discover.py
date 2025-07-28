@@ -1,5 +1,5 @@
 import pytest
-from celery.exceptions import TimeoutError
+from ewoksjob.client.futures import TimeoutError
 
 
 def test_discover_tasks_from_a_module(rest_client, default_task_identifiers, api_root):
