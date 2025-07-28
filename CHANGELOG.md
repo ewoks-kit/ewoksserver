@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2025-07-28
+
 ### Changed
 
 - Pin `ewoksjob` requirement to `1.x`.
@@ -183,7 +185,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Serve ewoksweb frontend.
 - Swagger API documentation.
 
-[unreleased]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v2.0.1...HEAD
+[unreleased]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v2.1.0...HEAD
+[2.1.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v2.0.1...v2.1.0
 [2.0.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v2.0.0...v2.0.1
 [2.0.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v1.4.1...v2.0.0
 [1.4.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/compare/v1.4.0...v1.4.1
