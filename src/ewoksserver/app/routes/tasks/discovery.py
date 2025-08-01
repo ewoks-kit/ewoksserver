@@ -22,6 +22,11 @@ def discover_tasks(
     task_type: Optional[str] = None,
     worker_options: Optional[Dict] = None,
 ) -> List[Dict[str, str]]:
+    """
+    :raises ModuleNotFoundError: failed importing tasks.
+    :raises TimeoutError: timeout when asking a remote worker for tasks.
+    :raises Exception: any other import or remote error.
+    """
     if worker_options is None:
         kwargs = dict()
     else:

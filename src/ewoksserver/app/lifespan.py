@@ -68,7 +68,11 @@ def _copy_default_resources(ewoks_settings: config.EwoksSettings) -> None:
 def _rediscover_tasks(ewoks_settings: config.EwoksSettings) -> None:
     if not ewoks_settings.ewoks_discovery.on_start_up:
         return
-    tasks = discover_tasks(ewoks_settings)
+    try:
+        tasks = discover_tasks(ewoks_settings)
+    except Exception as ex:
+        tasks = []
+        logger.exception("Task discovery failed: %s", ex)
     root_url = json_backend.root_url(ewoks_settings.resource_directory, "tasks")
     for resource in tasks:
         json_backend.save_resource(root_url, resource["task_identifier"], resource)
