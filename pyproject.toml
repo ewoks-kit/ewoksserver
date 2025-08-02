@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ewoksserver"
-version = "2.1.0"
+version = "2.1.1"
 authors = [{ name = "ESRF", email = "dau-pydev@esrf.fr" }]
 description = "Backend for ewoksweb"
 readme = { file = "README.md", content-type = "text/markdown" }
