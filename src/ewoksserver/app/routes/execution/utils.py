@@ -1,10 +1,10 @@
 from typing import Any, Dict, Optional, Mapping
 from fastapi.responses import JSONResponse
-from fastapi import status
 
 from ewoksjob.client import submit
 from ewoksjob.client.local import submit as submit_local
 
+from .. import status
 from ...models import EwoksSchedulingType
 from ...config import EwoksSettingsType
 

@@ -7,9 +7,8 @@ from fastapi import Path
 from fastapi import Body
 from fastapi import Query
 from fastapi.responses import JSONResponse
-from fastapi import status
 
-
+from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
@@ -219,7 +218,7 @@ def update_workflow(
             "description": "Workflow identifier missing",
             "model": common_models.ResourceIdentifierError,
         },
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
             "description": "Workflow identifier cannot be empty",
             "model": common_models.ResourceIdentifierError,
         },
@@ -247,7 +246,7 @@ def create_workflow(
                 "message": "Workflow identifier missing",
                 "type": "workflow",
             },
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
     if ridentifier == "":
@@ -256,7 +255,7 @@ def create_workflow(
                 "message": "Workflow identifier cannot be empty",
                 "type": "workflow",
             },
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
     exists = json_backend.resource_exists(

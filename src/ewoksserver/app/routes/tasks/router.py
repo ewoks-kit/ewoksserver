@@ -6,10 +6,10 @@ from fastapi import APIRouter
 from fastapi import Path
 from fastapi import Body
 from fastapi.responses import JSONResponse
-from fastapi import status
 from pydantic import ValidationError
 
 
+from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
@@ -191,7 +191,7 @@ def update_task(
     response_description="Ewoks task description",
     status_code=200,
     responses={
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
             "description": "Task identifier cannot be empty",
             "model": common_models.ResourceIdentifierError,
         },
@@ -217,7 +217,7 @@ def create_task(
                 "message": "Task identifier cannot be empty",
                 "type": "task",
             },
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
     exists = json_backend.resource_exists(

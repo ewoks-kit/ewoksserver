@@ -5,9 +5,8 @@ from fastapi import APIRouter
 from fastapi import Path
 from fastapi import Body
 from fastapi.responses import JSONResponse
-from fastapi import status
 
-
+from .. import status
 from ...backends import binary_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
