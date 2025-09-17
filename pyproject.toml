@@ -41,7 +41,6 @@ test = [
     "pytest-celery",
     "ewoksserver[frontend]",
     "pytest-mock",
-    "httpx <1.0.dev1",  # https://github.com/encode/starlette/issues/2960
 ]
 dev = [
     "ewoksserver[test]",
