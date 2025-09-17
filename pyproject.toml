@@ -22,6 +22,7 @@ dependencies = [
     "ewoksjob[worker] >=1.1,<2",
     "ewokscore >=1.0.0",
     "pydantic-settings",
+    "packaging",
 ]
 
 [project.urls]

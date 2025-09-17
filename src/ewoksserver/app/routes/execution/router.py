@@ -6,14 +6,13 @@ from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Path
 from fastapi import Depends
-from fastapi import status
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from ewoksutils import event_utils
 from ewoksjob.client import get_queues
 
-
+from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from ..common import models as common_models
