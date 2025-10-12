@@ -1,5 +1,5 @@
-API documentation
-=================
+Python API
+==========
 
 .. autosummary::
     :toctree: _generated
