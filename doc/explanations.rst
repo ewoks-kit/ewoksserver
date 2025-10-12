@@ -4,4 +4,4 @@ Explanations
 .. toctree::
     :maxdepth: 1
 
-    restapi
+    explanations/restapi

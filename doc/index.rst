@@ -31,6 +31,6 @@ of the `European Synchrotron <https://www.esrf.eu/>`_.
 .. toctree::
     :hidden:
 
-    tutorials/index
-    explanations/index
-    reference/index
+    tutorials
+    explanations
+    reference
