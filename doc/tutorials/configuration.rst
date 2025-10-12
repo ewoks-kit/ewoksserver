@@ -1,5 +1,5 @@
-Configure ``ewoksserver``
-=======================
+Server configuration
+====================
 
 ``ewoksserver`` can be configured by declaration the following variables in a Python file:
 
@@ -10,7 +10,7 @@ Configure ``ewoksserver``
 
 *Example*:
 
-.. code:: python
+.. code-block:: python
     
     # /tmp/config.py
 
@@ -23,13 +23,13 @@ Configure ``ewoksserver``
 
 The path to configuration file can then be passed through the ``--config`` command line argument:
 
-.. code:: bash
+.. code-block:: bash
 
     ewoks-server --config /tmp/config.py
 
 The environment variable ``EWOKSSERVER_SETTINGS`` can be used instead:
 
-.. code:: bash
+.. code-block:: bash
 
     export EWOKSSERVER_SETTINGS=/tmp/config.py
     ewoks-server
@@ -45,14 +45,14 @@ Events are stored in a database by ``ewoksjob`` which needs further configuratio
 ``ewoksjob`` supports ``redis`` and ``sql`` as databases. So first, one of these must be installed
 (here we choose ``sql``):
 
-.. code:: bash
+.. code-block:: bash
 
     pip install ewoksjob[sql]
 
 Then, in the configuration of ``ewoks-server``, the ``EWOKS_EXECUTION`` parameter must define the
 appropriate `"handlers"`:
 
-.. code:: python
+.. code-block:: python
 
     # /tmp/config.py
 
@@ -73,7 +73,7 @@ appropriate `"handlers"`:
 If the server displays on start-up that the ``EWOKS_EXECUTION`` parameter has `"handlers"`,
 it means that ewoks events are ready to be sent when executing workflows:
 
-.. code:: bash
+.. code-block:: bash
 
     $ ewoks-server -c /tmp/config.py
 

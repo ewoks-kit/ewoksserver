@@ -3,7 +3,7 @@ REST API versioning
 
 By default the server provides versioned end-points for all full and major versions. For example
 
-.. code::
+.. code-block::
 
     GET /api/workflows          # same as v2_0_0
 

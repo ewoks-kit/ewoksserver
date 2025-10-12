@@ -3,64 +3,34 @@ ewoksserver |version|
 
 *ewoksserver* is a **a REST server** to manage and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
 
-It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_, **a full-stack web application** to create, modify and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
+It serves as a backend for `ewoksweb <https://ewoksweb.readthedocs.io/>`_, **a full-stack web application**
+to create, modify and execute `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
 
-> If you are looking for information on `ewoksweb`, please refer to the `ewoksweb <https://ewoksweb.readthedocs.io/>`_ documentation.
+*ewoksserver* is developed by the `Software group <http://www.esrf.eu/Instrumentation/software>`_
+of the `European Synchrotron <https://www.esrf.eu/>`_.
 
-*ewoksserver* is developed by the `Software group <http://www.esrf.eu/Instrumentation/software>`_ of the `European Synchrotron <https://www.esrf.eu/>`_.
+.. admonition:: Quick Start
 
-How to install
---------------
+    .. code-block:: bash
 
-To start the REST server, first install it via `pip`:
+        pip install ewoksserver
 
-.. code:: bash
+    The server can then be started via
 
-    pip install ewoksserver
+    .. code-block:: bash
 
-How to use
------------
+        ewoks-server
 
-The server can then be started via
-
-.. code:: bash
-
-    ewoks-server
-
-
-The web app will be available at ``localhost:8000``.
+    The REST API (and the web app) will be available at ``localhost:8000``.
 
 .. note::
 
-    ``ewoks-server`` takes the port 8000 by default. If there are other applications running on this port (e.g. iTunes radio on Mac), another port can be chosen
-
-    .. code:: bash
-
-        ewoks-server --port 6660
-
-    Also by default, ``ewoks-server`` will save ewoks resources (workflows, tasks, icons) in the current folder. This can be changed through the ``--dir`` command line argument
-
-    .. code:: bash
-
-        ewoks-server --dir /path/to/ewoksserver/resources
-
-    To have the complete list of arguments, run
-
-    .. code::bash
-        
-        ewoks-server --help
-
-Documentation 
--------------
-
-See the following pages
+    If you are looking information on the front-end, please refer to the
+    `ewoksweb <https://ewoksweb.readthedocs.io/>`_ documentation.
 
 .. toctree::
-    :maxdepth: 1
-    :caption: REST server
+    :hidden:
 
-    configuration
-    restapi
-    restapi_versioning
-    api
-
+    tutorials/index
+    explanations/index
+    reference/index
