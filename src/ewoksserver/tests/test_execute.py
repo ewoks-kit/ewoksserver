@@ -1,7 +1,7 @@
 import time
 
-from ewoksutils import event_utils
 from ewokscore.tests.examples.graphs import get_graph
+from ewoksutils import event_utils
 
 from .api_versions import api_version_bounds
 

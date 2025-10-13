@@ -1,5 +1,6 @@
 from functools import wraps
-from typing import Optional, Tuple
+from typing import Optional
+from typing import Tuple
 
 import pytest
 

@@ -46,7 +46,8 @@ test = [
 dev = [
     "ewoksserver[test]",
     "black >=25",
-    "flake8 >=4"
+    "flake8 >=4",
+    "isort",
 ]
 doc = [
     "ewoksserver[test]",
@@ -73,3 +74,7 @@ omit = ['*/tests/*']
 [project.scripts]
 ewoks-server = "ewoksserver.__main__:main"
 ewoks-server-spec = "ewoksserver.spec:save"
+
+[tool.isort]
+profile = "black"
+force_single_line = "True"

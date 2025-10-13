@@ -1,8 +1,9 @@
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, Union, Dict
-
+from typing import Dict
+from typing import Iterator
+from typing import Union
 
 ResourceIdentifierType = str
 ResourceUrlType = Path

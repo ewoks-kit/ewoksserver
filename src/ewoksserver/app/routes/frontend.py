@@ -1,4 +1,5 @@
 import logging
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import Response
@@ -10,7 +11,6 @@ except ImportError:
     get_static_root = None
 
 from . import FRONTEND_PREFIX
-
 
 logger = logging.getLogger(__name__)
 

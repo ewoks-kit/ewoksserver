@@ -6,14 +6,14 @@
 """
 
 import sys
-from typing import Optional, List
+from typing import List
+from typing import Optional
 
 import click
 from uvicorn.main import main as uvicorn_main
 
 from .config import configure_app
 from .config import get_default_args
-
 
 uvicorn_main = click.option(
     "--config",

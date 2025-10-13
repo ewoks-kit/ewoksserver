@@ -1,32 +1,28 @@
 import time
+from collections import namedtuple
+from functools import lru_cache
 from pathlib import Path
 from typing import List
-from functools import lru_cache
-from collections import namedtuple
 
 import pytest
-from fastapi.testclient import TestClient
-
 from ewokscore import events
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
+from fastapi.testclient import TestClient
 
 from .. import app as newserver
 from ..app import config as serverconfig
 from ..app.backends.binary_backend import _load_url
-from ..app.models import (
-    EwoksDiscoverySettings,
-    EwoksExecutionSettings,
-    EwoksJobSettings,
-    EwoksSchedulingType,
-)
+from ..app.models import EwoksDiscoverySettings
+from ..app.models import EwoksExecutionSettings
+from ..app.models import EwoksJobSettings
+from ..app.models import EwoksSchedulingType
 from ..resources import DEFAULT_ROOT
-from .socketio_test import SocketIOTestClient
-
 from .api_versions import api_root  # noqa F401
-from .api_versions import min_api_version  # noqa F401
 from .api_versions import max_api_version  # noqa F401
+from .api_versions import min_api_version  # noqa F401
 from .data import resource_filenames
+from .socketio_test import SocketIOTestClient
 
 
 @pytest.fixture

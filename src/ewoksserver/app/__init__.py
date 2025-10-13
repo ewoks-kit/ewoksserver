@@ -7,11 +7,11 @@ from .config import get_app_settings
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
 from .routes import backend
+from .routes import execution
 from .routes import frontend
+from .routes import icons
 from .routes import tasks
 from .routes import workflows
-from .routes import icons
-from .routes import execution
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,8 @@ from datetime import datetime
 
 from ewokscore.tests.examples.graphs import get_graph
 
-from .test_execute import upload_graph
 from .test_execute import get_events
+from .test_execute import upload_graph
 
 
 def test_get_execution_events(local_exec_client, api_root):

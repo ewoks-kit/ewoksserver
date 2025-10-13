@@ -1,20 +1,20 @@
 import logging
-from typing import List, Dict
-from typing_extensions import Annotated
+from typing import Dict
+from typing import List
 
 from fastapi import APIRouter
-from fastapi import Path
 from fastapi import Body
+from fastapi import Path
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+from typing_extensions import Annotated
 
-
-from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
+from .. import status
 from ..common import models as common_models
-from . import models
 from . import discovery
+from . import models
 
 logger = logging.getLogger(__name__)
 

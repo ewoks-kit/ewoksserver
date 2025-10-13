@@ -5,6 +5,9 @@ include:
 variables:
   PYTEST_WARNINGS: "-W error"
 
+isort:
+  extends: .isort
+
 test-3.8:
   extends: .test-3.8
   variables:

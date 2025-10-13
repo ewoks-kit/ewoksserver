@@ -1,30 +1,30 @@
-from typing import Dict, List, Mapping, Union, Optional
 from collections import OrderedDict
-from typing_extensions import Annotated
+from typing import Dict
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Union
 
+from ewoksjob.client import get_queues
+from ewoksutils import event_utils
 from fastapi import APIRouter
 from fastapi import Body
-from fastapi import Path
 from fastapi import Depends
 from fastapi import HTTPException
+from fastapi import Path
 from fastapi.responses import JSONResponse
+from typing_extensions import Annotated
 
-from ewoksutils import event_utils
-from ewoksjob.client import get_queues
-
-from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
-from ..common import models as common_models
 from ...models import EwoksSchedulingType
-from . import models
+from .. import status
+from ..common import models as common_models
 from . import events
-from .utils import (
-    WorkflowNotFoundResponse,
-    WorkflowNotReadableResponse,
-    submit_workflow,
-)
-
+from . import models
+from .utils import WorkflowNotFoundResponse
+from .utils import WorkflowNotReadableResponse
+from .utils import submit_workflow
 
 v1_0_0_router = APIRouter()
 v1_1_0_router = APIRouter()

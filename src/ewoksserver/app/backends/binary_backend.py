@@ -1,10 +1,10 @@
 import base64
-import mimetypes
-from urllib import request
 import logging
+import mimetypes
 from pathlib import Path
-from typing import Iterator, Union
-
+from typing import Iterator
+from typing import Union
+from urllib import request
 
 ResourceIdentifierType = str
 ResourceUrlType = Path

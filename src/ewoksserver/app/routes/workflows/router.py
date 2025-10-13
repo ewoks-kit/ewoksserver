@@ -1,19 +1,21 @@
 import json
-from typing import List, Dict, Optional
-from typing_extensions import Annotated
+from typing import Dict
+from typing import List
+from typing import Optional
 
 from fastapi import APIRouter
-from fastapi import Path
 from fastapi import Body
+from fastapi import Path
 from fastapi import Query
 from fastapi.responses import JSONResponse
+from typing_extensions import Annotated
 
-from .. import status
 from ...backends import json_backend
 from ...config import EwoksSettingsType
+from .. import status
 from ..common import models as common_models
-from . import models
 from . import descriptions
+from . import models
 
 router = APIRouter()
 

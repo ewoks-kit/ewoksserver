@@ -1,6 +1,7 @@
 import logging
 from contextlib import contextmanager
-from typing import Generator, Optional
+from typing import Generator
+from typing import Optional
 
 from ewoksjob.events.readers import EwoksEventReader
 from ewoksjob.events.readers import instantiate_reader
