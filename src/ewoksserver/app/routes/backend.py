@@ -1,5 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict, Mapping, Tuple, List, Set, Union, Callable
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Mapping
+from typing import Set
+from typing import Tuple
+from typing import Union
 
 from fastapi import APIRouter
 from fastapi import FastAPI

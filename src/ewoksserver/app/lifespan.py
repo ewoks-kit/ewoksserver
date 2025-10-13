@@ -1,23 +1,22 @@
+import logging
 import os
 import shutil
-import logging
+from contextlib import asynccontextmanager
+from contextlib import contextmanager
 from pprint import pformat
 from typing import Generator
-from contextlib import contextmanager
-from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from ewoksjob.client.local import pool_context
 from celery import current_app as current_celery_app
+from ewoksjob.client.local import pool_context
+from fastapi import FastAPI
 
 from ewoksserver.app.models import EwoksSchedulingType
 
-from .backends import json_backend
 from .. import resources
 from . import config
+from .backends import json_backend
 from .routes.execution import socketio
 from .routes.tasks.discovery import discover_tasks
-
 
 logger = logging.getLogger(__name__)
 

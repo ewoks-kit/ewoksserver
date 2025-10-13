@@ -1,7 +1,8 @@
-from typing import Dict, Optional, Iterator
+from typing import Dict
+from typing import Iterator
+from typing import Optional
 
 from ...backends import json_backend
-
 
 _WORKFLOW_KEYWORDS = (
     "id",

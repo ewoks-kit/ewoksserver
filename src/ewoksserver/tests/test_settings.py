@@ -1,12 +1,11 @@
 import json
-import pytest
-from ewoksserver.app.config import create_ewoks_settings
-from ewoksserver.app.models import (
-    EwoksDiscoverySettings,
-    EwoksExecutionSettings,
-    EwoksSchedulingType,
-)
 
+import pytest
+
+from ewoksserver.app.config import create_ewoks_settings
+from ewoksserver.app.models import EwoksDiscoverySettings
+from ewoksserver.app.models import EwoksExecutionSettings
+from ewoksserver.app.models import EwoksSchedulingType
 
 _HANDLERS = [
     {

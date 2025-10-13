@@ -1,14 +1,16 @@
-import logging
 import inspect
+import logging
 from functools import lru_cache
-from typing import Optional, Dict, Any
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 from pydantic import validator
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
-from .app.config import create_ewoks_settings
 from .app.config import create_app_settings
+from .app.config import create_ewoks_settings
 
 
 def configure_app(**input_args) -> Dict[str, Any]:

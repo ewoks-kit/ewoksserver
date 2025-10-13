@@ -1,12 +1,15 @@
-from typing import Any, Dict, Optional, Mapping
-from fastapi.responses import JSONResponse
+from typing import Any
+from typing import Dict
+from typing import Mapping
+from typing import Optional
 
 from ewoksjob.client import submit
 from ewoksjob.client.local import submit as submit_local
+from fastapi.responses import JSONResponse
 
-from .. import status
-from ...models import EwoksSchedulingType
 from ...config import EwoksSettingsType
+from ...models import EwoksSchedulingType
+from .. import status
 
 
 class WorkflowNotReadableResponse(JSONResponse):

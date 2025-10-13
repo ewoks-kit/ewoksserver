@@ -1,4 +1,6 @@
-from typing import Optional, Dict
+from typing import Dict
+from typing import Optional
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

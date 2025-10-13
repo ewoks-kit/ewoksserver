@@ -1,7 +1,8 @@
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
+
 from .app import create_app
 
 

@@ -1,15 +1,15 @@
-import logging
 import asyncio
+import logging
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Optional
-from concurrent.futures import ThreadPoolExecutor
 
 import socketio
 from socketio.exceptions import ConnectionRefusedError
 
-from . import events
 from ...config import EwoksSettings
+from . import events
 
 logger = logging.getLogger(__name__)
 

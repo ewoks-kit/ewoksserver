@@ -1,7 +1,7 @@
 from importlib.metadata import version
-from packaging.version import Version
 
 from fastapi import status
+from packaging.version import Version
 
 HTTP_400_BAD_REQUEST = status.HTTP_400_BAD_REQUEST
 HTTP_403_FORBIDDEN = status.HTTP_403_FORBIDDEN

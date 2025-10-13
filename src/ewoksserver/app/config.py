@@ -1,16 +1,17 @@
 from __future__ import annotations
-import os
-import sys
+
 import importlib.util
 import logging
-from typing_extensions import Annotated
-from typing import Optional
+import os
+import sys
 import warnings
+from typing import Optional
 
 from fastapi import Depends
+from typing_extensions import Annotated
 
-
-from .models import AppSettings, EwoksSettings
+from .models import AppSettings
+from .models import EwoksSettings
 
 try:
     from ewoksweb.serverutils import get_test_config
