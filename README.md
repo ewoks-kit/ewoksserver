@@ -6,7 +6,7 @@ It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emit
 
 ## Getting started
 
-Install the [ewoksserver](https://ewoksserver.readthedocs.io/en/latest/) Python package
+Install the [ewoksserver](https://ewoksserver.readthedocs.io) Python package
 
 ```
 pip install ewoksserver
