@@ -1,16 +1,16 @@
 """Start ewoks server from the command line with the Uvicorn CLI
 
-..code: bash
+.. code-block:: bash
 
     uvicorn ewoksserver.main:app
 
 or the FastAPI CLI
 
-..code: bash
+.. code-block:: bash
 
     fastapi dev src/ewoksserver/main.py
 
-..code: bash
+.. code-block:: bash
 
     fastapi run src/ewoksserver/main.py
 """

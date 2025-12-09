@@ -1,6 +1,6 @@
 """Start ewoks server from the command line with the ewoks-server CLI
 
-..code: bash
+.. code-block:: bash
 
     ewoks-server --reload
 """
