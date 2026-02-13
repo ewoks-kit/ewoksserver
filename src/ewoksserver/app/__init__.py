@@ -54,7 +54,7 @@ def create_app() -> FastAPI:
         version=f"{major}.{minor}.{patch}",
         contact={
             "name": "ESRF",
-            "url": "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/issues",
+            "url": "https://github.com/ewoks-kit/ewoksserver/issues",
         },
         license_info={
             "name": "MIT",

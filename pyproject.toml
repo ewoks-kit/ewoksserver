@@ -26,11 +26,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver"
-Documentation = "https://workflow.gitlab-pages.esrf.fr/ewoks/ewoksserver"
-Repository = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver"
-Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/issues"
-Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksserver/-/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/ewoks-kit/ewoksserver"
+Documentation = "https://ewoksserver.readthedocs.io/en/stable/"
+Repository = "https://github.com/ewoks-kit/ewoksserver"
+Issues = "https://github.com/ewoks-kit/ewoksserver/issues"
+Changelog = "https://github.com/ewoks-kit/ewoksserver/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 frontend = [
