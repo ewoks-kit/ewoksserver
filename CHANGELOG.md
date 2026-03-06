@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-03-06
+
+### Changed
+
+- Project migrated to https://github.com/ewoks-kit/ewoksserver.
+
 ## [2.1.1] - 2025-08-02
 
 ## Fixed
@@ -191,7 +197,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Serve ewoksweb frontend.
 - Swagger API documentation.
 
-[unreleased]: https://github.com/ewoks-kit/ewoksserver/compare/v2.1.1...HEAD
+[unreleased]: https://github.com/ewoks-kit/ewoksserver/compare/v2.1.2...HEAD
+[2.1.2]: https://github.com/ewoks-kit/ewoksserver/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/ewoks-kit/ewoksserver/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/ewoks-kit/ewoksserver/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/ewoks-kit/ewoksserver/compare/v2.0.0...v2.0.1

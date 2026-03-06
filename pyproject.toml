@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ewoksserver"
-version = "2.1.1"
+version = "2.1.2"
 authors = [{ name = "ESRF", email = "dau-pydev@esrf.fr" }]
 description = "Backend for ewoksweb"
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -57,6 +57,7 @@ doc = [
     "sphinx_design",
     "pydata_sphinx_theme",
     "sphinx-copybutton",
+    "setuptools<82",  # Issue https://github.com/sphinx-contrib/redoc/issues/53
 ]
 
 [tool.setuptools]
