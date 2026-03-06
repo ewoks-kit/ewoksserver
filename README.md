@@ -1,5 +1,12 @@
 # ewoksserver
 
+[![Pipeline](https://github.com/ewoks-kit/ewoksserver/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ewoks-kit/ewoksserver/actions/workflows/test.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License](https://img.shields.io/github/license/ewoks-kit/ewoksserver)](https://github.com/ewoks-kit/ewoksserver/blob/main/LICENSE.md)
+[![Coverage](https://codecov.io/gh/ewoks-kit/ewoksserver/branch/main/graph/badge.svg)](https://codecov.io/gh/ewoks-kit/ewoksserver)
+[![Docs](https://readthedocs.org/projects/ewoksserver/badge/?version=latest)](https://ewoksserver.readthedocs.io/en/latest/?badge=latest)
+[![PyPI](https://img.shields.io/pypi/v/ewoksserver)](https://pypi.org/project/ewoksserver/)
+
 ewoksserver is a REST server to manage and execute [ewoks](https://ewoks.readthedocs.io/) workflows.
 
 It serves as a backend for [ewoksweb](https://ewoksweb.readthedocs.io/) and emits ewoks execution events over Socket.IO.
