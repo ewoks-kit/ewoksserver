@@ -85,7 +85,7 @@ jobs:
   # Build documentation
   docs:
     needs: build
-    uses: ewoks-kit/.github/.github/workflows/python-docs.yml@custom_docs
+    uses: ewoks-kit/.github/.github/workflows/python-docs.yml@main
     with:
       pre-build-commands: |
         echo "Save REST API specs"
