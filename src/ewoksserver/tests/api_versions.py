@@ -52,14 +52,14 @@ def api_root(
 
     if min_api_version:
         min_api_version_tuple = tuple(map(int, min_api_version.split(".")))
-        assert (
-            len(min_api_version_tuple) == 3
-        ), "min_api_version must be of the form 'x.y.z'"
+        assert len(min_api_version_tuple) == 3, (
+            "min_api_version must be of the form 'x.y.z'"
+        )
     if max_api_version:
         max_api_version_tuple = tuple(map(int, max_api_version.split(".")))
-        assert (
-            len(max_api_version_tuple) == 3
-        ), "max_api_version must be of the form 'x.y.z'"
+        assert len(max_api_version_tuple) == 3, (
+            "max_api_version must be of the form 'x.y.z'"
+        )
 
     if min_api_version and version_tuple < min_api_version_tuple:
         pytest.skip(f"requires API >= {min_api_version}")
