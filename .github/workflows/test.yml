@@ -33,34 +33,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            python-version: "3.8"
-            enable-coverage: "false"
-            extra-pytest-warnings: ""
-
-          - os: ubuntu-latest
-            python-version: "3.9"
-            enable-coverage: "false"
-            # https://github.com/networkx/networkx/issues/7372
-            extra-pytest-warnings: "-W ignore::RuntimeWarning:networkx.utils.backends"
-
-          - os: ubuntu-latest
             python-version: "3.10"
-            enable-coverage: "false"
-            extra-pytest-warnings: ""
-
-          - os: ubuntu-latest
-            python-version: "3.11"
-            enable-coverage: "false"
-            extra-pytest-warnings: ""
-
-          - os: ubuntu-latest
-            python-version: "3.12"
             enable-coverage: "true"
-            extra-pytest-warnings: ""
-
-          - os: ubuntu-latest
-            python-version: "3.13"
-            enable-coverage: "false"
             extra-pytest-warnings: ""
 
           - os: ubuntu-latest
@@ -69,18 +43,23 @@ jobs:
             extra-pytest-warnings: ""
 
           - os: windows-latest
-            python-version: "3.9"
+            python-version: "3.10"
             enable-coverage: "false"
             extra-pytest-warnings: ""
 
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.14"
             enable-coverage: "false"
             extra-pytest-warnings: ""
 
   # Run linter / checks
   checks:
     uses: ewoks-kit/.github/.github/workflows/python-check.yml@main
+    with:
+      enable-black: "false"
+      enable-flake8: "false"
+      enable-isort: "false"
+      enable-ruff: "true"
 
   # Build documentation
   docs:

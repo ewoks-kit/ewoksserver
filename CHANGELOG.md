@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Minimal Python version is now 3.10
+
 ## [2.1.2] - 2026-03-06
 
 ### Changed

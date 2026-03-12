@@ -2,7 +2,7 @@
 
 ## General guidelines
 
-<a href="https://github.com/ewoks-kit/.github/blob/main/shared/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a>
+<a href="https://github.com/ewoks-kit/.github/blob/main/shared/CONTRIBUTING_ruff.md" target="_blank">CONTRIBUTING.md</a>
 
 ## Starting the server
 

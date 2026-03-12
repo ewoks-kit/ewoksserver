@@ -14,7 +14,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi",
     "uvicorn[standard]",
@@ -34,19 +34,18 @@ Changelog = "https://github.com/ewoks-kit/ewoksserver/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 frontend = [
-    "ewoksjob[sql]"
+    "ewoksjob[sql]",
 ]
 test = [
     "pytest >=7",
     "pytest-celery",
     "ewoksserver[frontend]",
     "pytest-mock",
-    "httpx <1.0.dev1",  # https://github.com/encode/starlette/issues/2960
+    "httpx <1.0.dev1",       # https://github.com/encode/starlette/issues/2960
 ]
 dev = [
     "ewoksserver[test]",
-    "black >=25",
-    "flake8 >=4",
+    "ruff",
     "isort",
 ]
 doc = [
@@ -57,7 +56,7 @@ doc = [
     "sphinx_design",
     "pydata_sphinx_theme",
     "sphinx-copybutton",
-    "setuptools<82",  # Issue https://github.com/sphinx-contrib/redoc/issues/53
+    "setuptools<82",                   # Issue https://github.com/sphinx-contrib/redoc/issues/53
 ]
 
 [tool.setuptools]
@@ -76,6 +75,13 @@ omit = ['*/tests/*']
 ewoks-server = "ewoksserver.__main__:main"
 ewoks-server-spec = "ewoksserver.spec:save"
 
-[tool.isort]
-profile = "black"
-force_single_line = "True"
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore `S101` (assert used violations) in all test files
+"src/ewoksserver/tests/*.py" = ["S101"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
