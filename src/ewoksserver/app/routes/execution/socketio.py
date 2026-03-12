@@ -3,7 +3,6 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Optional
 
 import socketio
 from socketio.exceptions import ConnectionRefusedError
@@ -28,7 +27,7 @@ class EwoksEventManager:
 
         self._ewoks_settings = None
         self._stop_event = threading.Event()
-        self._fetch_events_future: Optional[asyncio.Future] = None
+        self._fetch_events_future: asyncio.Future | None = None
         self._counter = 0
         self._executor = ThreadPoolExecutor(max_workers=1)
 
@@ -52,7 +51,7 @@ class EwoksEventManager:
         return await self._is_running(self._fetch_events_future)
 
     @staticmethod
-    async def _is_running(future: Optional[asyncio.Future] = None) -> bool:
+    async def _is_running(future: asyncio.Future | None = None) -> bool:
         return future is not None and not future.done()
 
     async def _start(self) -> None:
@@ -65,7 +64,7 @@ class EwoksEventManager:
             self._executor, self._fetch_events_main, loop
         )
 
-    async def _stop(self, timeout: Optional[float] = None) -> None:
+    async def _stop(self, timeout: float | None = None) -> None:
         future = self._fetch_events_future
         if not await self._is_running(future):
             return

@@ -1,7 +1,4 @@
 import logging
-from typing import Dict
-from typing import List
-from typing import Optional
 
 from ewoksjob.client import discover_all_tasks
 from ewoksjob.client import discover_tasks_from_modules
@@ -19,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 def discover_tasks(
     settings: EwoksSettings,
-    modules: Optional[List[str]] = None,
-    reload: Optional[bool] = None,
-    task_type: Optional[str] = None,
-    worker_options: Optional[Dict] = None,
-) -> List[Dict[str, str]]:
+    modules: list[str] | None = None,
+    reload: bool | None = None,
+    task_type: str | None = None,
+    worker_options: dict | None = None,
+) -> list[dict[str, str]]:
     """
     :raises ModuleNotFoundError: failed importing tasks.
     :raises TimeoutError: timeout when asking a remote worker for tasks.
@@ -60,8 +57,8 @@ def discover_tasks(
 
 
 def _discover_tasks_in_all_queues(
-    kwargs: Dict, timeout: Optional[float] = None
-) -> List[Dict[str, str]]:
+    kwargs: dict, timeout: float | None = None
+) -> list[dict[str, str]]:
     discover_from_modules = "args" in kwargs and bool(kwargs["args"])
     discover = (
         discover_tasks_from_modules if discover_from_modules else discover_all_tasks

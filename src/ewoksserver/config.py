@@ -2,8 +2,6 @@ import inspect
 import logging
 from functools import lru_cache
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 from pydantic import validator
 from pydantic_settings import BaseSettings
@@ -13,7 +11,7 @@ from .app.config import create_app_settings
 from .app.config import create_ewoks_settings
 
 
-def configure_app(**input_args) -> Dict[str, Any]:
+def configure_app(**input_args) -> dict[str, Any]:
     """Configure the FastAPI application with default parameter
     values from (in order of priority)
 
@@ -50,23 +48,23 @@ def configure_app(**input_args) -> Dict[str, Any]:
 
 
 @lru_cache
-def _get_env_args() -> Dict[str, Any]:
+def _get_env_args() -> dict[str, Any]:
     return _EnvArgs().dict()
 
 
 @lru_cache
-def get_default_args() -> Dict[str, Any]:
+def get_default_args() -> dict[str, Any]:
     return _DefaultArgs().dict()
 
 
 class _DefaultArgs(BaseSettings):
-    config: Optional[str] = None  # ewoks parameter
-    dir: Optional[str] = None  # ewoks parameter
+    config: str | None = None  # ewoks parameter
+    dir: str | None = None  # ewoks parameter
     without_events: bool = False  # ewoks parameter
     frontend_tests: bool = False  # ewoks parameter
     no_discovery_at_launch: bool = False  # ewoks parameter
     no_older_versions: bool = False  # app parameter
-    log_level: Optional[str] = None  # uvicorn parameter
+    log_level: str | None = None  # uvicorn parameter
 
 
 class _EnvArgs(_DefaultArgs):
