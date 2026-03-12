@@ -1,9 +1,6 @@
 import logging
 from enum import Enum
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -19,13 +16,13 @@ class EwoksSchedulingType(str, Enum):
 
 class EwoksDiscoverySettings(BaseModel):
     on_start_up: bool = Field(default=True, title="Discover ewoks tasks on startup")
-    timeout: Optional[float] = Field(
+    timeout: float | None = Field(
         default=None, title="Timeout for task discovery (in seconds)"
     )
 
 
 class EwoksExecutionSettings(BaseModel):
-    handlers: List[Dict] = Field(default=list(), title="Ewoks execution handlers")
+    handlers: list[dict] = Field(default=list(), title="Ewoks execution handlers")
 
 
 class EwoksJobSettings(BaseModel):

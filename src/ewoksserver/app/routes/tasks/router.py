@@ -1,13 +1,11 @@
 import logging
-from typing import Dict
-from typing import List
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Path
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from typing_extensions import Annotated
 
 from ...backends import json_backend
 from ...config import EwoksSettingsType
@@ -82,7 +80,7 @@ def get_task(
 )
 def get_tasks(
     settings: EwoksSettingsType,
-) -> Dict[str, List[models.EwoksTaskDescription]]:
+) -> dict[str, list[models.EwoksTaskDescription]]:
     tasks = list(json_backend.resources(settings.resource_directory / "tasks"))
 
     valid_tasks = []
@@ -103,7 +101,7 @@ def get_tasks(
     response_description="Ewoks task identifiers",
     status_code=200,
 )
-def get_task_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
+def get_task_identifiers(settings: EwoksSettingsType) -> dict[str, list[str]]:
     task_descriptions = get_tasks(settings)
     identifiers = [task.task_identifier for task in task_descriptions["items"]]
     return {"identifiers": identifiers}
@@ -272,7 +270,7 @@ def discover_tasks(
     options: Annotated[
         models.EwoksTaskDiscovery, Body(title="Ewoks task discovery options")
     ] = None,
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     if options:
         discover_options = options.model_dump()
     else:
@@ -333,7 +331,7 @@ def delete_task(
         ),
     ],
     settings: EwoksSettingsType,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     try:
         json_backend.delete_resource(settings.resource_directory / "tasks", identifier)
     except PermissionError:

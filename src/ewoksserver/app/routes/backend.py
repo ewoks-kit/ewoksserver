@@ -1,11 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable
-from typing import Dict
-from typing import List
 from typing import Mapping
-from typing import Set
-from typing import Tuple
-from typing import Union
 
 from fastapi import APIRouter
 from fastapi import FastAPI
@@ -14,8 +9,8 @@ from starlette.types import ASGIApp
 from . import BACKEND_PREFIX
 
 AppGenerator = Callable[[], ASGIApp]
-RouterType = Union[APIRouter, AppGenerator]
-VersionTuple = Tuple[int, int, int]
+RouterType = APIRouter | AppGenerator
+VersionTuple = tuple[int, int, int]
 
 
 @dataclass
@@ -27,8 +22,8 @@ class Route:
 
 
 def get_routes(
-    tag: str, routers: Dict[VersionTuple, RouterType], suffix: str = ""
-) -> Dict[Tuple[int], Route]:
+    tag: str, routers: dict[VersionTuple, RouterType], suffix: str = ""
+) -> dict[tuple[int], Route]:
     """Generate routes with versioned paths for all strict and major versions.
     In addition add a route with non-versioned path for the latest version."""
     routes = dict()
@@ -82,7 +77,7 @@ def assert_route_versions(*all_routes: Mapping[VersionTuple, RouterType]) -> Non
     assert len(versions) == 1, "Not all routes have the same versions"
 
 
-def extract_version_tags(all_routes: List[Dict[VersionTuple, Route]]) -> Set[str]:
+def extract_version_tags(all_routes: list[dict[VersionTuple, Route]]) -> set[str]:
     """Extract all version tags"""
     tags = set()
     for routes in all_routes:
@@ -92,14 +87,14 @@ def extract_version_tags(all_routes: List[Dict[VersionTuple, Route]]) -> Set[str
     return tags
 
 
-def extract_latest_version(all_routes: List[Dict[VersionTuple, Route]]) -> VersionTuple:
+def extract_latest_version(all_routes: list[dict[VersionTuple, Route]]) -> VersionTuple:
     """Extract the latest version"""
     return max(sorted(routes)[-1][:3] for routes in all_routes)
 
 
 def add_routes(
     app: FastAPI,
-    all_routes: List[Dict[VersionTuple, Route]],
+    all_routes: list[dict[VersionTuple, Route]],
     no_older_versions: bool = False,
 ) -> None:
     """Add routes to a fastapi app"""

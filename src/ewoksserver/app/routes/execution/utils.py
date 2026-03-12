@@ -1,7 +1,5 @@
 from typing import Any
-from typing import Dict
 from typing import Mapping
-from typing import Optional
 
 from ewoksjob.client import submit
 from ewoksjob.client.local import submit as submit_local
@@ -38,10 +36,10 @@ class WorkflowNotFoundResponse(JSONResponse):
 
 def submit_workflow(
     workflow,
-    client_execute_arguments: Optional[Dict[str, Any]],
-    client_submit_arguments: Optional[Dict[str, Any]],
-    graph_execute_arguments: Optional[Dict[str, Any]],
-    graph_submit_arguments: Optional[Dict[str, Any]],
+    client_execute_arguments: dict[str, Any] | None,
+    client_submit_arguments: dict[str, Any] | None,
+    graph_execute_arguments: dict[str, Any] | None,
+    graph_submit_arguments: dict[str, Any] | None,
     settings: EwoksSettingsType,
 ):
     execute_kwargs = _merge_execute_arguments(
@@ -63,10 +61,10 @@ def submit_workflow(
 
 
 def _merge_execute_arguments(
-    client_execute_arguments: Optional[Dict[str, Any]],
-    graph_execute_arguments: Optional[Dict[str, Any]],
+    client_execute_arguments: dict[str, Any] | None,
+    graph_execute_arguments: dict[str, Any] | None,
     settings: EwoksSettingsType,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Client arguments have precedence over graph arguments in case merging does not apply.
     Server configuration arguments can always be merged.
     """
@@ -98,8 +96,8 @@ def _merge_execute_arguments(
 
 
 def _merge_submit_arguments(
-    client_submit_arguments: Optional[Dict[str, Any]],
-    graph_submit_arguments: Optional[Dict[str, Any]],
+    client_submit_arguments: dict[str, Any] | None,
+    graph_submit_arguments: dict[str, Any] | None,
 ):
     """Client arguments have precedence over graph arguments in case merging does not apply."""
     if client_submit_arguments is None:
@@ -109,7 +107,7 @@ def _merge_submit_arguments(
     return _merge_mappings(graph_submit_arguments, client_submit_arguments)
 
 
-def _merge_mappings(d1: Optional[Mapping], d2: Optional[Mapping]) -> dict:
+def _merge_mappings(d1: Mapping | None, d2: Mapping | None) -> dict:
     """`d2` has precedence over `d1` in case merging does not apply.
     Merging is done like `{**d1, **d2}` but then recursive.
     """
