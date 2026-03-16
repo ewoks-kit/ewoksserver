@@ -3,7 +3,6 @@ import logging
 import mimetypes
 from pathlib import Path
 from typing import Iterator
-from typing import Union
 from urllib import request
 
 ResourceIdentifierType = str
@@ -13,7 +12,7 @@ ResourceContentType = dict
 _logger = logging.getLogger(__name__)
 
 
-def root_url(root_url: Union[str, Path, None], category: str) -> ResourceUrlType:
+def root_url(root_url: str | Path | None, category: str) -> ResourceUrlType:
     if not root_url:
         root_url = Path(".")
     elif isinstance(root_url, str):

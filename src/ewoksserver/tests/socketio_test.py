@@ -1,7 +1,5 @@
 import asyncio
 from typing import Any
-from typing import Dict
-from typing import List
 
 from ..app.routes.execution import socketio
 
@@ -27,7 +25,7 @@ class SocketIOTestClient:
     def disconnect(self) -> None:
         return _run_coroutine(self._manager.disconnect(None))
 
-    def get_events(self) -> List[Dict]:
+    def get_events(self) -> list[dict]:
         events = self._events
         self._events = self._events[len(events) :]
         return events

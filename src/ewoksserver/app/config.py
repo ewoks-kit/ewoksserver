@@ -5,10 +5,9 @@ import logging
 import os
 import sys
 import warnings
-from typing import Optional
+from typing import Annotated
 
 from fastapi import Depends
-from typing_extensions import Annotated
 
 from .models import AppSettings
 from .models import EwoksSettings
@@ -72,8 +71,8 @@ def _resolve_ewoks_scheduling_settings(celery: dict | None) -> dict:
 
 
 def create_ewoks_settings(
-    config: Optional[str] = None,
-    dir: Optional[str] = None,
+    config: str | None = None,
+    dir: str | None = None,
     without_events: bool = False,
     frontend_tests: bool = False,
     no_discovery_at_launch: bool = False,

@@ -6,8 +6,6 @@
 """
 
 import sys
-from typing import List
-from typing import Optional
 
 import click
 from uvicorn.main import main as uvicorn_main
@@ -66,7 +64,7 @@ _original_callback = uvicorn_main.callback
 uvicorn_main.callback = _ewoks_main
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     """Exposes the uvicorn CLI with a default APP factory"""
     if argv is None:
         argv = sys.argv[1:]

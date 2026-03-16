@@ -1,14 +1,11 @@
 import json
-from typing import Dict
-from typing import List
-from typing import Optional
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Path
 from fastapi import Query
 from fastapi.responses import JSONResponse
-from typing_extensions import Annotated
 
 from ...backends import json_backend
 from ...config import EwoksSettingsType
@@ -80,8 +77,8 @@ def get_workflow(
     status_code=200,
 )
 def get_workflow_identifiers(
-    settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
-) -> Dict[str, List[str]]:
+    settings: EwoksSettingsType, kw: Annotated[list[str] | None, Query()] = None
+) -> dict[str, list[str]]:
     keywords = _compile_keywords(kw)
     root = settings.resource_directory / "workflows"
     if keywords:
@@ -94,7 +91,7 @@ def get_workflow_identifiers(
     return {"identifiers": identifiers}
 
 
-def _compile_keywords(kw: Optional[List[str]]) -> Optional[Dict]:
+def _compile_keywords(kw: list[str] | None) -> dict | None:
     if not kw:
         return
     keywords = dict()
@@ -117,8 +114,8 @@ def _compile_keywords(kw: Optional[List[str]]) -> Optional[Dict]:
     status_code=200,
 )
 def get_workflows(
-    settings: EwoksSettingsType, kw: Annotated[Optional[List[str]], Query()] = None
-) -> Dict[str, List[Dict]]:
+    settings: EwoksSettingsType, kw: Annotated[list[str] | None, Query()] = None
+) -> dict[str, list[dict]]:
     keywords = _compile_keywords(kw)
     return {
         "items": list(
@@ -318,7 +315,7 @@ def delete_workflow(
         ),
     ],
     settings: EwoksSettingsType,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     try:
         json_backend.delete_resource(
             settings.resource_directory / "workflows", identifier

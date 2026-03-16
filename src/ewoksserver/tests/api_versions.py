@@ -1,6 +1,4 @@
 from functools import wraps
-from typing import Optional
-from typing import Tuple
 
 import pytest
 
@@ -18,7 +16,7 @@ _API_VERSIONS = {
 
 
 @pytest.fixture
-def min_api_version(request) -> Optional[str]:
+def min_api_version(request) -> str | None:
     try:
         return request.param
     except AttributeError:
@@ -26,14 +24,14 @@ def min_api_version(request) -> Optional[str]:
 
 
 @pytest.fixture
-def max_api_version(request) -> Optional[str]:
+def max_api_version(request) -> str | None:
     try:
         return request.param
     except AttributeError:
         return None
 
 
-def _get_api_root(route_version: Tuple[int]) -> str:
+def _get_api_root(route_version: tuple[int]) -> str:
     if not route_version:
         return routes.BACKEND_PREFIX
     version_suffix = "_".join(list(map(str, route_version)))
@@ -44,9 +42,7 @@ def _get_api_root(route_version: Tuple[int]) -> str:
     params=list(_API_VERSIONS.items()),
     ids=[_get_api_root(route_version) for route_version in _API_VERSIONS],
 )
-def api_root(
-    request, min_api_version: Optional[str], max_api_version: Optional[str]
-) -> str:
+def api_root(request, min_api_version: str | None, max_api_version: str | None) -> str:
     route_version, version_tuple = request.param
     api_root = _get_api_root(route_version)
 
@@ -69,9 +65,7 @@ def api_root(
     return api_root
 
 
-def api_version_bounds(
-    min_version: Optional[str] = None, max_version: Optional[str] = None
-):
+def api_version_bounds(min_version: str | None = None, max_version: str | None = None):
     def decorator(func):
         parametrize_decorators = []
 

@@ -1,7 +1,6 @@
 import logging
 from contextlib import contextmanager
 from typing import Generator
-from typing import Optional
 
 from ewoksjob.events.readers import EwoksEventReader
 from ewoksjob.events.readers import instantiate_reader
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 @contextmanager
 def reader_context(
     ewoks_settings: EwoksSettingsType,
-) -> Generator[Optional[EwoksEventReader], None, None]:
+) -> Generator[EwoksEventReader | None, None, None]:
     r = _reader(ewoks_settings)
     try:
         yield r
@@ -23,7 +22,7 @@ def reader_context(
             r.close()
 
 
-def _reader(ewoks_settings: EwoksSettingsType) -> Optional[EwoksEventReader]:
+def _reader(ewoks_settings: EwoksSettingsType) -> EwoksEventReader | None:
     handlers = ewoks_settings.ewoks_execution.handlers
     argmap = {"uri": "url"}
     for name in ("Redis", "Sqlite3", None):

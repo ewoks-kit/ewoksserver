@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -9,4 +7,4 @@ class EwoksIcon(BaseModel):
 
 
 class EwoksIconIdentifiers(BaseModel):
-    identifiers: List[str] = Field(title="Icon identifiers")
+    identifiers: list[str] = Field(title="Icon identifiers")

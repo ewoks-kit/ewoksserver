@@ -1,6 +1,3 @@
-from typing import Dict
-from typing import Optional
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,7 +13,7 @@ def enable_cors(app: FastAPI) -> None:
     )
 
 
-def get_cors_options(app: FastAPI) -> Optional[Dict]:
+def get_cors_options(app: FastAPI) -> dict | None:
     for mw in app.user_middleware:
         if mw.cls is CORSMiddleware:
             return mw.options

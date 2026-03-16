@@ -2,7 +2,6 @@ import time
 from collections import namedtuple
 from functools import lru_cache
 from pathlib import Path
-from typing import List
 
 import pytest
 from ewokscore import events
@@ -153,7 +152,7 @@ def svg_icons():
 
 
 @pytest.fixture(scope="session")
-def default_icon_identifiers() -> List[Path]:
+def default_icon_identifiers() -> list[Path]:
     return [
         url.name
         for url in (DEFAULT_ROOT / "icons").iterdir()
@@ -162,7 +161,7 @@ def default_icon_identifiers() -> List[Path]:
 
 
 @pytest.fixture(scope="session")
-def default_workflow_identifiers() -> List[Path]:
+def default_workflow_identifiers() -> list[Path]:
     return [
         url.stem
         for url in (DEFAULT_ROOT / "workflows").iterdir()
@@ -171,7 +170,7 @@ def default_workflow_identifiers() -> List[Path]:
 
 
 @pytest.fixture(scope="session")
-def default_task_identifiers() -> List[Path]:
+def default_task_identifiers() -> list[Path]:
     return [
         url.stem for url in (DEFAULT_ROOT / "tasks").iterdir() if url.suffix == ".json"
     ]

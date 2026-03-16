@@ -1,11 +1,9 @@
-from typing import Dict
-from typing import List
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Path
 from fastapi.responses import JSONResponse
-from typing_extensions import Annotated
 
 from ...backends import binary_backend
 from ...config import EwoksSettingsType
@@ -75,7 +73,7 @@ def get_icon(
     response_description="Ewoks icon identifiers",
     status_code=200,
 )
-def get_icon_identifiers(settings: EwoksSettingsType) -> Dict[str, List[str]]:
+def get_icon_identifiers(settings: EwoksSettingsType) -> dict[str, list[str]]:
     return {
         "identifiers": list(
             binary_backend.resource_identifiers(settings.resource_directory / "icons")
@@ -227,7 +225,7 @@ def delete_icon(
         ),
     ],
     settings: EwoksSettingsType,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     try:
         binary_backend.delete_resource(
             settings.resource_directory / "icons", identifier

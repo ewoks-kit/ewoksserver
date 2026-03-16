@@ -1,9 +1,6 @@
 from collections import OrderedDict
-from typing import Dict
-from typing import List
+from typing import Annotated
 from typing import Mapping
-from typing import Optional
-from typing import Union
 
 from ewoksjob.client import get_queues
 from ewoksutils import event_utils
@@ -13,7 +10,6 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Path
 from fastapi.responses import JSONResponse
-from typing_extensions import Annotated
 
 from ...backends import json_backend
 from ...config import EwoksSettingsType
@@ -58,9 +54,9 @@ def execute_workflow_v1(
         ),
     ],
     options: Annotated[
-        Optional[models.EwoksExecuteOptions_v1], Body(title="Ewoks execute options")
+        models.EwoksExecuteOptions_v1 | None, Body(title="Ewoks execute options")
     ] = None,
-) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
+) -> Mapping[str, int | str | None] | JSONResponse:
     try:
         graph = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
@@ -109,7 +105,7 @@ def execute_events_v1(
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
     ],  # pydantic model to parse query parameters
-) -> Dict[str, List[List[Dict]]]:
+) -> dict[str, list[list[dict]]]:
     jobs = OrderedDict()
     with events.reader_context(settings) as reader:
         if reader is None:
@@ -134,10 +130,10 @@ v1_1_0_router.include_router(v1_0_0_router)
     "/execution/workers",
     summary="Get workers",
     response_model=models.EwoksWorkerList,
-    response_description="List of available workers",
+    response_description="list of available workers",
     status_code=200,
 )
-def workers(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
+def workers(settings: EwoksSettingsType) -> dict[str, list[str] | None]:
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         return {"workers": None}
 
@@ -171,9 +167,9 @@ def execute_workflow(
         ),
     ],
     options: Annotated[
-        Optional[models.EwoksExecuteOptions_v2], Body(title="Ewoks execute options")
+        models.EwoksExecuteOptions_v2 | None, Body(title="Ewoks execute options")
     ] = None,
-) -> Union[Mapping[str, Union[int, str, None]], JSONResponse]:
+) -> Mapping[str, int | str | None] | JSONResponse:
     try:
         graph = json_backend.load_resource(
             settings.resource_directory / "workflows", identifier
@@ -222,7 +218,7 @@ def execute_events_v2(
     filters: Annotated[
         models.EwoksEventFilter, Depends(models.EwoksEventFilter)
     ],  # pydantic model to parse query parameters
-) -> Dict[str, List[List[Dict]]]:
+) -> dict[str, list[list[dict]]]:
     jobs = OrderedDict()
     with events.reader_context(settings) as reader:
         if reader is None:
@@ -242,10 +238,10 @@ def execute_events_v2(
     "/execution/queues",
     summary="Get queues",
     response_model=models.EwoksQueueList,
-    response_description="List of available queues",
+    response_description="list of available queues",
     status_code=200,
 )
-def queues(settings: EwoksSettingsType) -> Dict[str, Optional[List[str]]]:
+def queues(settings: EwoksSettingsType) -> dict[str, list[str] | None]:
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         return {"queues": None}
 
