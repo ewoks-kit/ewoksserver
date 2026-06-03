@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Minimal Python version is now 3.10
 
+- In test, use httpx2 instead of httpx (Deprecation Warning from starlette dependency)
+
 ## [2.1.2] - 2026-03-06
 
 ### Changed
