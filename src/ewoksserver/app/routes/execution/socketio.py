@@ -59,9 +59,10 @@ class EwoksEventManager:
             return
 
         self._stop_event.clear()
+        starttime = datetime.now().astimezone()
         loop = asyncio.get_running_loop()
         self._fetch_events_future = loop.run_in_executor(
-            self._executor, self._fetch_events_main, loop
+            self._executor, self._fetch_events_main, loop, starttime
         )
 
     async def _stop(self, timeout: float | None = None) -> None:
@@ -71,12 +72,11 @@ class EwoksEventManager:
         self._stop_event.set()
         await asyncio.wait_for(future, timeout=timeout)
 
-    def _fetch_events_main(self, loop) -> None:
+    def _fetch_events_main(self, loop, starttime: datetime) -> None:
         try:
             with events.reader_context(self._ewoks_settings) as reader:
                 if reader is None:
                     raise RuntimeError("Ewoks event handlers not configured")
-                starttime = datetime.now().astimezone()
                 for event in reader.wait_events(
                     starttime=starttime, stop_event=self._stop_event
                 ):
