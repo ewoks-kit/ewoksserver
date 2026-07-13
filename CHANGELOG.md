@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In test, use httpx2 instead of httpx (Deprecation Warning from starlette dependency)
 
+### Added
+
+- New API version `v2_1_0`:
+- New endpoint `POST /api/workflows/discover` to discover ewoks workflows from python packages.
+
 ## [2.1.2] - 2026-03-06
 
 ### Changed

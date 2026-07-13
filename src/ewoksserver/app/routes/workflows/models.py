@@ -31,3 +31,13 @@ class EwoksWorkflowIdentifiers(BaseModel):
 
 class EwoksWorkflowDescriptions(BaseModel):
     items: list[EwoksWorkflowDescription] = Field(title="Workflow descriptions")
+
+
+class EwoksWorkflowDiscovery(BaseModel):
+    modules: list[str] | None = Field(
+        title="Ewoks workflow modules to discover", default=None
+    )
+    workflow_extension: str | None = Field(
+        title="Workflow file extension to discover", default=None
+    )
+    worker_options: dict | None = Field(title="Worker options", default=None)
