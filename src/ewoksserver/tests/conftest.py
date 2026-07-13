@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 from ewokscore import events
+from ewokscore import workflow_discovery
+from ewoksjob.client import local as local_client
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from fastapi.testclient import TestClient
@@ -44,6 +46,25 @@ def rest_client(tmpdir):
 
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture
+def local_patched_ewoks_worker(monkeypatch):
+    """Only works for local (in-process) ewoksjob worker."""
+    monkeypatch.setattr(workflow_discovery, "entry_points", _mock_workflow_entry_points)
+
+    with local_client.pool_context(pool_type="thread"):
+        yield
+
+
+class _MockEntryPoint:
+    def __init__(self, name):
+        self.name = name
+
+
+def _mock_workflow_entry_points(group):
+    assert group == "ewoks.workflows"
+    return [_MockEntryPoint("ewoksserver.tests._loadtest.*")]
 
 
 @pytest.fixture()
