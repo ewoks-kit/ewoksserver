@@ -42,6 +42,9 @@ test = [
     "ewoksserver[frontend]",
     "pytest-mock",
     "httpx2",
+    "ewoksutils @ git+https://github.com/ewoks-kit/ewoksutils.git@ewoks-events-sqlite3-bugs",
+    "ewokscore @ git+https://github.com/ewoks-kit/ewokscore.git@ewoks-events-sqlite3-bugs",
+    "ewoksjob @ git+https://github.com/ewoks-kit/ewoksjob.git@344-ewoks-events-sqlite3-bugs",
 ]
 dev = [
     "ewoksserver[test]",
