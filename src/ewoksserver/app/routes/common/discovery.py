@@ -1,4 +1,6 @@
 import logging
+from typing import Any
+from typing import Callable
 
 from ewoksjob.client import discover_all_tasks
 from ewoksjob.client import discover_all_workflows
@@ -55,7 +57,7 @@ def discover_tasks(
         modules=modules,
         discover_kwargs=discover_kwargs,
         worker_options=worker_options,
-        key=lambda task: task["task_identifier"],
+        id_extractor=lambda task: task["task_identifier"],
     )
 
     for task in tasks:
@@ -95,7 +97,7 @@ def discover_workflows(
         modules=modules,
         discover_kwargs=discover_kwargs,
         worker_options=worker_options,
-        key=lambda workflow: workflow,
+        id_extractor=lambda graph_id: graph_id,
     )
 
 
@@ -105,7 +107,7 @@ def _discover(
     modules: list[str] | None,
     discover_kwargs: dict,
     worker_options: dict | None,
-    key,
+    id_extractor: Callable[[Any], str],
 ) -> list:
     """
     :raises ModuleNotFoundError: failed importing tasks or workflows.
@@ -128,7 +130,7 @@ def _discover(
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         return _discover_locally(discover, kwargs, timeout=timeout)
     else:
-        return _discover_in_all_queues(discover, kwargs, key, timeout=timeout)
+        return _discover_in_all_queues(discover, kwargs, id_extractor, timeout=timeout)
 
 
 def _discover_locally(discover, kwargs: dict, timeout: float | None = None) -> list:
@@ -136,7 +138,10 @@ def _discover_locally(discover, kwargs: dict, timeout: float | None = None) -> l
 
 
 def _discover_in_all_queues(
-    discover, kwargs: dict, key, timeout: float | None = None
+    discover,
+    kwargs: dict,
+    id_extractor: Callable[[Any], str],
+    timeout: float | None = None,
 ) -> list:
     futures = [discover(**kwargs, queue=queue) for queue in get_queues()]
 
@@ -147,12 +152,12 @@ def _discover_in_all_queues(
         new_items = future.result(timeout=timeout)
         exc = future.exception()
         if exc:
-            logger.warning(f"Discovery failed for {future.queue}: {exc}")
+            logger.warning(f"Discovery failed on queue {future.queue!r}: {exc}")
             continue
         if new_items is None:
             continue
         for item in new_items:
-            item_dict[key(item)] = item
+            item_dict[id_extractor(item)] = item
     return list(item_dict.values())
 
 
