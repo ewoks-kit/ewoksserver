@@ -45,8 +45,7 @@ test = [
 ]
 dev = [
     "ewoksserver[test]",
-    "ruff",
-    "isort",
+    "ruff>=0.16.0",
 ]
 doc = [
     "ewoksserver[test]",
@@ -76,12 +75,21 @@ ewoks-server = "ewoksserver.__main__:main"
 ewoks-server-spec = "ewoksserver.spec:save"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]
+select = [
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "I", # isort
+    "S", # flake8-bandit
+]
+ignore = [
+    "E501", # line too long
+]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore `S101` (assert used violations) in all test files
-"src/ewoksserver/tests/*.py" = ["S101"]
+"src/ewoksserver/tests/*.py" = [
+    "S101"  # allow asserts
+]
 
 [tool.ruff.lint.isort]
 force-single-line = true
+known-first-party = ["ewoksserver"]

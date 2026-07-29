@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Icon upload (`data_url`) now only accepts base64-encoded `data:` URLs.
+
 ### Changed
 
 - Minimal Python version is now 3.10

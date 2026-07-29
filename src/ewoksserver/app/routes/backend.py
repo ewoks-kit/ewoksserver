@@ -31,7 +31,8 @@ def get_routes(
     major_routes = dict()
     major_versions = dict()
     for full_version, router in reversed(sorted(routers.items())):
-        assert len(full_version) == 3, full_version
+        if len(full_version) != 3:
+            raise ValueError(f"version should have 3 elements: {full_version}")
         major, minor, patch = full_version
         route_key = major, minor, patch, 0
         path_version = "v" + "_".join(map(str, full_version))
@@ -74,7 +75,8 @@ def get_routes(
 
 def assert_route_versions(*all_routes: Mapping[VersionTuple, RouterType]) -> None:
     versions = {tuple(sorted(routes)) for routes in all_routes}
-    assert len(versions) == 1, "Not all routes have the same versions"
+    if len(versions) != 1:
+        raise RuntimeError("Not all routes have the same versions")
 
 
 def extract_version_tags(all_routes: list[dict[VersionTuple, Route]]) -> set[str]:

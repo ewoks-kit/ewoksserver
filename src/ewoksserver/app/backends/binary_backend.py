@@ -1,9 +1,9 @@
 import base64
 import logging
 import mimetypes
+import re
 from pathlib import Path
 from typing import Iterator
-from urllib import request
 
 ResourceIdentifierType = str
 ResourceUrlType = Path
@@ -102,7 +102,20 @@ def _load_url(url: ResourceUrlType) -> ResourceContentType:
 def _save_url(url: ResourceUrlType, resource: ResourceContentType) -> None:
     _logger.debug("Save file '%s'", url)
     url.parent.mkdir(parents=True, exist_ok=True)
-    with request.urlopen(resource["data_url"]) as f:
-        data = f.read()
+    data = _decode_data_url(resource["data_url"])
     with open(url, "wb") as f:
         f.write(data)
+
+
+# Matches the "data:<mimetype>;base64," prefix produced by `_load_url` above.
+# Exposed so API models (e.g. EwoksIcon) can validate this at the request boundary.
+DATA_URL_PREFIX = re.compile(r"^data:[^;,]*;base64,", re.IGNORECASE)
+
+
+def _decode_data_url(data_url: str) -> bytes:
+    # Decode directly instead of using `urllib.request.urlopen`, which would
+    # also follow "file:", "http:" and other schemes for client-provided input.
+    match = DATA_URL_PREFIX.match(data_url)
+    if not match:
+        raise ValueError("Only base64-encoded 'data:' URLs are supported")
+    return base64.b64decode(data_url[match.end() :])
