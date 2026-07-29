@@ -218,9 +218,19 @@ def create_task(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
-    exists = json_backend.resource_exists(
-        settings.resource_directory / "tasks", ridentifier
-    )
+    try:
+        exists = json_backend.resource_exists(
+            settings.resource_directory / "tasks", ridentifier
+        )
+    except ValueError:
+        return JSONResponse(
+            {
+                "message": f"Task identifier '{ridentifier}' is not valid",
+                "type": "task",
+                "identifier": ridentifier,
+            },
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        )
     if exists:
         return JSONResponse(
             {

@@ -98,6 +98,16 @@ def test_task_creation_errors(rest_client, default_task_identifiers, api_root):
     assert data["message"] == f"Task '{existing_id}' already exists."
 
 
+def test_task_creation_path_traversal(rest_client, api_root, tmpdir):
+    task_with_traversal_id = {
+        "task_identifier": "../../../../../../tmp/evil",
+        "task_type": "class",
+    }
+    response = rest_client.post(f"{api_root}/tasks", json=task_with_traversal_id)
+    assert response.status_code == 422
+    assert not (tmpdir / ".." / ".." / "evil.json").check()
+
+
 def test_multiple_tasks(rest_client, default_task_identifiers, api_root):
     response = rest_client.get(f"{api_root}/tasks")
     data = response.json()

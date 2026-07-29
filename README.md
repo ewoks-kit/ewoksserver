@@ -55,7 +55,7 @@ RESOURCE_DIRECTORY = "/path/to/resource/directory/"
 
 EWOKS_EXECUTION = {"handlers": ...}
 
-CELERY = {"broker_url":...}
+CELERY = {"broker_url": ...}
 ```
 
 Specify the configuration file through the CLI
