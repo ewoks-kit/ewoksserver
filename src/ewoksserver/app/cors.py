@@ -7,7 +7,9 @@ def enable_cors(app: FastAPI) -> None:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_credentials=True,
+        # Browsers reject `allow_credentials=True` combined with a wildcard
+        # origin anyway, and no client uses cookies/credentials with this API.
+        allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )
