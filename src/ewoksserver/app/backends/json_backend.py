@@ -66,8 +66,13 @@ def delete_resource(root: ResourceUrlType, identifier: ResourceIdentifierType) -
     _delete_url(url)
 
 
-def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    return root / (identifier + ".json")
+def _identifier_to_url(
+    root: ResourceUrlType, identifier: ResourceIdentifierType
+) -> ResourceUrlType:
+    url = (root / (identifier + ".json")).resolve()
+    if not url.is_relative_to(root.resolve()):
+        raise ValueError(f"Invalid resource identifier: {identifier!r}")
+    return url
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:

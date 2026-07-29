@@ -72,8 +72,13 @@ def _delete_url(url: ResourceUrlType) -> ResourceContentType:
     url.unlink()
 
 
-def _identifier_to_url(root: ResourceUrlType, identifier: ResourceIdentifierType):
-    return root / identifier
+def _identifier_to_url(
+    root: ResourceUrlType, identifier: ResourceIdentifierType
+) -> ResourceUrlType:
+    url = (root / identifier).resolve()
+    if not url.is_relative_to(root.resolve()):
+        raise ValueError(f"Invalid resource identifier: {identifier!r}")
+    return url
 
 
 def _url_to_identifier(url: ResourceUrlType) -> ResourceIdentifierType:

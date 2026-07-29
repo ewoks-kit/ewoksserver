@@ -257,9 +257,19 @@ def create_workflow(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
-    exists = json_backend.resource_exists(
-        settings.resource_directory / "workflows", ridentifier
-    )
+    try:
+        exists = json_backend.resource_exists(
+            settings.resource_directory / "workflows", ridentifier
+        )
+    except ValueError:
+        return JSONResponse(
+            {
+                "message": f"Workflow identifier '{ridentifier}' is not valid",
+                "type": "workflow",
+                "identifier": ridentifier,
+            },
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        )
     if exists:
         return JSONResponse(
             {
