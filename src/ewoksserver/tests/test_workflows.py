@@ -63,13 +63,13 @@ def test_workflow_creation_errors(rest_client, default_workflow_identifiers, api
     assert data["message"] == f"Workflow '{existing_id}' already exists."
 
 
-def test_workflow_creation_path_traversal(rest_client, api_root, tmpdir):
+def test_workflow_creation_path_traversal(rest_client, api_root, tmp_path):
     workflow_with_traversal_id = {"graph": {"id": "../../../../../../tmp/evil"}}
     response = rest_client.post(
         f"{api_root}/workflows", json=workflow_with_traversal_id
     )
     assert response.status_code == 422
-    assert not (tmpdir / ".." / ".." / "evil.json").check()
+    assert not (tmp_path / ".." / ".." / "evil.json").exists()
 
 
 def test_multiple_workflows(rest_client, default_workflow_identifiers, api_root):

@@ -28,7 +28,7 @@ from .socketio_test import SocketIOTestClient
 
 
 @pytest.fixture
-def rest_client(tmpdir):
+def rest_client(tmp_path):
     """Client to the REST server (no execution)."""
     app = newserver.create_app()
 
@@ -36,7 +36,7 @@ def rest_client(tmpdir):
     def get_ewoks_settings_for_tests():
         return serverconfig.EwoksSettings(
             configured=True,
-            resource_directory=str(tmpdir),
+            resource_directory=str(tmp_path),
             # Disable discovery since this client is used to test manual discovery
             ewoks_discovery=EwoksDiscoverySettings(on_start_up=False),
         )
@@ -69,8 +69,8 @@ def _mock_workflow_entry_points(group):
 
 
 @pytest.fixture()
-def ewoks_handlers(tmpdir):
-    uri = f"file:{tmpdir / 'ewoks_events.db'}"
+def ewoks_handlers(tmp_path):
+    uri = f"file:{tmp_path / 'ewoks_events.db'}"
     yield [
         {
             "class": "ewokscore.events.handlers.Sqlite3EwoksEventHandler",
@@ -81,14 +81,14 @@ def ewoks_handlers(tmpdir):
 
 
 @pytest.fixture
-def local_exec_client(tmpdir, ewoks_handlers):
+def local_exec_client(tmp_path, ewoks_handlers):
     """Client to the REST server and Socket.IO (execution with process pool)."""
     app = newserver.create_app()
 
     def get_settings_override():
         return serverconfig.EwoksSettings(
             configured=True,
-            resource_directory=str(tmpdir),
+            resource_directory=str(tmp_path),
             ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
         )
 
@@ -114,14 +114,14 @@ def celery_session_registered_worker(celery_session_worker):
 
 
 @pytest.fixture
-def celery_exec_client(tmpdir, celery_session_registered_worker, ewoks_handlers):
+def celery_exec_client(tmp_path, celery_session_registered_worker, ewoks_handlers):
     """Client to the REST server and Socket.IO (execution with celery)."""
     app = newserver.create_app()
 
     def get_settings_override():
         return serverconfig.EwoksSettings(
             configured=True,
-            resource_directory=str(tmpdir),
+            resource_directory=str(tmp_path),
             ewoks_scheduling=EwoksJobSettings(
                 type=EwoksSchedulingType.Celery, configuration=dict()
             ),
@@ -137,7 +137,7 @@ def celery_exec_client(tmpdir, celery_session_registered_worker, ewoks_handlers)
 
 @pytest.fixture
 def celery_discover_timeout_client(
-    tmpdir, celery_session_registered_worker, ewoks_handlers, monkeypatch
+    tmp_path, celery_session_registered_worker, ewoks_handlers, monkeypatch
 ):
     """Client to the REST server and Socket.IO (with a very small timeout for discovery)"""
 
@@ -155,7 +155,7 @@ def celery_discover_timeout_client(
     def get_settings_override():
         return serverconfig.EwoksSettings(
             configured=True,
-            resource_directory=str(tmpdir),
+            resource_directory=str(tmp_path),
             ewoks_scheduling=EwoksJobSettings(
                 type=EwoksSchedulingType.Celery, configuration=dict()
             ),
