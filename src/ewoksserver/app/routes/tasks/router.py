@@ -10,8 +10,8 @@ from pydantic import ValidationError
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from .. import status
+from ..common import discovery
 from ..common import models as common_models
-from . import discovery
 from . import models
 
 logger = logging.getLogger(__name__)

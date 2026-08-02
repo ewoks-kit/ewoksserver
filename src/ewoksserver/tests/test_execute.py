@@ -200,8 +200,17 @@ def get_events(api_root, sclient, nevents, timeout=10):
             break
         time.sleep(0.1)
         if time.time() - t0 > timeout:
-            raise TimeoutError(f"Received {len(events)} instead of {nevents}")
+            received = "\n".join(_event_summary(event) for event in events)
+            raise TimeoutError(
+                f"Received {len(events)} instead of {nevents} events:\n{received}"
+            )
     return events
+
+
+def _event_summary(event: dict) -> str:
+    if event.get("context") == "node":
+        return f"{event.get('context')} {event.get('type')} ({event.get('node_id')})"
+    return f"{event.get('context')} {event.get('type')}"
 
 
 def _assert_events(response, events, expected):

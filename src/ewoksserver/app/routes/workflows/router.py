@@ -10,14 +10,15 @@ from fastapi.responses import JSONResponse
 from ...backends import json_backend
 from ...config import EwoksSettingsType
 from .. import status
+from ..common import discovery
 from ..common import models as common_models
 from . import descriptions
 from . import models
 
-router = APIRouter()
+v1_0_0_router = APIRouter()
 
 
-@router.get(
+@v1_0_0_router.get(
     "/workflow/{identifier}",
     summary="Get ewoks workflow",
     response_model=models.EwoksWorkflow,
@@ -69,7 +70,7 @@ def get_workflow(
         )
 
 
-@router.get(
+@v1_0_0_router.get(
     "/workflows",
     summary="Get all ewoks workflow identifiers",
     response_model=models.EwoksWorkflowIdentifiers,
@@ -105,7 +106,7 @@ def _compile_keywords(kw: list[str] | None) -> dict | None:
     return keywords
 
 
-@router.get(
+@v1_0_0_router.get(
     "/workflows/descriptions",
     summary="Get all ewoks workflow descriptions",
     response_model=models.EwoksWorkflowDescriptions,
@@ -126,7 +127,7 @@ def get_workflows(
     }
 
 
-@router.put(
+@v1_0_0_router.put(
     "/workflow/{identifier}",
     summary="Update ewoks workflow",
     response_model=models.EwoksWorkflow,
@@ -205,7 +206,7 @@ def update_workflow(
     return workflow
 
 
-@router.post(
+@v1_0_0_router.post(
     "/workflows",
     summary="Create ewoks workflow",
     response_model=models.EwoksWorkflow,
@@ -299,7 +300,7 @@ def create_workflow(
     return workflow
 
 
-@router.delete(
+@v1_0_0_router.delete(
     "/workflow/{identifier}",
     summary="Delete ewoks workflow",
     response_model=common_models.ResourceInfo,
@@ -349,3 +350,46 @@ def delete_workflow(
             status_code=status.HTTP_404_NOT_FOUND,
         )
     return {"identifier": identifier, "type": "workflow"}
+
+
+v2_1_0_router = APIRouter()
+v2_1_0_router.include_router(v1_0_0_router)
+
+
+@v2_1_0_router.post(
+    "/workflows/discover",
+    summary="Discover ewoks workflow identifiers from a worker environment",
+    response_model=models.EwoksWorkflowIdentifiers,
+    response_description="Discovered ewoks workflow identifiers",
+    status_code=200,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Module not found",
+            "model": common_models.ResourceError,
+        },
+    },
+)
+def discover_workflows(
+    settings: EwoksSettingsType,
+    options: Annotated[
+        models.EwoksWorkflowDiscovery, Body(title="Ewoks workflow discovery options")
+    ] = None,
+) -> dict[str, list[str]]:
+    if options:
+        discover_options = options.model_dump()
+    else:
+        discover_options = dict()
+    try:
+        identifiers = discovery.discover_workflows(settings, **discover_options)
+    except ModuleNotFoundError as e:
+        return JSONResponse(
+            {
+                "message": str(e),
+                "type": "workflow",
+            },
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+    print("Discovered workflows not used yet:", identifiers)
+
+    return {"identifiers": identifiers}

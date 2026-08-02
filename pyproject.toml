@@ -19,7 +19,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "python-socketio",
-    "ewoksjob[worker] >=1.1,<2",
+    "ewoksjob[worker] >=1.6.0rc2,<2",
     "ewokscore >=1.0.0",
     "pydantic-settings",
     "packaging",

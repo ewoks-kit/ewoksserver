@@ -23,8 +23,6 @@ from .utils import WorkflowNotReadableResponse
 from .utils import submit_workflow
 
 v1_0_0_router = APIRouter()
-v1_1_0_router = APIRouter()
-v2_0_0_router = APIRouter()
 
 
 @v1_0_0_router.post(
@@ -123,6 +121,7 @@ def execute_events_v1(
     return {"jobs": list(jobs.values())}
 
 
+v1_1_0_router = APIRouter()
 v1_1_0_router.include_router(v1_0_0_router)
 
 
@@ -138,6 +137,9 @@ def workers(settings: EwoksSettingsType) -> dict[str, list[str] | None]:
         return {"workers": None}
 
     return {"workers": get_queues()}
+
+
+v2_0_0_router = APIRouter()
 
 
 @v2_0_0_router.post(

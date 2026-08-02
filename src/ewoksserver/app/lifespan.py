@@ -15,8 +15,8 @@ from ewoksserver.app.models import EwoksSchedulingType
 from .. import resources
 from . import config
 from .backends import json_backend
+from .routes.common import discovery
 from .routes.execution import socketio
-from .routes.tasks.discovery import discover_tasks
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ async def fastapi_lifespan(app: FastAPI) -> Generator[None, None, None]:
     _copy_default_resources(ewoks_settings)
     _enable_execution_events(ewoks_settings)
     with _enable_execution(ewoks_settings):
-        _rediscover_tasks(ewoks_settings)
+        _rediscover_resources(ewoks_settings)
         _print_ewoks_settings(ewoks_settings)
         yield
 
@@ -64,17 +64,24 @@ def _copy_default_resources(ewoks_settings: config.EwoksSettings) -> None:
                 shutil.copy(src, dest)
 
 
-def _rediscover_tasks(ewoks_settings: config.EwoksSettings) -> None:
+def _rediscover_resources(ewoks_settings: config.EwoksSettings) -> None:
     if not ewoks_settings.ewoks_discovery.on_start_up:
         return
+
     try:
-        tasks = discover_tasks(ewoks_settings)
+        tasks = discovery.discover_tasks(ewoks_settings)
     except Exception as ex:
         tasks = []
         logger.exception("Task discovery failed: %s", ex)
     root_url = json_backend.root_url(ewoks_settings.resource_directory, "tasks")
     for resource in tasks:
         json_backend.save_resource(root_url, resource["task_identifier"], resource)
+
+    try:
+        discovery.discover_workflows(ewoks_settings)
+    except Exception as ex:
+        logger.exception("Workflow discovery failed: %s", ex)
+    logger.warning("Discovered workflows not used yet")
 
 
 def _enable_execution_events(ewoks_settings: config.EwoksSettings) -> None:

@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 from ewokscore import events
+from ewokscore import task_discovery
+from ewokscore import workflow_discovery
+from ewoksjob.client import local as local_client
 from ewoksjob.tests.conftest import celery_config  # noqa F401
 from ewoksjob.tests.conftest import celery_includes  # noqa F401
 from fastapi.testclient import TestClient
@@ -44,6 +47,25 @@ def rest_client(tmpdir):
 
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture
+def local_patched_ewoks_worker(monkeypatch):
+    """Only works for local (in-process) ewoksjob worker."""
+    monkeypatch.setattr(workflow_discovery, "entry_points", _mock_workflow_entry_points)
+
+    with local_client.pool_context(pool_type="thread"):
+        yield
+
+
+class _MockEntryPoint:
+    def __init__(self, name):
+        self.name = name
+
+
+def _mock_workflow_entry_points(group):
+    assert group == "ewoks.workflows"
+    return [_MockEntryPoint("ewoksserver.tests._loadtest.*")]
 
 
 @pytest.fixture()
@@ -115,9 +137,19 @@ def celery_exec_client(tmpdir, celery_session_registered_worker, ewoks_handlers)
 
 @pytest.fixture
 def celery_discover_timeout_client(
-    tmpdir, celery_session_registered_worker, ewoks_handlers
+    tmpdir, celery_session_registered_worker, ewoks_handlers, monkeypatch
 ):
     """Client to the REST server and Socket.IO (with a very small timeout for discovery)"""
+
+    timeout = 0.1
+
+    def slow_entry_points(group):
+        time.sleep(20 * timeout)
+        return []
+
+    monkeypatch.setattr(task_discovery, "entry_points", slow_entry_points)
+    monkeypatch.setattr(workflow_discovery, "entry_points", slow_entry_points)
+
     app = newserver.create_app()
 
     def get_settings_override():
@@ -129,7 +161,7 @@ def celery_discover_timeout_client(
             ),
             ewoks_execution=EwoksExecutionSettings(handlers=ewoks_handlers),
             # Disable discovery since this client is used to test manual discovery timeout
-            ewoks_discovery=EwoksDiscoverySettings(on_start_up=False, timeout=0.1),
+            ewoks_discovery=EwoksDiscoverySettings(on_start_up=False, timeout=timeout),
         )
 
     app.dependency_overrides[serverconfig.get_ewoks_settings] = get_settings_override
