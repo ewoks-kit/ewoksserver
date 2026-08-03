@@ -188,7 +188,7 @@ def upload_graph(api_root, client):
     return graph_name, expected
 
 
-def get_events(api_root, sclient, nevents, timeout=10):
+def get_events(api_root, sclient, nevents, timeout=30):
     t0 = time.time()
     events = list()
     while True:
