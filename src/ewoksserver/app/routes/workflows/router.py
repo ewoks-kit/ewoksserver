@@ -12,6 +12,7 @@ from ...config import EwoksSettingsType
 from .. import status
 from ..common import discovery
 from ..common import models as common_models
+from . import backend
 from . import descriptions
 from . import models
 
@@ -47,8 +48,8 @@ def get_workflow(
     settings: EwoksSettingsType,
 ) -> json_backend.ResourceContentType:
     try:
-        return json_backend.load_resource(
-            settings.resource_directory / "workflows", identifier
+        return backend.load_workflow(
+            settings, settings.resource_directory / "workflows", identifier
         )
     except PermissionError:
         return JSONResponse(
@@ -85,10 +86,12 @@ def get_workflow_identifiers(
     if keywords:
         identifiers = [
             desc["id"]
-            for desc in descriptions.workflow_descriptions(root, keywords=keywords)
+            for desc in descriptions.workflow_descriptions(
+                settings, root, keywords=keywords
+            )
         ]
     else:
-        identifiers = list(json_backend.resource_identifiers(root))
+        identifiers = backend.workflow_identifiers(settings, root)
     return {"identifiers": identifiers}
 
 
@@ -121,7 +124,7 @@ def get_workflows(
     return {
         "items": list(
             descriptions.workflow_descriptions(
-                settings.resource_directory / "workflows", keywords=keywords
+                settings, settings.resource_directory / "workflows", keywords=keywords
             )
         )
     }
@@ -174,8 +177,8 @@ def update_workflow(
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    exists = json_backend.resource_exists(
-        settings.resource_directory / "workflows", identifier
+    exists = backend.workflow_exists(
+        settings, settings.resource_directory / "workflows", identifier
     )
     if not exists:
         return JSONResponse(
@@ -188,7 +191,8 @@ def update_workflow(
         )
 
     try:
-        json_backend.save_resource(
+        backend.save_workflow(
+            settings,
             settings.resource_directory / "workflows",
             identifier,
             workflow.model_dump(exclude_none=True),
@@ -259,8 +263,8 @@ def create_workflow(
         )
 
     try:
-        exists = json_backend.resource_exists(
-            settings.resource_directory / "workflows", ridentifier
+        exists = backend.workflow_exists(
+            settings, settings.resource_directory / "workflows", ridentifier
         )
     except ValueError:
         return JSONResponse(
@@ -282,7 +286,8 @@ def create_workflow(
         )
 
     try:
-        json_backend.save_resource(
+        backend.save_workflow(
+            settings,
             settings.resource_directory / "workflows",
             ridentifier,
             workflow.model_dump(exclude_none=True),
@@ -308,7 +313,7 @@ def create_workflow(
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {
-            "description": "No permission to read workflow",
+            "description": "No permission to delete workflow, or workflow originates from a python project",
             "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
@@ -327,10 +332,18 @@ def delete_workflow(
     ],
     settings: EwoksSettingsType,
 ) -> dict[str, str]:
-    try:
-        json_backend.delete_resource(
-            settings.resource_directory / "workflows", identifier
+    if backend.is_remote_workflow(settings, identifier):
+        return JSONResponse(
+            {
+                "message": f"Workflow '{identifier}' originates from a python project and cannot be deleted.",
+                "type": "workflow",
+                "identifier": identifier,
+            },
+            status_code=status.HTTP_403_FORBIDDEN,
         )
+
+    try:
+        backend.delete_workflow(settings.resource_directory / "workflows", identifier)
     except PermissionError:
         return JSONResponse(
             {
@@ -380,7 +393,9 @@ def discover_workflows(
     else:
         discover_options = dict()
     try:
-        identifiers = discovery.discover_workflows(settings, **discover_options)
+        identifiers, identifier_to_queue = discovery.discover_workflows(
+            settings, **discover_options
+        )
     except ModuleNotFoundError as e:
         return JSONResponse(
             {
@@ -390,6 +405,11 @@ def discover_workflows(
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
-    print("Discovered workflows not used yet:", identifiers)
+    backend.register_remote_workflows(
+        settings,
+        settings.resource_directory / "workflows",
+        identifier_to_queue,
+        worker_options=discover_options.get("worker_options"),
+    )
 
     return {"identifiers": identifiers}

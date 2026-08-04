@@ -51,7 +51,7 @@ def discover_tasks(
     if task_type is not None:
         discover_kwargs["task_type"] = task_type
 
-    tasks = _discover(
+    tasks, _identifier_to_queue = _discover(
         discover,
         settings,
         modules=modules,
@@ -70,11 +70,14 @@ def discover_workflows(
     modules: list[str] | None = None,
     workflow_extension: str | None = None,
     worker_options: dict | None = None,
-) -> list[str]:
+) -> tuple[list[str], dict[str, str | None]]:
     """
     :raises ModuleNotFoundError: failed importing workflows.
     :raises TimeoutError: timeout when asking a remote worker for workflows.
     :raises Exception: any other import or remote error.
+    :returns: the discovered workflow identifiers, and a mapping of each
+        identifier to the celery queue it was discovered on (`None` for
+        local scheduling).
     """
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
         if modules:
@@ -108,11 +111,14 @@ def _discover(
     discover_kwargs: dict,
     worker_options: dict | None,
     id_extractor: Callable[[Any], str],
-) -> list:
+) -> tuple[list, dict[str, str | None]]:
     """
     :raises ModuleNotFoundError: failed importing tasks or workflows.
     :raises TimeoutError: timeout when asking a remote worker.
     :raises Exception: any other import or remote error.
+    :returns: the discovered items, and a mapping of each item's identifier
+        (see `id_extractor`) to the celery queue it was discovered on
+        (`None` for local scheduling).
     """
     if worker_options is None:
         kwargs = dict()
@@ -128,7 +134,8 @@ def _discover(
 
     timeout = settings.ewoks_discovery.timeout
     if settings.ewoks_scheduling.type == EwoksSchedulingType.Local:
-        return _discover_locally(discover, kwargs, timeout=timeout)
+        items = _discover_locally(discover, kwargs, timeout=timeout)
+        return items, {id_extractor(item): None for item in items}
     else:
         return _discover_in_all_queues(discover, kwargs, id_extractor, timeout=timeout)
 
@@ -142,12 +149,13 @@ def _discover_in_all_queues(
     kwargs: dict,
     id_extractor: Callable[[Any], str],
     timeout: float | None = None,
-) -> list:
-    futures = [discover(**kwargs, queue=queue) for queue in get_queues()]
+) -> tuple[list, dict[str, str | None]]:
+    futures = [(queue, discover(**kwargs, queue=queue)) for queue in get_queues()]
 
     # Store items in a dict to avoid duplicates
     item_dict = {}
-    for future in futures:
+    identifier_to_queue: dict[str, str | None] = {}
+    for queue, future in futures:
         # Ignore failures of a single queue to not prevent discovery on other queues
         new_items = future.result(timeout=timeout)
         exc = future.exception()
@@ -157,8 +165,10 @@ def _discover_in_all_queues(
         if new_items is None:
             continue
         for item in new_items:
-            item_dict[id_extractor(item)] = item
-    return list(item_dict.values())
+            identifier = id_extractor(item)
+            item_dict[identifier] = item
+            identifier_to_queue.setdefault(identifier, queue)
+    return list(item_dict.values()), identifier_to_queue
 
 
 def _set_default_task_properties(task: dict) -> None:

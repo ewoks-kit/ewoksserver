@@ -17,6 +17,7 @@ from . import config
 from .backends import json_backend
 from .routes.common import discovery
 from .routes.execution import socketio
+from .routes.workflows import backend as workflow_backend
 
 logger = logging.getLogger(__name__)
 
@@ -78,10 +79,14 @@ def _rediscover_resources(ewoks_settings: config.EwoksSettings) -> None:
         json_backend.save_resource(root_url, resource["task_identifier"], resource)
 
     try:
-        discovery.discover_workflows(ewoks_settings)
+        _, identifier_to_queue = discovery.discover_workflows(ewoks_settings)
     except Exception as ex:
+        identifier_to_queue = {}
         logger.exception("Workflow discovery failed: %s", ex)
-    logger.warning("Discovered workflows not used yet")
+    root_url = json_backend.root_url(ewoks_settings.resource_directory, "workflows")
+    workflow_backend.register_remote_workflows(
+        ewoks_settings, root_url, identifier_to_queue
+    )
 
 
 def _enable_execution_events(ewoks_settings: config.EwoksSettings) -> None:
