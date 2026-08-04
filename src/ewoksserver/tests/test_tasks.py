@@ -98,14 +98,14 @@ def test_task_creation_errors(rest_client, default_task_identifiers, api_root):
     assert data["message"] == f"Task '{existing_id}' already exists."
 
 
-def test_task_creation_path_traversal(rest_client, api_root, tmpdir):
+def test_task_creation_path_traversal(rest_client, api_root, tmp_path):
     task_with_traversal_id = {
         "task_identifier": "../../../../../../tmp/evil",
         "task_type": "class",
     }
     response = rest_client.post(f"{api_root}/tasks", json=task_with_traversal_id)
     assert response.status_code == 422
-    assert not (tmpdir / ".." / ".." / "evil.json").check()
+    assert not (tmp_path / ".." / ".." / "evil.json").exists()
 
 
 def test_multiple_tasks(rest_client, default_task_identifiers, api_root):
@@ -188,7 +188,7 @@ def test_task_descriptions(rest_client, default_task_identifiers, api_root):
     assert sorted(data1["identifiers"]) == sorted(data2)
 
 
-def test_malformed_task(rest_client, api_root, tmpdir):
+def test_malformed_task(rest_client, api_root, tmp_path):
     malformed_task_id = "myproject.tasks.Malformed"
     task_malformed = {"task_identifier": malformed_task_id}
     normal_task_id = "myproject.tasks.Normal"
@@ -203,7 +203,7 @@ def test_malformed_task(rest_client, api_root, tmpdir):
     data = response.json()
     existing_tasks = len(data["items"])
 
-    tasks_dir = tmpdir / "tasks"
+    tasks_dir = tmp_path / "tasks"
     malformed_task_file = tasks_dir / f"{malformed_task_id}.json"
     normal_task_file = tasks_dir / f"{normal_task_id}.json"
 
