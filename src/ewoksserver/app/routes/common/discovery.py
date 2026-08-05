@@ -117,7 +117,7 @@ def _discover(
     :raises TimeoutError: timeout when asking a remote worker.
     :raises Exception: any other import or remote error.
     :returns: the discovered items, and a mapping of each item's identifier
-        (see `id_extractor`) to the celery queue it was discovered on
+        (return value of `id_extractor`) to the celery queue it was discovered on
         (`None` for local scheduling).
     """
     if worker_options is None:
@@ -167,7 +167,7 @@ def _discover_in_all_queues(
         for item in new_items:
             identifier = id_extractor(item)
             item_dict[identifier] = item
-            identifier_to_queue.setdefault(identifier, queue)
+            identifier_to_queue[identifier] = queue
     return list(item_dict.values()), identifier_to_queue
 
 

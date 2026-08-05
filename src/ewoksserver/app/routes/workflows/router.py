@@ -335,7 +335,7 @@ def delete_workflow(
     if backend.is_remote_workflow(settings, identifier):
         return JSONResponse(
             {
-                "message": f"Workflow '{identifier}' originates from a python project and cannot be deleted.",
+                "message": f"Workflow '{identifier}' is not managed by ewoksserver and cannot be deleted.",
                 "type": "workflow",
                 "identifier": identifier,
             },

@@ -20,7 +20,7 @@ def load_workflow(
     identifier: str,
     worker_options: dict | None = None,
 ) -> json_backend.ResourceContentType:
-    """Load a local and remote workflow.
+    """Load a local or remote workflow.
 
     :raises FileNotFoundError: no local and remote workflow
         for this identifier.
