@@ -48,7 +48,8 @@ def save_workflow(
     content: json_backend.ResourceContentType,
 ) -> None:
     """Save a workflow, copying it locally when it is an
-    external workflow.
+    external workflow. In that case it shadows the external
+    workflow.
 
     :raises PermissionError: no permission to save the workflow.
     """
@@ -61,7 +62,8 @@ def save_workflow(
 
 
 def delete_workflow(root: json_backend.ResourceUrlType, identifier: str) -> None:
-    """Delete a local shadowing workflow.
+    """Delete a local workflow. When it shadows an external workflow
+    the external workflow needs to be re-discovered.
 
     :raises PermissionError: no permission to delete the workflow.
     :raises FileNotFoundError: no local workflow for this identifier.
