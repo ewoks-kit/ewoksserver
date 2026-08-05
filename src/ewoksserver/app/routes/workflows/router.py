@@ -313,7 +313,8 @@ def create_workflow(
     status_code=200,
     responses={
         status.HTTP_403_FORBIDDEN: {
-            "description": "No permission to delete workflow, or workflow originates from a python project",
+            "description": "No permission to delete workflow, or the workflow "
+            "is not managed by ewoksserver and cannot be deleted",
             "model": common_models.ResourceIdentifierError,
         },
         status.HTTP_404_NOT_FOUND: {
@@ -335,7 +336,8 @@ def delete_workflow(
     if backend.is_external_workflow(settings, identifier):
         return JSONResponse(
             {
-                "message": f"Workflow '{identifier}' is not managed by ewoksserver and cannot be deleted.",
+                "message": f"Workflow '{identifier}' is not managed by ewoksserver "
+                "and cannot be deleted.",
                 "type": "workflow",
                 "identifier": identifier,
             },
