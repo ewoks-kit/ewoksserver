@@ -84,7 +84,7 @@ def _rediscover_resources(ewoks_settings: config.EwoksSettings) -> None:
         identifier_to_queue = {}
         logger.exception("Workflow discovery failed: %s", ex)
     root_url = json_backend.root_url(ewoks_settings.resource_directory, "workflows")
-    workflow_backend.register_remote_workflows(
+    workflow_backend.register_external_workflows(
         ewoks_settings, root_url, identifier_to_queue
     )
 

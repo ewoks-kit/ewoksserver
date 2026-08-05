@@ -77,7 +77,7 @@ def test_cache_on_discovery(rest_client, api_root, tmp_path):
     assert _workflow_file(tmp_path, "ewoksserver.tests._loadtest.subgraph").exists()
     assert _workflow_file(tmp_path, "ewoksserver.tests._loadtest.graph").exists()
 
-    with open(tmp_path / "remote_workflow_index.json") as f:
+    with open(tmp_path / "external_workflow_index.json") as f:
         index = json.load(f)
     assert index == {
         "ewoksserver.tests._loadtest.graph": None,
@@ -118,7 +118,7 @@ def test_no_cache_on_discovery(rest_client_no_discover_cache, api_root, tmp_path
     assert not _workflow_file(tmp_path, "ewoksserver.tests._loadtest.subgraph").exists()
     assert not _workflow_file(tmp_path, "ewoksserver.tests._loadtest.graph").exists()
 
-    with open(tmp_path / "remote_workflow_index.json") as f:
+    with open(tmp_path / "external_workflow_index.json") as f:
         index = json.load(f)
     assert index == {
         "ewoksserver.tests._loadtest.graph": None,
@@ -172,15 +172,15 @@ def test_discover_does_not_override_local_copy(rest_client, api_root, tmp_path):
     assert response.status_code == 200, data
     assert data == custom_workflow
 
-    # The local identifier is not registered as a remote workflow,
+    # The local identifier is not registered as a external workflow,
     # so it stays a normal, deletable, locally owned workflow.
-    with open(tmp_path / "remote_workflow_index.json") as f:
+    with open(tmp_path / "external_workflow_index.json") as f:
         index = json.load(f)
     assert identifier not in index
 
 
 @api_version_bounds(min_version="2.1.0")
-def test_delete_remote_workflow_is_not_allowed(rest_client, api_root):
+def test_delete_external_workflow_is_not_allowed(rest_client, api_root):
     identifier = "ewoksserver.tests._loadtest.subgraph"
     response = rest_client.post(
         f"{api_root}/workflows/discover",
@@ -198,7 +198,7 @@ def test_delete_remote_workflow_is_not_allowed(rest_client, api_root):
 
 
 @api_version_bounds(min_version="2.1.0")
-def test_delete_remote_workflow_after_edit_is_allowed(
+def test_delete_external_workflow_after_edit_is_allowed(
     rest_client_no_discover_cache, api_root, tmp_path
 ):
     identifier = "ewoksserver.tests._loadtest.subgraph"
@@ -227,7 +227,7 @@ def test_delete_remote_workflow_after_edit_is_allowed(
 
 
 @api_version_bounds(min_version="2.1.0")
-def test_edit_remote_workflow_creates_shadow(
+def test_edit_external_workflow_creates_shadow(
     rest_client_no_discover_cache, api_root, tmp_path
 ):
     identifier = "ewoksserver.tests._loadtest.subgraph"
@@ -246,7 +246,7 @@ def test_edit_remote_workflow_creates_shadow(
     assert response.status_code == 200, response.json()
     assert _workflow_file(tmp_path, identifier).exists()
 
-    with open(tmp_path / "remote_workflow_index.json") as f:
+    with open(tmp_path / "external_workflow_index.json") as f:
         index = json.load(f)
     assert identifier not in index
 
@@ -256,7 +256,7 @@ def test_edit_remote_workflow_creates_shadow(
 
 
 @api_version_bounds(min_version="2.1.0")
-def test_create_workflow_conflicts_with_remote_workflow(rest_client, api_root):
+def test_create_workflow_conflicts_with_external_workflow(rest_client, api_root):
     identifier = "ewoksserver.tests._loadtest.subgraph"
     response = rest_client.post(
         f"{api_root}/workflows/discover",

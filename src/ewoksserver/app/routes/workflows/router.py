@@ -332,7 +332,7 @@ def delete_workflow(
     ],
     settings: EwoksSettingsType,
 ) -> dict[str, str]:
-    if backend.is_remote_workflow(settings, identifier):
+    if backend.is_external_workflow(settings, identifier):
         return JSONResponse(
             {
                 "message": f"Workflow '{identifier}' is not managed by ewoksserver and cannot be deleted.",
@@ -405,7 +405,7 @@ def discover_workflows(
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
-    backend.register_remote_workflows(
+    backend.register_external_workflows(
         settings,
         settings.resource_directory / "workflows",
         identifier_to_queue,
