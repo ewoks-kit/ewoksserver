@@ -52,7 +52,11 @@ def save_workflow(
 
     :raises PermissionError: no permission to save the workflow.
     """
-    _shadow_if_remote_workflow(settings, identifier)
+    index = _load_remote_workflow_index(settings)
+    if identifier in index:
+        del index[identifier]
+        _save_remote_workflow_index(settings, index)
+
     json_backend.save_resource(root, identifier, content)
 
 
@@ -171,15 +175,6 @@ def _save_remote_workflow_index(settings: EwoksSettings, index: dict[str, Any]) 
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
         json.dump(index, f, indent=2)
-
-
-def _shadow_if_remote_workflow(settings: EwoksSettings, identifier: str) -> None:
-    """Turn a remote workflow into a local shadowing workflow.
-    The local copy is expected to be created by the caller."""
-    index = _load_remote_workflow_index(settings)
-    if identifier in index:
-        del index[identifier]
-        _save_remote_workflow_index(settings, index)
 
 
 def _load_remote_workflow(
