@@ -15,9 +15,15 @@ class EwoksSchedulingType(str, Enum):
 
 
 class EwoksDiscoverySettings(BaseModel):
-    on_start_up: bool = Field(default=True, title="Discover ewoks tasks on startup")
+    on_start_up: bool = Field(
+        default=True, title="Discover ewoks tasks/workflows on startup"
+    )
     timeout: float | None = Field(
-        default=None, title="Timeout for task discovery (in seconds)"
+        default=None, title="Timeout for task/workflow discovery (in seconds)"
+    )
+    cache_workflows: bool = Field(
+        default=True,
+        title="Create a local copy of a workflow when it is discovered",
     )
 
 

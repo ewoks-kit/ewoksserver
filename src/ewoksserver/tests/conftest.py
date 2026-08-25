@@ -50,6 +50,31 @@ def rest_client(tmp_path):
 
 
 @pytest.fixture
+def rest_client_no_discover_cache(tmp_path):
+    """Client to the REST server (no execution) without workflow
+    caching on discovery."""
+    app = newserver.create_app()
+
+    @lru_cache()
+    def get_ewoks_settings_for_tests():
+        return serverconfig.EwoksSettings(
+            configured=True,
+            resource_directory=str(tmp_path),
+            # Disable discovery since this client is used to test manual discovery
+            ewoks_discovery=EwoksDiscoverySettings(
+                on_start_up=False, cache_workflows=False
+            ),
+        )
+
+    app.dependency_overrides[serverconfig.get_ewoks_settings] = (
+        get_ewoks_settings_for_tests
+    )
+
+    with TestClient(app) as client:
+        yield client
+
+
+@pytest.fixture
 def local_patched_ewoks_worker(monkeypatch):
     """Only works for local (in-process) ewoksjob worker."""
     monkeypatch.setattr(workflow_discovery, "entry_points", _mock_workflow_entry_points)

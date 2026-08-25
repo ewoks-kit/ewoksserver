@@ -20,7 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New API version `v2_1_0`:
-- New endpoint `POST /api/workflows/discover` to discover ewoks workflows from python packages.
+- New endpoint `POST /api/workflows/discover` to discover external workflows
+  with a local copy that shadows the external content.
+  - Local shadowing on discovery can be disabled.
+  - Editing an external workflow creates a local copy to shadow it.
+  - Deleting an external workflow without a local shadow fails.
+  - Re-discovering does not override shadows.
 
 ## [2.1.2] - 2026-03-06
 

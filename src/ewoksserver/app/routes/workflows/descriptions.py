@@ -1,6 +1,8 @@
 from typing import Iterator
 
 from ...backends import json_backend
+from ...config import EwoksSettings
+from . import backend
 
 _WORKFLOW_KEYWORDS = (
     "id",
@@ -13,10 +15,11 @@ _WORKFLOW_KEYWORDS = (
 
 
 def workflow_descriptions(
-    root: json_backend.ResourceUrlType, keywords: dict | None = None
+    settings: EwoksSettings,
+    root: json_backend.ResourceUrlType,
+    keywords: dict | None = None,
 ) -> Iterator[dict]:
-    for res in json_backend.resources(root):
-        description = res["graph"]
+    for description in backend.iter_workflow_graphs(settings, root):
         if not _include_resource(description.get("keywords", dict()), keywords):
             continue
         yield {
