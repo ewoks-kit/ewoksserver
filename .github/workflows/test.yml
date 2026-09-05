@@ -24,6 +24,7 @@ jobs:
       python-version: ${{ matrix.python-version }}
       pytest-args: >-
         -v -ra -W error
+        -W "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning:starlette.testclient"
         ${{ matrix.extra-pytest-warnings }}
       enable-coverage: ${{ matrix.enable-coverage }}
       jupyter-platform-dirs: "1"
