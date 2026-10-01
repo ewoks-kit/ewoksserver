@@ -25,6 +25,10 @@ class EwoksDiscoverySettings(BaseModel):
         default=True,
         title="Create a local copy of a workflow when it is discovered",
     )
+    save_requirements: bool = Field(
+        default=False,
+        title="Save the python environment requirements in external workflows",
+    )
 
 
 class EwoksExecutionSettings(BaseModel):

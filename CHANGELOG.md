@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Editing an external workflow creates a local copy to shadow it.
   - Deleting an external workflow without a local shadow fails.
   - Re-discovering does not override shadows.
+  - Saving python environment requirements in discovered workflows is opt-in.
 
 ## [2.1.2] - 2026-03-06
 
