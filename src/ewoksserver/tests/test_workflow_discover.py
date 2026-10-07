@@ -152,6 +152,36 @@ def test_no_cache_on_discovery(rest_client_no_discover_cache, api_root, tmp_path
 
 
 @api_version_bounds(min_version="2.1.0")
+def test_no_requirements_on_discovery(rest_client, api_root):
+    response = rest_client.post(
+        f"{api_root}/workflows/discover",
+        json={"modules": ["ewoksserver.tests._loadtest.*"]},
+    )
+    assert response.status_code == 200, response.json()
+
+    identifier = "ewoksserver.tests._loadtest.subgraph"
+    response = rest_client.get(f"{api_root}/workflow/{identifier}")
+    data = response.json()
+    assert response.status_code == 200, data
+    assert not data["graph"].get("requirements")
+
+
+@api_version_bounds(min_version="2.1.0")
+def test_requirements_on_discovery(rest_client_save_requirements, api_root):
+    response = rest_client_save_requirements.post(
+        f"{api_root}/workflows/discover",
+        json={"modules": ["ewoksserver.tests._loadtest.*"]},
+    )
+    assert response.status_code == 200, response.json()
+
+    identifier = "ewoksserver.tests._loadtest.subgraph"
+    response = rest_client_save_requirements.get(f"{api_root}/workflow/{identifier}")
+    data = response.json()
+    assert response.status_code == 200, data
+    assert data["graph"]["requirements"]
+
+
+@api_version_bounds(min_version="2.1.0")
 def test_discover_does_not_override_local_copy(rest_client, api_root, tmp_path):
     identifier = "ewoksserver.tests._loadtest.subgraph"
     custom_workflow = {

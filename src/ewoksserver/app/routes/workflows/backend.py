@@ -202,7 +202,8 @@ def _load_external_workflow(
         kwargs = dict(worker_options)
     kwargs["args"] = (identifier, None)
     kwargs["kwargs"] = {
-        "load_options": {"representation": "json_module", "root_module": package}
+        "load_options": {"representation": "json_module", "root_module": package},
+        "save_requirements": settings.ewoks_discovery.save_requirements,
     }
 
     timeout = settings.ewoks_discovery.timeout
