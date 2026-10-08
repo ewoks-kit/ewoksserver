@@ -1,11 +1,15 @@
 import logging
 from pprint import pformat
 
+from fastapi import Depends
 from fastapi import FastAPI
 
+from .auth import auth_router
+from .auth import get_current_user
 from .config import get_app_settings
 from .cors import enable_cors
 from .lifespan import fastapi_lifespan
+from .routes import BACKEND_PREFIX
 from .routes import backend
 from .routes import execution
 from .routes import frontend
@@ -42,6 +46,7 @@ def create_app() -> FastAPI:
         {"name": "workflows", "description": "Ewoks workflows"},
         {"name": "icons", "description": "Ewoks workflow icons"},
         {"name": "execution", "description": "Ewoks workflow execution"},
+        {"name": "authentication", "description": "Authentication"},
         *(
             {"name": tag, "description": f"Ewoks workflows API {tag}"}
             for tag in version_tags
@@ -74,7 +79,9 @@ def create_app() -> FastAPI:
         app,
         all_routes,
         no_older_versions=settings.no_older_versions,
+        dependencies=[Depends(get_current_user)],
     )
+    app.include_router(auth_router, prefix=BACKEND_PREFIX)
 
     frontend.add_frontend(app)  # Needs to come last for some reason
 

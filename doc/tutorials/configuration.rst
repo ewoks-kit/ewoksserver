@@ -7,6 +7,7 @@ Server configuration
   tasks, icons are stored. Equivalent to the ``--dir/-d`` command line argument.
 - ``EWOKS_EXECUTION`` (dict): Configuration of ewoks handlers. See the `Ewoks events`_ section below.
 - ``CELERY`` (dict): Configuration of Celery to allow launching workflows in ewoks workers.
+- ``AUTH`` (dict): Authentication of REST requests. See the `Authentication`_ section below.
 
 *Example*:
 
@@ -34,6 +35,30 @@ The environment variable ``EWOKSSERVER_SETTINGS`` can be used instead:
     export EWOKSSERVER_SETTINGS=/tmp/config.py
     ewoks-server
 
+
+
+Authentication
+--------------
+
+Authentication is disabled by default. To enable it, define the ``AUTH`` variable in the configuration file:
+
+.. code-block:: python
+
+    AUTH = {
+        "enabled": True,
+        "secret_key": "<long random string>",
+        "token_expire_minutes": 30,
+        "users": {"alice": "<password hash>"},
+    }
+
+A password hash can be created with:
+
+.. code-block:: bash
+
+    python -c "from pwdlib import PasswordHash; print(PasswordHash.recommended().hash('<password>'))"
+
+Clients get a token with ``POST /api/token`` (form fields ``username`` and ``password``)
+and send it in the ``Authorization: Bearer <token>`` header.
 
 
 Ewoks events
