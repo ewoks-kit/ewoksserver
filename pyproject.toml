@@ -23,6 +23,9 @@ dependencies = [
     "ewokscore >=1.0.0",
     "pydantic-settings",
     "packaging",
+    "pyjwt",
+    "pwdlib[argon2]",
+    "python-multipart",
 ]
 
 [project.urls]
@@ -87,7 +90,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/ewoksserver/tests/*.py" = [
-    "S101"  # allow asserts
+    "S101", # allow asserts
 ]
 
 [tool.ruff.lint.isort]
