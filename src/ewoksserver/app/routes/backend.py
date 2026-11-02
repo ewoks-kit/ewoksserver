@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import Callable
 from typing import Mapping
+from typing import Sequence
 
 from fastapi import APIRouter
+from fastapi import Depends
 from fastapi import FastAPI
 from starlette.types import ASGIApp
 
@@ -98,6 +100,7 @@ def add_routes(
     app: FastAPI,
     all_routes: list[dict[VersionTuple, Route]],
     no_older_versions: bool = False,
+    dependencies: Sequence[Depends] | None = None,
 ) -> None:
     """Add routes to a fastapi app"""
     route_keys = set()
@@ -116,6 +119,7 @@ def add_routes(
                     route.router,
                     prefix=route.prefix,
                     tags=[route.tag],
+                    dependencies=dependencies,
                 )
             elif isinstance(route.router, Callable):
                 subapp = route.router()

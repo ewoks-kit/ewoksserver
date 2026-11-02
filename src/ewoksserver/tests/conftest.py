@@ -14,7 +14,9 @@ from fastapi.testclient import TestClient
 
 from .. import app as newserver
 from ..app import config as serverconfig
+from ..app.auth import _password_hash
 from ..app.backends.binary_backend import _load_url
+from ..app.models import EwoksAuthSettings
 from ..app.models import EwoksDiscoverySettings
 from ..app.models import EwoksExecutionSettings
 from ..app.models import EwoksJobSettings
@@ -278,3 +280,35 @@ def mocked_local_submit(mocker) -> dict:
 
     submit_local_mock.side_effect = mocked_submit
     return arguments
+
+
+AUTH_SECRET = "test-secret-with-at-least-32-bytes-x"  # noqa: S105 - Password can be hardcoded for tests
+AUTH_USER = "alice"
+AUTH_PASSWORD = "wonderland"  # noqa: S105 - Password can be hardcoded for tests
+
+
+@pytest.fixture
+def auth_rest_client(tmp_path):
+    """Client to the REST server with authentication enabled."""
+
+    app = newserver.create_app()
+
+    @lru_cache()
+    def get_ewoks_settings_for_tests():
+        return serverconfig.EwoksSettings(
+            configured=True,
+            resource_directory=str(tmp_path),
+            ewoks_discovery=EwoksDiscoverySettings(on_start_up=False),
+            ewoks_auth=EwoksAuthSettings(
+                enabled=True,
+                secret_key=AUTH_SECRET,
+                users={AUTH_USER: _password_hash.hash(AUTH_PASSWORD)},
+            ),
+        )
+
+    app.dependency_overrides[serverconfig.get_ewoks_settings] = (
+        get_ewoks_settings_for_tests
+    )
+
+    with TestClient(app) as client:
+        yield client

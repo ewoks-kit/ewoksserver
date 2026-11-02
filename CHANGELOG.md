@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Minimal Python version is now 3.10
-
 - In test, use httpx2 instead of httpx (Deprecation Warning from starlette dependency)
 
 ### Added
 
+- Added authentication with OAuth2 (disabled by default). To enable it, configure the `AUTH` field of the configuration file.
 - New API version `v2_1_0`:
 - New endpoint `POST /api/workflows/discover` to discover external workflows
   with a local copy that shadows the external content.

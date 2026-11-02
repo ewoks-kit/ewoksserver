@@ -5,6 +5,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
+from pydantic import model_validator
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,22 @@ class EwoksJobSettings(BaseModel):
     configuration: dict = dict()
 
 
+class EwoksAuthSettings(BaseModel):
+    enabled: bool = Field(default=False, title="Require authentication")
+    secret_key: str | None = Field(default=None, title="Secret used to sign tokens")
+    algorithm: str = Field(default="HS256", title="Token signing algorithm")
+    token_expire_minutes: int = Field(default=30, title="Token lifetime (in minutes)")
+    users: dict[str, str] = Field(
+        default=dict(), title="Mapping of user names to password hashes"
+    )
+
+    @model_validator(mode="after")
+    def check_secret_key(self):
+        if self.enabled and not self.secret_key:
+            raise ValueError("`secret_key` is required when authentication is enabled")
+        return self
+
+
 class EwoksSettings(BaseModel):
     configured: bool = Field(
         default=False, title="Config or resource directory have been defined"
@@ -57,9 +74,16 @@ class EwoksSettings(BaseModel):
     ewoks_scheduling: EwoksJobSettings = Field(
         default=None, title="Ewoks job scheduling settings", validate_default=True
     )
+    ewoks_auth: EwoksAuthSettings = Field(
+        default=None, title="Ewoks authentication settings", validate_default=True
+    )
 
     @field_validator(
-        "ewoks_discovery", "ewoks_execution", "ewoks_scheduling", mode="before"
+        "ewoks_discovery",
+        "ewoks_execution",
+        "ewoks_scheduling",
+        "ewoks_auth",
+        mode="before",
     )
     @classmethod
     def set_default_value(cls, input_value):

@@ -94,6 +94,7 @@ def create_ewoks_settings(
     ewoks_execution = None
     ewoks_discovery = None
     celery = None
+    auth = None
     discover_timeout = None
     if filename:
         spec = importlib.util.spec_from_file_location("ewoksserverconfig", filename)
@@ -102,6 +103,7 @@ def create_ewoks_settings(
         spec.loader.exec_module(mod)
         resource_directory = getattr(mod, "RESOURCE_DIRECTORY", resource_directory)
         celery = getattr(mod, "CELERY", celery)
+        auth = getattr(mod, "AUTH", auth)
         ewoks_execution = getattr(mod, "EWOKS_EXECUTION", None)
         ewoks_discovery = getattr(mod, "EWOKS_DISCOVERY", None)
         # DEPRECATED
@@ -133,6 +135,7 @@ def create_ewoks_settings(
         ewoks_execution=ewoks_execution,
         ewoks_discovery=ewoks_discovery,
         ewoks_scheduling=ewoks_scheduling,
+        ewoks_auth=auth,
     )
     return _EWOKS_SETTINGS
 
